@@ -3,9 +3,13 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 module.exports = function mount(html, reply) {
   const elements = {};
-  for (const id of ['up','down','select','back','tap-up','tap-down','combo-back-up','combo-up-down','role','settings','save','discard','retry','status','up-help','down-help','select-help','back-help','tap-up-help','tap-down-help','combo-back-up-help','combo-up-down-help','default-help'])
-    elements[id] = {id, value: id === 'role' ? 'primary' : 'default', disabled: true, hidden: false,
-      textContent: '', options: [{value: '', textContent: ''}, {value: 'default', textContent: ''}], className: ''};
+  for (const id of ['primary', 'secondary', 'settings', 'save', 'discard', 'retry', 'status', 'primary-help', 'secondary-help']) {
+    const select = html.match(new RegExp('<select[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)<\\/select>'));
+    const options = select ? [...select[1].matchAll(/<option[^>]*value="([^"]*)"[^>]*>([^<]*)<\/option>/g)].map(match => ({value: match[1], textContent: match[2]})) : [];
+    elements[id] = {id, value: '', disabled: true, hidden: false, textContent: '', options, className: '',
+      attributes: {}, setAttribute(name, value) {this.attributes[name] = value;}, removeAttribute(name) {delete this.attributes[name];},
+      setCustomValidity(value) {this.validationMessage = value;}};
+  }
   const requests = [], timers = new Map(), location = {href: ''};
   let ready, next = 1;
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];

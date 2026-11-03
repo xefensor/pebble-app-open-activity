@@ -1,0 +1,64 @@
+
+> pebble-app-open-activity@0.1.3 test
+> node --test tests/*.test.js && python3 scripts/test-native.py
+
+✔ one startup request, exact source, no dispatch before native confirmation (3.581172ms)
+✔ Up chooses Secondary; an absent Secondary closes without Primary fallback (0.583284ms)
+✔ saved independent mappings select a different role (0.297094ms)
+✔ all Quick Launch slots can independently open either role, including tap versus hold (1.386836ms)
+✔ each role can choose any one shortcut while other shortcuts close without a launch (3.648942ms)
+✔ unsupported or missing gesture never resolves a destination (0.320441ms)
+✔ wrong confirmation session, ticket, destination and role are ignored (0.208914ms)
+✔ Back before source reply prevents any later preparation or invocation (0.148773ms)
+✔ Back during prepare ignores a late matching confirmation (0.196501ms)
+✔ native elapsed time reduces phone budget; timeout never replays (0.27526ms)
+✔ candidate can expire between source result and final confirmation (0.158735ms)
+✔ a late/invalid native elapsed confirmation never dispatches (0.230606ms)
+✔ wrong provider, invalid source or SDK failure closes (0.281074ms)
+✔ synchronous source callback releases subscription and unsubscribes only once (0.142242ms)
+✔ duplicates and late provider updates cannot retarget a resolved attempt (0.135801ms)
+✔ invocation failure closes, success never issues return navigation (0.305897ms)
+✔ post-dispatch timeout/Back closes locally without pretending to recall operation (0.114431ms)
+✔ bad settings and malformed native hello never subscribe or launch (0.153281ms)
+✔ closing discards queued preparation before old transport callback fires (0.115108ms)
+✔ symbolic protocol keys are accepted alongside numeric SDK keys (0.120739ms)
+✔ exact Dynamic source selects either role without content or provider inference (0.162855ms)
+✔ source availability and original routing expiry are both enforced (0.111142ms)
+✔ wrong provider, missing/duplicate instances and malformed transport close (0.116941ms)
+✔ hint validator rejects unsupported schema, unknown fields and invalid clocks/counters (0.431819ms)
+✔ destination objects reject recursion, zero UUID, uppercase, extra args and wrong shapes (0.152664ms)
+✔ byte accounting handles UTF-8 and malformed surrogate text (0.097328ms)
+✔ factory choices bind exactly one shortcut per role and leave other buttons unassigned (0.622044ms)
+✔ legacy eight-slot settings retain their exact routing across a cold save/load (0.295021ms)
+✔ new slots inherit Default without changing old hold mappings or adding empty tap state (0.18224ms)
+✔ each of the eight shortcuts can be chosen for either role without assigning the other seven (0.397268ms)
+✔ two role choices reject collisions and malformed shortcuts while allowing either role to be disabled (0.209356ms)
+✔ legacy projection prefers existing explicit role shortcuts and never writes until an explicit Save (0.320571ms)
+✔ corrupt, inherited-name and unsupported settings never silently become defaults (0.154222ms)
+✔ settings storage is read-back checked and contains only configuration (0.112588ms)
+✔ offline settings explain separate assignment and preserve selected roles (0.322301ms)
+✔ packaged config stores only the two role choices across fresh plugin contexts (2.657927ms)
+✔ packaged old settings are projected without a write and convert only on an explicit Save (1.70328ms)
+✔ actual packaged HTML has two role selectors and saves without a native session (3.540313ms)
+✔ packaged legacy configuration shares two fields and retains Cancel and Save return URLs (3.684447ms)
+✔ packaged PKJS opens either role from any chosen shortcut once and closes unassigned shortcuts (15.868389ms)
+✔ packaged PKJS keeps every old mapping active until a new two-choice configuration is saved (10.053195ms)
+✔ page has only Primary and Secondary choices, each offering all eight shortcuts and None (1.2441ms)
+✔ each shortcut can be chosen for either activity and survives Save and a cold reopen (20.542042ms)
+✔ a duplicate shortcut blocks Save without clearing either choice; None can disable both (0.750803ms)
+✔ old mappings are projected without writes and converted only by explicit Save (0.731428ms)
+✔ malformed and timed-out loading keeps choices disabled and ignores replies after Retry (1.218693ms)
+✔ failed Save retains choices, retry confirms, and ordinary Discard never writes or reads storage (0.811924ms)
+✔ an unconfirmed write is explicitly read back and late replies cannot overwrite a later draft (0.734608ms)
+✔ repair and legacy migration need explicit Save; Cancel writes nothing (2.38597ms)
+ℹ tests 49
+ℹ suites 0
+ℹ pass 49
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.940183
+native attempt: liveness, roles, duplicate prepare, closure, wrap and destinations passed
+native SDK adapter: eight slots and gesture wire, unsupported gestures, handshake, malformed wire, timeout, Back and disconnected closure passed
+Native/phone/package message keys and timeout agree

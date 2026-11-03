@@ -1,5 +1,54 @@
 # Open Activity validation
 
+## 0.1.3 two activity shortcut choices — 3 November 2026
+
+The settings page now has exactly two dropdowns: **Primary activity** chooses
+its shortcut and **Secondary activity** chooses its shortcut. Each offers all
+eight stock shortcut identities or Not assigned. A duplicate nonempty choice
+blocks Save and explains the conflict without changing the other field.
+
+New saves use `{version:2,primaryShortcut,secondaryShortcut}` in the original
+storage key. Unselected shortcuts close without subscribing to Dynamic or
+invoking an app. Version1 records load without writes and retain their actual
+routing until explicit Save. The page projects an existing matching shortcut
+for each role, preferring explicit Down/Up choices, and explains the pending
+conversion. No per-button controls or default-role selector remain.
+
+- **49 JavaScript checks and both native harnesses pass.** Source and actual
+  packaged tests cover each of eight choices for both roles, unselected closure,
+  None, duplicates, swaps, cold reopen, version1 preservation/conversion and
+  existing load/retry/Discard/uncertain-save recovery. The legacy return-URL page
+  uses the same two fields and saves version2 only on explicit confirmation.
+- **Actual packaged browser checks pass at 320/360px in light/dark mode.** Nine
+  unaltered captures were reviewed. The two choices fit above the fixed actions;
+  controls have labels, descriptions, visible focus, 44px targets and no
+  horizontal overflow. Save/reopen covers 16 role/shortcut combinations. Loading
+  old records leaves storage byte-identical until Save. Collision, migration,
+  failed load/save, readback and setup help states are recorded separately.
+- **Six cross-app privacy/role cases pass** with final Dynamic 0.14.0, Timer
+  0.8.0 and Open Activity 0.1.3 scripts. These include 48 saved-role launches,
+  48 expired closures and 336 unselected-slot attempts with no source subscription
+  or invocation. Privacy, notification baseline/expiry, one launch per native
+  confirmation and underlying Timer/Music restoration remain covered.
+- **SDK 4.33.1 Emery build and artifact checks pass.** Loaded native bytes are
+  2,476, virtual bytes 2,548 and PKJS is 34,344 bytes. Native C/protocol and native
+  resources are unchanged from 0.1.2; binary differences occur only at SDK
+  resource timestamp bytes 124–125. Its ordinary-launch QEMU evidence retains
+  the original 0.1.2 scope; it is not relabelled as a new emulator run.
+
+Evidence: [checks](qa/0.1.3/checks.json), [tests](qa/0.1.3/tests.log),
+[build](qa/0.1.3/build.log), [artifact check](qa/0.1.3/artifact-check.log),
+[browser report](qa/0.1.3/settings/report.json),
+[native identity](qa/0.1.3/native-identity.json) and
+[packaged cross-app handoff](qa/0.1.3/packaged-handoff.json).
+
+Final PBW SHA-256:
+`a5cad61d26b06f9d15464785c9978882d3c6aa3e15e2b8a0d61503cc07911191`.
+
+SDK/storage/native transport in browser and cross-app fixtures are simulated.
+No new physical gesture, real-phone timing or battery result is claimed.
+Earlier source snapshots, release tags and published artifacts are preserved.
+
 ## 0.1.2 all Quick Launch shortcuts — 3 November 2026
 
 All eight shortcuts exposed by the current official phone app now have

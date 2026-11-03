@@ -127,6 +127,37 @@ test('all Quick Launch slots can independently open either role, including tap v
   assert.equal(protocol.get(tap.prepare(), 'OA_DESTINATION'), TIMER);
   assert.equal(protocol.get(hold.prepare(), 'OA_DESTINATION'), MUSIC);
 });
+test('each role can choose any one shortcut while other shortcuts close without a launch', () => {
+  const slots = [[0,1,'hold-back'],[1,1,'hold-up'],[2,1,'hold-select'],[3,1,'hold-down'],
+    [1,2,'tap-up'],[3,2,'tap-down'],[0,3,'combo-back-up'],[1,3,'combo-up-down']];
+  for (const [button, gesture, shortcut] of slots) for (const role of ['primary', 'secondary']) {
+    const chosen = {version: 2, primaryShortcut: 'none', secondaryShortcut: 'none'};
+    chosen[role + 'Shortcut'] = shortcut;
+    const app = rig({encodedSettings: JSON.stringify(chosen)});
+    app.hello(button, 10, gesture); app.data();
+    assert.equal(protocol.get(app.prepare(), 'OA_DESTINATION'), role === 'primary' ? TIMER : MUSIC);
+    assert.equal(app.invocations.length, 0);
+    app.confirm(); app.confirm();
+    assert.equal(app.invocations.length, 1);
+    assert.equal(app.invocations[0].args.uuid, role === 'primary' ? TIMER : MUSIC);
+    for (const [otherButton, otherGesture, otherShortcut] of slots) {
+      if (otherShortcut === shortcut) continue;
+      const unassigned = rig({encodedSettings: JSON.stringify(chosen)});
+      unassigned.hello(otherButton, 10, otherGesture);
+      assert.equal(unassigned.subscription, undefined);
+      assert.equal(unassigned.launcher.state(), 'closed');
+      assert.equal(unassigned.invocations.length, 0);
+    }
+  }
+  const disabled = rig({encodedSettings: JSON.stringify({version: 2, primaryShortcut: 'none', secondaryShortcut: 'none'})});
+  disabled.hello(3);
+  assert.equal(disabled.subscription, undefined);
+  assert.equal(disabled.launcher.state(), 'closed');
+  const collision = rig({encodedSettings: JSON.stringify({version: 2, primaryShortcut: 'tap-up', secondaryShortcut: 'tap-up'})});
+  collision.hello(1, 10, 2);
+  assert.equal(collision.subscription, undefined);
+  assert.equal(collision.launcher.state(), 'closed');
+});
 test('unsupported or missing gesture never resolves a destination', () => {
   for (const [button, gesture] of [[1, 0], [1, 4], [1, -1], [1, '1'], [1, null], [0, 2], [2, 2], [2, 3], [3, 3]]) {
     const app = rig(); app.hello(button, 10, gesture);

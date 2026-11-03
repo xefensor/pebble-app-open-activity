@@ -1,0 +1,28 @@
+{
+  "result": "PASS",
+  "nativeSourceUnchanged": true,
+  "nativeResourcesIdentical": true,
+  "nativeBinaryIdenticalExceptSdkMetadata": true,
+  "changedOffsets": [
+    124,
+    125
+  ],
+  "permittedMetadata": {
+    "version": [
+      12,
+      14
+    ],
+    "crc": [
+      20,
+      24
+    ],
+    "resourceTimestamp": [
+      124,
+      128
+    ]
+  },
+  "nativeSha256": "7a1b77e0b1fb9e7f1ade2356b89686ba5a9fe62e33048652033e0762e9d7249c",
+  "pbwSha256": "a5cad61d26b06f9d15464785c9978882d3c6aa3e15e2b8a0d61503cc07911191",
+  "reusedEmulatorEvidence": "../0.1.2/emulator/report.json",
+  "scope": "Unchanged native implementation; original ordinary-launch emulator evidence retains its 0.1.2 scope. Version0.1.3 phone/config behavior has separate tests."
+}

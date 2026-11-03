@@ -9,10 +9,14 @@ later documentation commits on `main` do not rewrite a tested release snapshot.
 - Use the existing SDK and official phone app. No firmware/mobile-app forks.
 - Never change global Quick Launch assignments. Users assign this same app to
   their desired buttons; the phone settings choose Primary or Secondary.
-- Independently configure all eight stock shortcuts: Hold Back/Up/Center/Down,
+- Settings has exactly two shortcut pickers: Primary activity and Secondary
+  activity. Each chooses any stock hold/tap/combination or Not assigned. Reject
+  a duplicate nonempty choice visibly; never clear or change the other picker
+  silently. Unselected shortcuts close once version2 choices are saved.
+- Support all eight stock shortcut identities: Hold Back/Up/Center/Down,
   Tap Up/Down, Hold Back+Up and Hold Up+Down. Preserve gesture as well as button
-  identity with appended OA_GESTURE (2007). Accept only their exact action/button
-  pairs; a combination must never use the representative button's hold mapping.
+  identity with OA_GESTURE (2007). Accept only their exact action/button pairs;
+  a combination must never use the representative button's hold mapping.
 - Native validates launch reason, gesture and button. Ordinary menu launches and
   unsupported gestures close. Native owns the four-second UI deadline and Back.
 - Dynamic's exact navigation source returns recent displayed destinations.
@@ -39,12 +43,12 @@ PBW, exposes no sources/actions and uses the same UUID-scoped settings store.
 
 `src/pkjs/settings-page.js` owns the shared bundled/legacy settings template.
 The build generates `config.html` with `scripts/generate-config.cjs`; do not
-maintain a separate layout or controller in generated HTML. Both paths retain
-the version1 preference schema and the legacy Cancel/Save return URL. Preserve
-existing Up/Down overrides and defaultRole. New hold/tap/combo overrides inherit
-that default when omitted; normalize optional empty groups away and never save
-on load. The canonical order is holds up/down/select/back, taps up/down, then
-combinations backUp/upDown.
+maintain a separate layout or controller in generated HTML. Both paths use
+version2 primaryShortcut/secondaryShortcut preferences and retain the legacy
+Cancel/Save return URL and existing storage key. Load version1 records without
+writing or changing their actual routing; project existing matching shortcuts
+for the two pickers. Explicit Save converts the older record to version2.
+Show the conversion state and preserve the prior record until that Save.
 
 Phone settings use the phone's light/dark appearance, clear cards, 44px targets,
 an always reachable Save/status area and disclosed setup/default help. Keep

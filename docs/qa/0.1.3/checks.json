@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "version": "0.1.3",
+  "pbwSha256": "a5cad61d26b06f9d15464785c9978882d3c6aa3e15e2b8a0d61503cc07911191",
+  "jsTests": 49,
+  "nativeHarnesses": 2,
+  "browserCaptures": 9,
+  "visualReview": "PASS",
+  "sdkBuild": "PASS",
+  "artifactCheck": "PASS",
+  "settingsSelectors": 2,
+  "anyShortcutForEitherRole": true,
+  "duplicateAssignmentBlocked": true,
+  "unassignedCloses": true,
+  "legacyStoragePreservedUntilExplicitSave": true,
+  "crossAppPrivacyRoleCases": 6,
+  "crossAppSavedRoleLaunches": 48,
+  "crossAppExpiredAttempts": 48,
+  "crossAppUnselectedAttemptsWithoutSubscription": 336,
+  "nativeCodeUnchangedFrom0.1.2": true,
+  "oldArtifactsUnchanged": true,
+  "scope": "Actual packaged scripts/browser with simulated SDK/native. Original0.1.2ordinary-launch emulator evidence reused after native identity check. Physical phone/watch testing remains separate."
+}

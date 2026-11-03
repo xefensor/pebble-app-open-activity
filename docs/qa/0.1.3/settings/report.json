@@ -1,0 +1,190 @@
+{
+  "version": "0.1.3",
+  "result": "PASS",
+  "pbw": {
+    "file": "Open-Activity-0.1.3.pbw",
+    "sha256": "a5cad61d26b06f9d15464785c9978882d3c6aa3e15e2b8a0d61503cc07911191"
+  },
+  "executedPackagedFiles": {
+    "config.html": "01050bc6b79aaeaa5f308e91de4145e593b4923de546594c4e184de9857761d9",
+    "plugin.js": "84c61e23fdda8888e02b0ca831ab7390f041a07ba5bd549646805aea4b8823ec"
+  },
+  "captures": [
+    {
+      "file": "settings-320-light.png",
+      "sha256": "d579f18f16ba55bb24d60802a467bfebb890ac526357fa573510b1fe61b123f4"
+    },
+    {
+      "file": "settings-320-dark.png",
+      "sha256": "62568b806da73b37f1257659db2f7891d48b7b1be3d1d4edf709b0623763d0bf"
+    },
+    {
+      "file": "settings-360-light.png",
+      "sha256": "ba6df0225ca7e14fd99d6687fc418ef2fe16a1461c3f7028ef949d76c3c9d069"
+    },
+    {
+      "file": "settings-360-dark.png",
+      "sha256": "b5963fcb86d0e7a0c356cf15b79de3aab007b41f4bac52f56d005550f83fed59"
+    },
+    {
+      "file": "collision-320.png",
+      "sha256": "ef6cddeef4fb4569472ffa721ebe7bfbb2622632307ca506b1c30703ec1ba6c1"
+    },
+    {
+      "file": "migration-320.png",
+      "sha256": "21903942723b968eb3b5de5f62b2547662f7f63cf902da334a6c8d1d742a63b6"
+    },
+    {
+      "file": "load-error-320.png",
+      "sha256": "04dd4cb093841691b06bec20843306d1df6bcb80328f2928e1d47bd63adbf7db"
+    },
+    {
+      "file": "save-error-320.png",
+      "sha256": "df7bf082cbda901f6223c257f0572f104e45bd985ee98cfa5b963b1ed12901a2"
+    },
+    {
+      "file": "setup-help-320.png",
+      "sha256": "a53924ac65b73db66b1cabe606f1c55b90a571e944fbf2e8df0a4ff0a676e9c0"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "selects": 2,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "selects": 2,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "scrollWidth": 360,
+      "selects": 2,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "scrollWidth": 360,
+      "selects": 2,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    }
+  ],
+  "checks": [
+    "exactly two role selectors, all eight choices and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load",
+    "same-shortcut collision blocks Save without clearing either role; swaps save; one pending save; cold reopen and local Discard retain confirmed choices",
+    "all eight shortcut choices save and cold-reopen independently for both roles; None disables the other role without a fallback",
+    "old mappings remain byte-identical on load; schema2 conversion uses explicit Save and keeps projected Primary/Secondary choices",
+    "failed loading shows unknown choices and Retry; failed Save keeps both role choices and retries explicitly",
+    "a write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; two selectors remain the entire configuration with setup disclosed separately"
+  ],
+  "errors": [],
+  "scope": "Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.",
+  "visualReview": {
+    "reviewed": true,
+    "reviewer": "root",
+    "result": "PASS",
+    "captures": 9,
+    "scope": "All actual320/360light/dark captures, two-choice page, conflict, conversion, errors and help."
+  }
+}

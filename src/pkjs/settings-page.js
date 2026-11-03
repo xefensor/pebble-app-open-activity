@@ -5,91 +5,60 @@ var model = require('./settings');
 // Both settings paths use this layout. The build writes config.html from it.
 function behavior(initial) {
   'use strict';
-  var holdNames = ['up', 'down', 'select', 'back'], tapNames = ['up', 'down'], comboNames = ['backUp', 'upDown'];
-  var shortcuts = [
-    {id: 'up', group: 'holdOverrides', button: 'up'},
-    {id: 'down', group: 'holdOverrides', button: 'down'},
-    {id: 'select', group: 'holdOverrides', button: 'select'},
-    {id: 'back', group: 'holdOverrides', button: 'back'},
-    {id: 'tap-up', group: 'tapOverrides', button: 'up'},
-    {id: 'tap-down', group: 'tapOverrides', button: 'down'},
-    {id: 'combo-back-up', group: 'comboOverrides', button: 'backUp'},
-    {id: 'combo-up-down', group: 'comboOverrides', button: 'upDown'}
-  ];
-  var fields = shortcuts.map(function(shortcut) { return document.getElementById(shortcut.id); });
-  var role = document.getElementById('role'), form = document.getElementById('settings');
+  var primary = document.getElementById('primary'), secondary = document.getElementById('secondary');
+  var fields = [primary, secondary], form = document.getElementById('settings');
   var save = document.getElementById('save'), discard = document.getElementById('discard');
   var retry = document.getElementById('retry'), status = document.getElementById('status');
-  var loaded = false, repairing = false, uncertain = false, saved = '', phase = 'loading';
+  var loaded = false, repairing = false, migrating = false, uncertain = false, saved = '', phase = 'loading';
   var operation = 0, timer = null, bridgeReady = false;
   var legacy = initial.mode === 'legacy';
-  function isRole(value) { return value === 'primary' || value === 'secondary'; }
-  function object(value) { return !!value && typeof value === 'object' && !Array.isArray(value); }
-  function overrides(value, names) {
-    if (!object(value) || Object.keys(value).some(function(name) { return names.indexOf(name) === -1; })) return null;
-    var result = {}, valid = true;
-    names.forEach(function(name) {
-      var choice = value[name];
-      if (choice !== undefined && choice !== 'default' && !isRole(choice)) valid = false;
-      if (isRole(choice)) result[name] = choice;
-    });
-    return valid ? result : null;
+  function shortcut(value) {
+    return ['none','hold-up','hold-select','hold-down','hold-back','tap-up','tap-down','combo-back-up','combo-up-down'].indexOf(value) !== -1;
   }
   function normalize(value) {
-    if (!object(value) || value.version !== 1 || !isRole(value.defaultRole) ||
-        Object.keys(value).some(function(name) { return ['version', 'defaultRole', 'holdOverrides', 'tapOverrides', 'comboOverrides'].indexOf(name) === -1; })) return null;
-    var holds = overrides(value.holdOverrides, holdNames);
-    var taps = overrides(value.tapOverrides === undefined ? {} : value.tapOverrides, tapNames);
-    var combos = overrides(value.comboOverrides === undefined ? {} : value.comboOverrides, comboNames);
-    if (!holds || !taps || !combos) return null;
-    var result = {version: 1, defaultRole: value.defaultRole, holdOverrides: holds};
-    if (Object.keys(taps).length) result.tapOverrides = taps;
-    if (Object.keys(combos).length) result.comboOverrides = combos;
-    return result;
+    if (!value || typeof value !== 'object' || Array.isArray(value) || value.version !== 2 ||
+        Object.keys(value).some(function(name) { return ['version','primaryShortcut','secondaryShortcut'].indexOf(name) === -1; }) ||
+        !shortcut(value.primaryShortcut) || !shortcut(value.secondaryShortcut) ||
+        value.primaryShortcut !== 'none' && value.primaryShortcut === value.secondaryShortcut) return null;
+    return {version: 2, primaryShortcut: value.primaryShortcut, secondaryShortcut: value.secondaryShortcut};
   }
   function value() {
-    var selected = {version: 1, defaultRole: role.value, holdOverrides: {}, tapOverrides: {}, comboOverrides: {}};
-    shortcuts.forEach(function(shortcut, index) { selected[shortcut.group][shortcut.button] = fields[index].value; });
-    return normalize(selected);
+    return normalize({version: 2, primaryShortcut: primary.value, secondaryShortcut: secondary.value});
   }
-  function dirty() { return loaded && (repairing || uncertain || JSON.stringify(value()) !== saved); }
+  function edited() { return loaded && JSON.stringify(value()) !== saved; }
+  function dirty() { return loaded && (repairing || migrating || uncertain || edited()); }
   function message(text, error) {
     status.textContent = text; status.className = error ? 'status error' : 'status';
   }
   function describe() {
-    var fallback = role.value === 'secondary' ? 'Secondary' : 'Primary';
     fields.forEach(function(field) {
-      for (var i = 0; i < field.options.length; i++)
-        if (field.options[i].value === 'default') field.options[i].textContent = 'Use default (' + fallback + ')';
-      var resolved = field.value === 'default' ? role.value : field.value;
-      document.getElementById(field.id + '-help').textContent = !loaded ? 'Saved choice not loaded yet.' : resolved === 'secondary' ?
-        'Opens the smaller secondary activity.' : 'Opens the large primary activity.';
+      document.getElementById(field.id + '-help').textContent = !loaded ? 'Saved choice not loaded yet.' : field.value === 'none' ?
+        'No shortcut assigned.' : field.id === 'secondary' ? 'Opens the smaller activity row.' : 'Opens the large activity.';
+      field.options[0].textContent = phase === 'load-error' ? 'Not loaded' : 'Loading saved choice…';
+      field.setAttribute('aria-invalid', loaded && primary.value !== 'none' && primary.value === secondary.value ? 'true' : 'false');
     });
-    fields.concat([role]).forEach(function(field) { field.options[0].textContent = phase === 'load-error' ? 'Not loaded' : 'Loading saved choice…'; });
-    document.getElementById('default-help').textContent = loaded ? 'Shortcuts set to Use default open the ' + fallback + ' activity.' : 'Saved choice not loaded yet.';
   }
   function controls() {
     var editing = loaded && phase !== 'saving';
-    fields.concat([role]).forEach(function(field) { field.disabled = !editing; });
-    save.disabled = !editing || !dirty();
+    fields.forEach(function(field) { field.disabled = !editing; });
+    save.disabled = !editing || !dirty() || !value();
     save.textContent = phase === 'saving' ? 'Saving…' : 'Save settings';
     discard.hidden = !legacy && !loaded;
-    discard.disabled = phase === 'saving' || !legacy && !dirty();
+    discard.disabled = phase === 'saving' || !legacy && !uncertain && !edited();
     discard.textContent = legacy ? 'Cancel' : uncertain ? 'Reload saved' : 'Discard changes';
     retry.hidden = phase !== 'load-error'; describe();
   }
   function changed() {
     controls();
-    message(uncertain ? 'Save not confirmed. Reload saved choices or save again.' : dirty() ? repairing ? 'Review these choices and save to repair unreadable settings.' : 'Unsaved changes.' : 'No changes to save.', uncertain);
+    message(!value() ? 'Choose a different shortcut for each activity.' : uncertain ? 'Save not confirmed. Reload saved choices or save again.' :
+      edited() ? 'Unsaved changes.' : repairing ? 'Review these choices and save to repair unreadable settings.' :
+      migrating ? 'Save to use these two shortcuts.' : 'No changes to save.', !value() || uncertain);
   }
-  function apply(settings, repair) {
-    shortcuts.forEach(function(shortcut, index) {
-      fields[index].value = (settings[shortcut.group] || {})[shortcut.button] || 'default';
-    });
-    role.value = settings.defaultRole;
-    loaded = true; repairing = repair; uncertain = false; saved = JSON.stringify(settings); phase = 'ready';
+  function apply(settings, repair, migration) {
+    primary.value = settings.primaryShortcut; secondary.value = settings.secondaryShortcut;
+    loaded = true; repairing = repair; migrating = migration; uncertain = false; saved = JSON.stringify(settings); phase = 'ready';
     controls();
-    message(repair ? 'Saved settings could not be read. Review these choices before saving.' : 'No changes to save.', repair);
+    message(repair ? 'Saved settings could not be read. Review these choices before saving.' : migration ? 'Save to use these two shortcuts.' : 'No changes to save.', repair);
   }
   function stopTimer() { if (timer !== null) clearTimeout(timer); timer = null; }
   function loadFailed() {
@@ -112,22 +81,22 @@ function behavior(initial) {
   function load() {
     var readback = uncertain;
     loaded = false; phase = 'loading';
-    fields.concat([role]).forEach(function(field) { field.value = ''; });
+    fields.forEach(function(field) { field.value = ''; });
     controls(); message('Loading settings…');
     if (!bridgeReady) { stopTimer(); timer = setTimeout(loadFailed, 6000); return; }
     request({type: 'getSettings'}, function(response) {
       var settings = response && response.ok === true && normalize(response.settings);
       if (!settings) { loadFailed(); return; }
-      apply(settings, response.needsRepair === true);
+      apply(settings, response.needsRepair === true, response.needsMigration === true);
       if (readback && !repairing) message('Saved settings reloaded.');
     }, loadFailed);
   }
-  fields.concat([role]).forEach(function(field) { field.onchange = changed; });
+  fields.forEach(function(field) { field.onchange = changed; });
   retry.onclick = load;
   discard.onclick = function() {
     if (legacy) location.href = 'pebblejs://close#';
     else if (loaded && uncertain) load();
-    else if (loaded) apply(JSON.parse(saved), repairing);
+    else if (loaded) apply(JSON.parse(saved), repairing, migrating);
   };
   function saveFailed() {
     uncertain = true; phase = 'ready'; controls();
@@ -142,11 +111,11 @@ function behavior(initial) {
     phase = 'saving'; controls(); message('Saving settings…');
     request({type: 'saveSettings', settings: selected}, function(response) {
       if (!response || response.ok !== true) { saveFailed(); return; }
-      saved = JSON.stringify(selected); repairing = false; uncertain = false; phase = 'ready'; controls(); message('Settings saved.');
+      saved = JSON.stringify(selected); repairing = false; migrating = false; uncertain = false; phase = 'ready'; controls(); message('Settings saved.');
     }, saveFailed);
   };
   save.onclick = function(event) { if (event) event.preventDefault(); form.onsubmit(); };
-  if (legacy) apply(initial.settings, initial.needsRepair);
+  if (legacy) apply(initial.settings, initial.needsRepair, initial.needsMigration);
   else {
     if (typeof Pebble !== 'undefined' && typeof Pebble.addEventListener === 'function') {
       Pebble.addEventListener('ready', function(event) {
@@ -159,8 +128,11 @@ function behavior(initial) {
   }
 }
 function render(initial) {
-  function shortcut(id, label) {
-    return '<label for="' + id + '">' + label + '</label><select id="' + id + '" aria-describedby="' + id + '-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option><option value="default">Use default (Primary)</option><option value="primary">Primary activity</option><option value="secondary">Secondary activity</option></select><p id="' + id + '-help" class="hint"></p>';
+  function picker(id, label) {
+    var options = '<option value="none">Not assigned</option>' + model.shortcuts.map(function(shortcut) {
+      return '<option value="' + shortcut.id + '">' + shortcut.label + '</option>';
+    }).join('');
+    return '<label for="' + id + '">' + label + '</label><select id="' + id + '" aria-describedby="' + id + '-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option>' + options + '</select><p id="' + id + '-help" class="hint"></p>';
   }
   return [
     '<!doctype html><html lang="en"><head><meta charset="utf-8">',
@@ -177,21 +149,15 @@ function render(initial) {
     'button:disabled{opacity:.45;cursor:default}select:disabled{opacity:.6}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}',
     '.hint{font-size:14px;color:var(--muted);margin:8px 0 0}.intro{color:var(--muted);font-size:15px}',
     'details>summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:650}details.card>summary{color:var(--accent);font-size:17px}',
-    '.fallback p{margin-top:10px}',
     '.help ol{margin:12px 0 16px;padding-left:22px}.help li{padding-left:3px;margin:9px 0}.help p{color:var(--muted);font-size:14px}.help p:last-child{margin-bottom:0}',
     'footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:var(--page);border-top:1px solid var(--line)}',
     '.footer-inner{max-width:480px;margin:auto}.status{font-size:14px;color:var(--muted);margin:0 0 10px;min-height:20px}.status.error{color:#a1231d}',
     '@media(prefers-color-scheme:dark){.status.error{color:#ffb4ab}}.actions{display:flex;gap:8px}.actions button{flex:1;min-width:0}#save{background:#145ca3;border-color:#145ca3;color:#fff}',
     '[hidden]{display:none!important}@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding-left:14px;padding-right:14px}footer{padding-left:12px;padding-right:12px}.actions button{font-size:15px}}',
-    '</style></head><body><main><header><h1>Open Activity</h1><p>Choose which Dynamic activity each shortcut opens.</p></header>',
-    '<form id="settings"><section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading">Button holds</h2><p class="intro">Primary is the large activity. Secondary is the smaller row.</p>',
-    shortcut('up', 'Hold Up'), shortcut('select', 'Hold Center'), shortcut('down', 'Hold Down'), shortcut('back', 'Hold Back'),
-    '</section><section class="card" aria-labelledby="taps-heading"><h2 id="taps-heading">Button taps</h2><p class="intro">Tap and hold can open different activities on the same button.</p>',
-    shortcut('tap-up', 'Tap Up'), shortcut('tap-down', 'Tap Down'),
-    '</section><section class="card" aria-labelledby="combos-heading"><h2 id="combos-heading">Button combinations</h2><p class="intro">Hold both buttons together. Assign combinations in the Pebble phone app’s Quick Launch settings.</p>',
-    shortcut('combo-back-up', 'Hold Back + Up'), shortcut('combo-up-down', 'Hold Up + Down'),
-    '</section><details class="card fallback"><summary>Default activity</summary><p class="hint">Used by any shortcut set to Use default.</p>',
-    '<label for="role">Default activity</label><select id="role" aria-describedby="default-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option><option value="primary">Primary activity</option><option value="secondary">Secondary activity</option></select><p id="default-help" class="hint"></p></details>',
+    '</style></head><body><main><header><h1>Open Activity</h1><p>Choose a shortcut for each activity.</p></header>',
+    '<form id="settings"><section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading">Activity shortcuts</h2>',
+    picker('primary', 'Primary activity'), picker('secondary', 'Secondary activity'),
+    '<p class="intro" style="margin-top:20px">Assign Open Activity to these same shortcuts in Pebble’s Quick Launch settings.</p></section>',
     '</form><details class="card help"><summary>Setup &amp; help</summary><ol><li>Install the current Dynamic build.</li><li>Allow Open Activity to launch apps in the Pebble phone app.</li><li>In Pebble’s Quick Launch settings, assign this same <strong>Open Activity</strong> app to each shortcut you want to use.</li></ol>',
     '<p>Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>',
     '<p>A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.</p>',
@@ -204,6 +170,7 @@ function render(initial) {
   ].join('\n');
 }
 module.exports = function(settings, invalid) {
-  return render({mode: 'legacy', settings: model.normalize(settings) || model.defaults(), needsRepair: !!invalid});
+  var current = model.normalize(settings) || model.defaults();
+  return render({mode: 'legacy', settings: model.choices(current), needsRepair: !!invalid, needsMigration: current.version === 1});
 };
 module.exports.config = function() { return render({mode: 'plugin'}); };

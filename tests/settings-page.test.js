@@ -5,115 +5,129 @@ const fs = require('node:fs');
 const page = require('../src/pkjs/settings-page');
 const settings = require('../src/pkjs/settings');
 const mount = require('./helpers/settings-page');
-const loaded = () => ({ok: true, settings: settings.defaults(), needsRepair: false});
-test('all eight shortcuts save independently and reopen without resetting existing choices', async () => {
-  let stored = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}};
-  const reply = message => {
-    if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
-    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
-  };
-  const ui = mount(page.config(), reply); ui.ready(); await ui.tick();
-  assert.equal(ui.elements.save.disabled, true);
-  assert.equal(ui.elements.up.value, 'primary');
-  for (const id of ['select', 'back', 'tap-up', 'tap-down', 'combo-back-up', 'combo-up-down']) {
-    assert.equal(ui.elements[id].value, 'default');
-    assert.match(ui.elements[id + '-help'].textContent, /smaller secondary/);
-  }
-  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 0);
-  for (const [id, choice] of Object.entries({select: 'primary', back: 'secondary', 'tap-up': 'secondary', 'tap-down': 'primary', 'combo-back-up': 'primary', 'combo-up-down': 'secondary'})) ui.change(id, choice);
-  ui.elements.save.onclick(); await ui.tick();
-  assert.deepEqual(stored, {version: 1, defaultRole: 'secondary',
-    holdOverrides: {up: 'primary', down: 'secondary', select: 'primary', back: 'secondary'},
-    tapOverrides: {up: 'secondary', down: 'primary'}, comboOverrides: {backUp: 'primary', upDown: 'secondary'}});
-  const reopened = mount(page.config(), reply); reopened.ready(); await reopened.tick();
-  assert.equal(reopened.elements.save.disabled, true);
-  assert.equal(reopened.elements.back.value, 'secondary');
-  assert.equal(reopened.elements['tap-up'].value, 'secondary');
-  assert.equal(reopened.elements['combo-up-down'].value, 'secondary');
-  reopened.change('combo-up-down', 'primary'); reopened.elements.discard.onclick();
-  assert.equal(reopened.elements['combo-up-down'].value, 'secondary');
-  assert.equal(reopened.elements.save.disabled, true);
-});
-test('legacy Save retains new tap/combination choices and removes only explicit default overrides', () => {
-  const initial = {version: 1, defaultRole: 'primary', holdOverrides: {up: 'secondary', down: 'primary', back: 'secondary'},
-    tapOverrides: {up: 'primary'}, comboOverrides: {backUp: 'secondary'}};
-  const ui = mount(page(initial, false), () => {throw Error('legacy must not use plugin');});
-  ui.change('back', 'default'); ui.change('tap-down', 'secondary'); ui.elements.save.onclick();
-  const result = JSON.parse(decodeURIComponent(ui.location.href.split('#')[1]));
-  assert.deepEqual(settings.normalize(result), {version: 1, defaultRole: 'primary',
-    holdOverrides: {up: 'secondary', down: 'primary'}, tapOverrides: {up: 'primary', down: 'secondary'},
-    comboOverrides: {backUp: 'secondary'}});
-});
-test('shared bundled page waits for the plugin, disables unchanged saves and resolves Default', async () => {
-  assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), page.config());
-  const ui = mount(page.config(), () => Promise.resolve(loaded()));
+const pair = (primary = 'hold-down', secondary = 'hold-up') => ({version: 2, primaryShortcut: primary, secondaryShortcut: secondary});
+const loaded = () => ({ok: true, settings: pair(), needsRepair: false, needsMigration: false});
+const legacy = () => ({version: 1, defaultRole: 'primary', holdOverrides: {up: 'secondary', down: 'primary', back: 'secondary'}, tapOverrides: {down: 'secondary'}});
+
+test('page has only Primary and Secondary choices, each offering all eight shortcuts and None', async () => {
+  const html = page.config();
+  assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), html);
+  assert.equal((html.match(/<select\b/g) || []).length, 2);
+  assert.match(html, /Primary activity/); assert.match(html, /Secondary activity/);
+  const ui = mount(html, () => Promise.resolve(loaded()));
   ui.ready('pkjs'); assert.equal(ui.requests.length, 0);
   ui.ready(); ui.ready(); await ui.tick();
   assert.equal(ui.requests.length, 1); assert.equal(ui.elements.save.disabled, true);
-  ui.change('up', 'default'); ui.change('role', 'secondary');
-  assert.equal(ui.elements.save.disabled, false);
-  assert.equal(ui.elements.up.options[1].textContent, 'Use default (Secondary)');
-  assert.match(ui.elements['up-help'].textContent, /smaller secondary/);
-  assert.equal(ui.requests.length, 1, 'editing never writes settings');
+  assert.equal(ui.elements.primary.value, 'hold-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
+  for (const id of ['primary', 'secondary']) {
+    assert.deepEqual(ui.elements[id].options.filter(option => option.value).map(option => option.value).sort(),
+      ['none', 'hold-up', 'hold-select', 'hold-down', 'hold-back', 'tap-up', 'tap-down', 'combo-back-up', 'combo-up-down'].sort());
+  }
+  assert.equal(ui.requests.filter(message => message.type === 'saveSettings').length, 0);
 });
-test('malformed and timed-out loading retains disabled controls and permits an explicit retry', async () => {
+
+test('each shortcut can be chosen for either activity and survives Save and a cold reopen', async () => {
+  for (const shortcut of ['hold-up', 'hold-select', 'hold-down', 'hold-back', 'tap-up', 'tap-down', 'combo-back-up', 'combo-up-down']) {
+    for (const role of ['primary', 'secondary']) {
+      let stored = pair('none', 'none');
+      const reply = message => {
+        if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
+        stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+      };
+      const ui = mount(page.config(), reply); ui.ready(); await ui.tick();
+      ui.change(role, shortcut); ui.elements.save.onclick(); await ui.tick();
+      assert.equal(stored[role + 'Shortcut'], shortcut);
+      assert.equal(stored[(role === 'primary' ? 'secondary' : 'primary') + 'Shortcut'], 'none');
+      const reopened = mount(page.config(), reply); reopened.ready(); await reopened.tick();
+      assert.equal(reopened.elements[role].value, shortcut); assert.equal(reopened.elements.save.disabled, true);
+    }
+  }
+});
+
+test('a duplicate shortcut blocks Save without clearing either choice; None can disable both', async () => {
+  const ui = mount(page.config(), () => Promise.resolve(loaded())); ui.ready(); await ui.tick();
+  ui.change('primary', 'hold-up');
+  assert.equal(ui.elements.secondary.value, 'hold-up'); assert.equal(ui.elements.primary.value, 'hold-up');
+  assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.elements.status.textContent, 'Choose a different shortcut for each activity.');
+  ui.elements.save.onclick(); assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 0);
+  ui.change('secondary', 'hold-down'); assert.equal(ui.elements.save.disabled, false, 'swapping resolves the conflict');
+  ui.change('primary', 'none'); ui.change('secondary', 'none'); assert.equal(ui.elements.save.disabled, false);
+});
+
+test('old mappings are projected without writes and converted only by explicit Save', async () => {
+  let stored = legacy(); const original = JSON.stringify(stored);
+  const ui = mount(page.config(), message => {
+    if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: settings.choices(stored), needsMigration: stored.version === 1});
+    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+  });
+  ui.ready(); await ui.tick();
+  assert.equal(JSON.stringify(stored), original);
+  assert.equal(ui.elements.primary.value, 'hold-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
+  assert.equal(ui.elements.save.disabled, false); assert.equal(ui.elements.status.textContent, 'Save to use these two shortcuts.');
+  ui.elements.save.onclick(); await ui.tick();
+  assert.deepEqual(stored, pair()); assert.equal(ui.elements.save.disabled, true);
+});
+
+test('malformed and timed-out loading keeps choices disabled and ignores replies after Retry', async () => {
   let resolve, bad = true;
   const ui = mount(page.config(), () => bad ? new Promise(done => {resolve = done;}) : Promise.resolve(loaded()));
   ui.ready(); ui.timeout();
   assert.equal(ui.elements.retry.hidden, false); assert.equal(ui.elements.save.disabled, true);
-  bad = false; ui.elements.retry.onclick(); await ui.tick(); assert.equal(ui.elements.up.disabled, false);
-  ui.change('down', 'secondary');
-  resolve({ok: true, settings: {version: 1, defaultRole: 'secondary', holdOverrides: {}}}); await ui.tick();
-  assert.equal(ui.elements.role.value, 'primary');
-  assert.equal(ui.elements.down.value, 'secondary', 'stale load cannot overwrite the edited post-Retry draft');
-  const malformed = mount(page.config(), () => Promise.resolve({ok: true, settings: {version: 1}}));
+  bad = false; ui.elements.retry.onclick(); await ui.tick();
+  ui.change('primary', 'tap-down');
+  resolve({ok: true, settings: pair('hold-select', 'hold-back')}); await ui.tick();
+  assert.equal(ui.elements.primary.value, 'tap-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
+  const malformed = mount(page.config(), () => Promise.resolve({ok: true, settings: {version: 2}}));
   malformed.ready(); await malformed.tick();
   assert.equal(malformed.elements.save.disabled, true); assert.equal(malformed.elements.retry.hidden, false);
 });
-test('failed save keeps the draft, confirmed save clears dirty state, discard restores confirmed choices', async () => {
-  let stored = settings.defaults(), fail = true;
+
+test('failed Save retains choices, retry confirms, and ordinary Discard never writes or reads storage', async () => {
+  let stored = pair(), fail = true;
   const ui = mount(page.config(), message => {
     if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
     if (fail) return Promise.reject(Error('bridge'));
     stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
   });
-  ui.ready(); await ui.tick(); ui.change('up', 'primary'); ui.elements.save.onclick(); await ui.tick();
-  assert.equal(ui.elements.up.value, 'primary'); assert.equal(ui.elements.save.disabled, false);
-  assert.equal(ui.elements.discard.textContent, 'Reload saved');
-  assert.match(ui.elements.status.textContent, /not confirmed/); assert.equal(stored.holdOverrides.up, 'secondary');
+  ui.ready(); await ui.tick(); ui.change('primary', 'hold-back'); ui.elements.save.onclick(); await ui.tick();
+  assert.equal(ui.elements.primary.value, 'hold-back'); assert.equal(ui.elements.save.disabled, false);
+  assert.equal(ui.elements.discard.textContent, 'Reload saved'); assert.match(ui.elements.status.textContent, /not confirmed/);
+  assert.equal(stored.primaryShortcut, 'hold-down');
   fail = false; ui.elements.save.onclick(); await ui.tick();
   assert.equal(ui.elements.status.textContent, 'Settings saved.'); assert.equal(ui.elements.save.disabled, true);
-  ui.change('down', 'secondary'); ui.elements.discard.onclick(); await ui.tick();
-  assert.equal(ui.elements.down.value, 'primary'); assert.equal(ui.elements.save.disabled, true);
-  assert.equal(ui.requests.filter(message => message.type === 'getSettings').length, 1, 'discard restores the last confirmed snapshot without backend work');
+  ui.change('secondary', 'tap-up'); ui.elements.discard.onclick(); await ui.tick();
+  assert.equal(ui.elements.secondary.value, 'hold-up'); assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.requests.filter(message => message.type === 'getSettings').length, 1);
+  assert.equal(ui.requests.filter(message => message.type === 'saveSettings').length, 2);
 });
-test('an unconfirmed write is read back explicitly instead of treating local Discard as an undo', async () => {
-  let stored = settings.defaults(), acknowledge;
+
+test('an unconfirmed write is explicitly read back and late replies cannot overwrite a later draft', async () => {
+  let stored = pair(), acknowledge;
   const ui = mount(page.config(), message => {
     if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
-    stored = JSON.parse(JSON.stringify(message.settings));
-    return new Promise(resolve => {acknowledge = resolve;});
+    stored = JSON.parse(JSON.stringify(message.settings)); return new Promise(resolve => {acknowledge = resolve;});
   });
-  ui.ready(); await ui.tick(); ui.change('up', 'primary'); ui.elements.save.onclick();
-  ui.elements.save.onclick(); assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1);
+  ui.ready(); await ui.tick(); ui.change('primary', 'combo-back-up'); ui.elements.save.onclick(); ui.elements.save.onclick();
+  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1);
   ui.timeout(); assert.equal(ui.elements.discard.textContent, 'Reload saved');
-  ui.change('up', 'secondary');
-  assert.equal(ui.elements.save.disabled, false, 'matching the old snapshot does not resolve an uncertain save');
-  assert.match(ui.elements.status.textContent, /not confirmed/);
+  ui.change('primary', 'hold-down'); assert.equal(ui.elements.save.disabled, false);
   ui.elements.discard.onclick(); await ui.tick();
-  assert.equal(ui.elements.up.value, 'primary', 'readback shows the write that lost its acknowledgement');
-  assert.equal(ui.elements.status.textContent, 'Saved settings reloaded.');
-  ui.change('down', 'secondary'); acknowledge({ok: true}); await ui.tick();
-  assert.equal(ui.elements.down.value, 'secondary'); assert.equal(ui.elements.save.disabled, false);
-  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1, 'readback never writes');
+  assert.equal(ui.elements.primary.value, 'combo-back-up'); assert.equal(ui.elements.status.textContent, 'Saved settings reloaded.');
+  ui.change('secondary', 'tap-up'); acknowledge({ok: true}); await ui.tick();
+  assert.equal(ui.elements.secondary.value, 'tap-up'); assert.equal(ui.elements.save.disabled, false);
+  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1);
 });
-test('repair remains explicit and legacy Cancel returns without writing a draft', () => {
-  const ui = mount(page(settings.defaults(), true), () => {throw Error('legacy must not use plugin');});
+
+test('repair and legacy migration need explicit Save; Cancel writes nothing', () => {
+  const ui = mount(page(pair(), true), () => {throw Error('legacy cannot use plugin');});
   assert.equal(ui.elements.save.disabled, false); assert.match(ui.elements.status.textContent, /before saving/);
-  ui.change('up', 'primary'); ui.elements.discard.onclick(); assert.equal(ui.location.href, 'pebblejs://close#');
+  ui.change('primary', 'tap-down'); ui.elements.discard.onclick(); assert.equal(ui.location.href, 'pebblejs://close#');
   assert.equal(ui.requests.length, 0);
-  const save = mount(page(settings.defaults(), false), () => {throw Error('legacy must not use plugin');});
-  save.change('down', 'default'); save.change('role', 'secondary'); save.elements.save.onclick();
-  const result = JSON.parse(decodeURIComponent(save.location.href.split('#')[1]));
-  assert.deepEqual(settings.normalize(result), {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'secondary'}});
+  const cancel = mount(page(legacy(), false), () => {throw Error('legacy cannot use plugin');});
+  assert.equal(cancel.elements.primary.value, 'hold-down'); assert.equal(cancel.elements.save.disabled, false);
+  cancel.elements.discard.onclick(); assert.equal(cancel.location.href, 'pebblejs://close#');
+  const save = mount(page(legacy(), false), () => {throw Error('legacy cannot use plugin');});
+  save.change('primary', 'tap-down'); save.change('secondary', 'combo-up-down'); save.elements.save.onclick();
+  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])), pair('tap-down', 'combo-up-down'));
 });

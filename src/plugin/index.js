@@ -7,7 +7,8 @@ var settings = require('../pkjs/settings');
 Pebble.registerConfigHandler(function (message, respond) {
   if (!message || message.type === 'getSettings') {
     var current = settings.load(localStorage);
-    respond({ok: true, settings: current || settings.defaults(), needsRepair: !current});
+    respond({ok: true, settings: settings.choices(current || settings.defaults()), needsRepair: !current,
+      needsMigration: !!current && current.version === 1});
   } else if (message.type === 'saveSettings') {
     var accepted = settings.save(localStorage, message.settings);
     respond({ok: accepted});

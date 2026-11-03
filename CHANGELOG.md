@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.3
+
+- Choose a shortcut for Primary activity and one for Secondary activity in two
+  dropdowns. Each offers any supported tap, hold, combination or Not assigned.
+- Reject assigning the same shortcut to both roles; leave the other choice
+  unchanged and explain the conflict.
+- Save a compact two-choice record; unselected shortcuts close. Keep older
+  preferences and routing until the user explicitly saves the new choices.
+- Retain gesture identity, native timing, permissions and settings recovery.
+
 ## 0.1.2
 
 - Configure all eight Quick Launch slots independently: four button holds,

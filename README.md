@@ -4,49 +4,45 @@ One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
 and the official phone app. No phone-app or firmware fork is required.
 
-Assign this same app to any of these Quick Launch shortcuts. Each has its own
-Primary / Secondary / Use default choice in Open Activity's phone settings:
+Choose one shortcut for each activity in Open Activity's phone settings:
 
-| Shortcut | Initial behavior |
+| Activity | Initial shortcut |
 | --- | --- |
-| Hold Up | Open Dynamic’s Secondary activity app |
-| Hold Down | Open Dynamic’s Primary activity app |
-| Hold Center (Select) | Use default activity |
-| Hold Back | Use default activity |
-| Tap Up | Use default activity |
-| Tap Down | Use default activity |
-| Hold Back + Up | Use default activity |
-| Hold Up + Down | Use default activity |
+| Primary activity | Hold Down |
+| Secondary activity | Hold Up |
 
-All assignments are named **Open Activity**. Default activity is initially
-Primary. Tap, hold and combination choices are independent, including on the
-same physical button. Existing Up/Down choices and your saved default survive
-upgrading; previously unconfigured shortcuts inherit that default. Opening
-settings does not save or reset anything. The app never modifies your global
-Quick Launch assignments.
+Each dropdown offers Hold Up/Center/Down/Back, Tap Up/Down, Hold Back+Up,
+Hold Up+Down, or **Not assigned**. Choose different shortcuts for the two
+activities. Assign the same **Open Activity** app to those shortcuts in Pebble's
+Quick Launch settings. Other apps keep their existing shortcut assignments.
+
+Older preferences remain active until you explicitly save the new two-choice
+configuration. The page selects an existing matching shortcut for each role,
+preferring your explicit Down/Up choices. Opening the page never rewrites stored
+preferences. Saving applies just the two selected shortcuts; other shortcuts
+assigned to Open Activity close without opening an activity.
 
 ## Installation and settings
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.2.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.2/Open-Activity-0.1.2.pbw)
-from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.2)
+[`Open-Activity-0.1.3.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.3/Open-Activity-0.1.3.pbw)
+from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.3)
 and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
-Open its phone settings to choose each shortcut and Default activity. The
+Open its phone settings to choose Primary activity and Secondary activity. The
 offline settings page is bundled in the PBW and works through a config-only
 plugin with the same app UUID. It does not require the transition watchapp to
 remain open, add another installed watchapp or expose an Activities service.
 
 The page explains Primary as the large activity and Secondary as the smaller
-row. **Button holds**, **Button taps** and **Button combinations** expose all
-eight mappings. **Default activity** is a disclosure below them; each **Use
-default** option shows its resolved role. **Setup & help** contains
+row. The page has two shortcut dropdowns. **Setup & help** contains
 the permission and Quick Launch steps. Phone light/dark appearance follows the
 phone independently of the watch.
 
-Save is enabled only for edits or an explicit settings repair. Ordinary
+Save is enabled only for edits, explicit conversion of older settings or a
+settings repair. Ordinary
 **Discard changes** restores the last confirmed choices without writing them.
 If a save is not confirmed, the page keeps the draft and offers **Reload saved**
 to read back storage, or an explicit Save retry; it does not pretend that local
@@ -86,7 +82,7 @@ does not retry or replay an attempt after reconnect.
 
 ## Data and protocol
 
-The helper stores only its three shortcut settings. It keeps the selected app
+The helper stores only its two shortcut choices. It keeps the selected app
 UUID and expiry in memory during one attempt. It never stores activity content,
 the navigation record, notification text, track metadata, artwork or an activity
 history, and it has no Internet permission.
@@ -115,10 +111,11 @@ to confirm that exact session/ticket/role/destination. Only a matching live
 confirmation can issue one Watch State `launch_app` invocation. Duplicate and
 late callbacks cannot create another invocation.
 
-The version1 preference record and `open-activity-settings-v1` key are retained.
-`holdOverrides` supports `up`, `down`, `select` and `back`. Optional `tapOverrides`
-supports `up` and `down`; optional `comboOverrides` supports `backUp` and `upDown`.
-Omitted overrides use the saved `defaultRole`. The
+The `open-activity-settings-v1` storage key is retained. The version2 record is
+`{version:2,primaryShortcut,secondaryShortcut}`. Each choice is one of the eight
+shortcut IDs or `none`; a nonempty shortcut cannot be assigned to both roles.
+Version1 records retain their previous routing until explicit Save replaces
+them. The
 [platform identity evidence](docs/qa/0.1.2/platform-quick-launch.json) pins the
 official phone and firmware sources for these eight slots. Availability in
 system settings depends on the installed phone/firmware version.
@@ -138,8 +135,8 @@ Edit `src/pkjs/settings-page.js` for both configuration paths. The build generat
 `config.html` from that shared template; `node scripts/generate-config.cjs --check`
 detects drift. The primary page uses Pebble's
 [bundled settings bridge](https://developer.repebble.com/guides/plugins/preview/#settings-pages);
-the legacy path keeps its `pebblejs://close#` return contract. Neither path
-changes the preference schema or Quick Launch assignments.
+the legacy path keeps its `pebblejs://close#` return contract. Both paths use the
+same two-choice model and leave system Quick Launch assignments to the user.
 
 For browser checks, start local Chromium with debugging on port 9229, then run
 `node scripts/check-settings.cjs`. It executes the actual packaged HTML and
