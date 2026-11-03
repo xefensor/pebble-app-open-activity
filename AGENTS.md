@@ -2,7 +2,9 @@
 
 This is one stock PebbleOS Quick Launch watchapp for both Dynamic activity
 positions. Preserve UUID `d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9` and message keys.
-Target Emery. Keep the repository local until publication is requested.
+Target Emery. GitHub development prereleases live in
+`xefensor/pebble-app-open-activity`. Preserve published tags and artifact bytes;
+later documentation commits on `main` do not rewrite a tested release snapshot.
 
 - Use the existing SDK and official phone app. No firmware/mobile-app forks.
 - Never change global Quick Launch assignments. Users assign this same app to

@@ -18,8 +18,10 @@ initially Primary. The app never modifies your global Quick Launch assignments.
 ## Installation and settings
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
-older Dynamic versions do not provide the required handoff. Install the local
-`dist/Open-Activity-0.1.1.pbw` through the Pebble app. Enable the current plugin
+older Dynamic versions do not provide the required handoff. Download
+[`Open-Activity-0.1.1.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.1/Open-Activity-0.1.1.pbw)
+from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.1)
+and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
 Open its phone settings to choose Hold Up, Hold Down and Default activity. The
@@ -126,4 +128,8 @@ the extra configuration packaging.
 
 The [validation record](docs/VALIDATION.md) distinguishes portable fault tests,
 actual packaged-bundle checks and native-only QEMU evidence from the pending
-real-phone and physical-watch checks. The repository currently has no remote.
+real-phone and physical-watch checks. Source history and downloadable development
+prereleases are available in
+[`xefensor/pebble-app-open-activity`](https://github.com/xefensor/pebble-app-open-activity).
+Published tags and artifacts retain their tested bytes; later documentation on
+`main` does not change the released source snapshot.
