@@ -26,8 +26,8 @@ assigned to Open Activity close without opening an activity.
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.4.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.4/Open-Activity-0.1.4.pbw)
-from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.4)
+[`Open-Activity-0.1.5.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5.pbw)
+from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
 and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
@@ -128,8 +128,12 @@ system settings depends on the installed phone/firmware version.
 
 ## Development and validation
 
-The local 0.1.5 optimization candidate is built as
-`dist/Open-Activity-0.1.5.pbw`. Published 0.1.4 downloads above remain unchanged.
+The [0.1.5 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
+provides the [PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5.pbw),
+[buildable source](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5-source.zip),
+[debugging files](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5-debug.zip) and
+[checksums](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/SHA256SUMS.txt).
+Published [0.1.4 downloads](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.4) remain unchanged.
 It defers legacy settings initialization during Quick Launch, combines footer
 layout work into one animation frame, and reduces release JavaScript size.
 The [optimization evidence](docs/qa/0.1.5/optimization.json) records exact sizes;

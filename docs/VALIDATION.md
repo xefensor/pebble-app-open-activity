@@ -1,5 +1,14 @@
 # Open Activity validation
 
+## Publication — 3 November 2026
+
+The [0.1.5 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
+was published from tested source
+[`4f77d82b71822325a980801c64743fce7f3bce61`](https://github.com/xefensor/pebble-app-open-activity/tree/4f77d82b71822325a980801c64743fce7f3bce61).
+The documentation follow-up preserves the tag, PBW, source/debug ZIPs and checksums.
+Source/archive checks should use that frozen tag rather than a later
+documentation commit. The original validation below is unchanged.
+
 ## 0.1.5 rendering and distribution optimization — 3 November 2026
 
 The native opening protocol, four-second deadline, settings model, permissions
