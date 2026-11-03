@@ -1,0 +1,14 @@
+Shared configuration template: PASS
+{
+  "pbw": "/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.1.5.pbw",
+  "sha256": "b11a51f9352ad9a6efd5d187a82a8874f92bfc5e7f27e0cc264ce33f58392a06",
+  "nativeFileBytes": 2476,
+  "nativeLoadedBytes": 2476,
+  "nativeVirtualBytes": 2548,
+  "phoneBundleBytes": 24353,
+  "debugArchiveBytes": 59876,
+  "minificationIdentity": "PASS",
+  "permissions": [
+    "LaunchApps"
+  ]
+}

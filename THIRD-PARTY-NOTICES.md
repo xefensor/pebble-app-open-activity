@@ -10,4 +10,9 @@ the bundle. The full Apache license is included in `licenses/Apache-2.0.txt`.
 
 The app uses Pebble's built-in system fonts. It bundles no external font, image,
 audio asset, Activities runtime, native background worker or third-party npm
-package.
+runtime package.
+
+Release builds use the pinned, development-only Terser 5.46.0 tool under its
+BSD-2-Clause licence. Its implementation and npm dependencies are not included
+in the installed app. `licenses/Terser-BSD-2-Clause.txt` preserves the build-tool
+licence; the lockfile pins its dependency integrity.

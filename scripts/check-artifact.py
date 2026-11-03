@@ -5,6 +5,7 @@ import hashlib
 import json
 import struct
 import subprocess
+import tempfile
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
@@ -41,17 +42,50 @@ with zipfile.ZipFile(pbw) as archive:
     relocations = struct.unpack_from('<I', binary, 100)[0]
     assert len(binary) == loaded_bytes + 4 * relocations
     js = archive.read('pebble-js-app.js').decode()
+    assert not any(name.endswith('.map') for name in archive.namelist())
+    assert 'sourceMappingURL=' not in js
     assert 'presented_activities' in js and 'launch_app' in js
     assert '00000000-0000-0000-0001-000000000007' in js
     assert 'Copyright 2024 Google LLC' in js
     assert archive.read('config.html') == (root / 'config.html').read_bytes()
     plugin = archive.read('plugin.js').decode()
+    assert 'sourceMappingURL=' not in plugin
     assert 'registerConfigHandler' in plugin
     assert 'subscribeToSource' not in plugin and 'invokeAction' not in plugin
     for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt'):
         assert archive.read(name) == (root / name).read_bytes()
+debug = pbw.with_name('Open-Activity-' + package['version'] + '-debug.zip')
+with zipfile.ZipFile(debug) as archive, zipfile.ZipFile(root / 'build' / (root.name + '.pbw')) as sdk:
+    manifest = json.loads(archive.read('manifest.json'))
+    assert manifest['version'] == package['version'] and manifest['toolVersion'] == '5.46.0'
+    for name, runtime in (('pebble-js-app.js', js.encode()), ('plugin.js', plugin.encode())):
+        original = sdk.read(name) if name == 'pebble-js-app.js' else (root / 'build/plugin.js').read_bytes()
+        assert archive.read('sdk/' + name) == original
+        assert archive.read('runtime/' + name) == runtime
+        identity = manifest['bundles'][name]
+        assert identity['sdkSha256'] == hashlib.sha256(original).hexdigest()
+        assert identity['runtimeSha256'] == hashlib.sha256(runtime).hexdigest()
+        with tempfile.TemporaryDirectory(prefix='open-activity-minify-check-') as scratch:
+            scratch = Path(scratch)
+            source, target, target_map = scratch / 'input.js', scratch / name, scratch / (name + '.map')
+            source.write_bytes(original)
+            args = ['node', str(root / 'scripts/minify-js.cjs'), str(source), str(target), str(target_map)]
+            if name == 'pebble-js-app.js':
+                original_map = sdk.read(name + '.map')
+                assert archive.read('sdk/' + name + '.map') == original_map
+                input_map = scratch / 'input.js.map'
+                input_map.write_bytes(original_map)
+                args.append(str(input_map))
+            subprocess.run(args, cwd=root, check=True)
+            assert target.read_bytes() == runtime
+            assert target_map.read_bytes() == archive.read('runtime/' + name + '.map')
 checksum = hashlib.sha256(pbw.read_bytes()).hexdigest()
-assert (root / 'dist/SHA256SUMS.txt').read_text() == checksum + '  ' + pbw.name + '\n'
+checksums = dict(line.split('  ', 1)[::-1] for line in (root / 'dist/SHA256SUMS.txt').read_text().splitlines())
+allowed = {pbw.name, debug.name, 'Open-Activity-' + package['version'] + '-source.zip'}
+assert {pbw.name, debug.name}.issubset(checksums) and set(checksums).issubset(allowed)
+for name, digest in checksums.items():
+    assert digest == hashlib.sha256((root / 'dist' / name).read_bytes()).hexdigest()
 print(json.dumps({'pbw': str(pbw), 'sha256': checksum, 'nativeFileBytes': len(binary),
                   'nativeLoadedBytes': loaded_bytes, 'nativeVirtualBytes': virtual_bytes,
-                  'phoneBundleBytes': len(js.encode()), 'permissions': ['LaunchApps']}, indent=2))
+                  'phoneBundleBytes': len(js.encode()), 'debugArchiveBytes': debug.stat().st_size,
+                  'minificationIdentity': 'PASS', 'permissions': ['LaunchApps']}, indent=2))

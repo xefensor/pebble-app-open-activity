@@ -1,0 +1,101 @@
+{
+  "scope": "Published 0.1.4 versus newly built 0.1.5; no physical-device performance claim",
+  "beforePbwSha256": "ea6ac6f87a93f839c159dcc353abfcd73ce0b767fd38359cbbcf77d80edef6a1",
+  "afterPbwSha256": "b11a51f9352ad9a6efd5d187a82a8874f92bfc5e7f27e0cc264ce33f58392a06",
+  "beforePbwBytes": 40197,
+  "afterPbwBytes": 25084,
+  "beforePayloadBytes": {
+    "pebble-js-app.js": 36911,
+    "plugin.js": 6480,
+    "config.html": 15100
+  },
+  "afterPayloadBytes": {
+    "pebble-js-app.js": 24353,
+    "plugin.js": 4050,
+    "config.html": 15741
+  },
+  "nativeChangedOffsets": [
+    124,
+    125
+  ],
+  "nativeLengthUnchanged": true,
+  "nativeSourceUnchanged": true,
+  "nativeChangeScope": "Only SDK resource timestamp bytes 124\u2013125; native C unchanged",
+  "browserPixelComparisons": [
+    {
+      "file": "settings-320-light.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "settings-320-dark.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "settings-360-light.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "settings-360-dark.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "collision-320.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "migration-320.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "load-error-320.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "save-error-320.png",
+      "sameSize": true,
+      "identicalPixels": false
+    },
+    {
+      "file": "setup-help-320.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "focus-short.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "actions-short.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "focus-zoom-200-equivalent.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "actions-zoom-200-equivalent.png",
+      "sameSize": true,
+      "identicalPixels": true
+    },
+    {
+      "file": "large-text-focus-320.png",
+      "sameSize": true,
+      "identicalPixels": false
+    },
+    {
+      "file": "oversized-text-flow-320.png",
+      "sameSize": true,
+      "identicalPixels": false
+    }
+  ]
+}

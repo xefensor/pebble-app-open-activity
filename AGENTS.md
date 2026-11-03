@@ -66,3 +66,12 @@ actions; never let fixed controls cover a focused field or the final help text.
 Keep focus and scroll under normal browser control during loading, saving and
 Retry. A shortcut conflict has an inline description associated with both fields
 and the live status announcement; hide generic assignment copy during a conflict.
+
+Version 0.1.5 defers the legacy settings module until showConfiguration and
+coalesces footer measurement into one animation frame with unchanged-value write
+checks. Preserve short-viewport/oversized-text flow and the exact two choices.
+Release-only Terser 5.46.0 uses no compression or property mangling: settings
+functions are serialized with toString. Keep source maps/original SDK scripts
+in the separate versioned debug ZIP; recompute code/map identity in the artifact
+check. Published app/debug/source bytes need a new version. Generate the source
+archive last with package-source.py, then its --check mode after committing.

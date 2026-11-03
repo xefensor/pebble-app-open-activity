@@ -33,7 +33,9 @@ function destination(value) {
   return value === null || (exact(value, ['watchAppUuid']) && uuid(value.watchAppUuid) && value.watchAppUuid !== HELPER);
 }
 function parseHint(text, now) {
-  if (typeof text !== 'string' || utf8Bytes(text) > 512) return null;
+  // Every UTF-16 code unit needs at least one UTF-8 byte. Bound untrusted
+  // input before walking it, while retaining exact UTF-8/surrogate validation.
+  if (typeof text !== 'string' || text.length > 512 || utf8Bytes(text) > 512) return null;
   var hint;
   try { hint = JSON.parse(text); } catch (error) { return null; }
   if (!exact(hint, ['schema', 'watchfaceUuid', 'nativeSession', 'viewSequence',

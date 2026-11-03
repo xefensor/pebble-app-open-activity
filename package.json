@@ -1,6 +1,6 @@
 {
   "name": "pebble-app-open-activity",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -10,25 +10,34 @@
     "build": "python3 scripts/build.py",
     "check:artifact": "python3 scripts/check-artifact.py"
   },
-  "dependencies": {},
   "pebble": {
     "displayName": "Open Activity",
     "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
     "sdkVersion": "3",
     "projectType": "native",
     "enableMultiJS": true,
-    "targetPlatforms": ["emery"],
-    "watchapp": {"watchface": false},
-    "capabilities": ["configurable"],
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "capabilities": [
+      "configurable"
+    ],
     "configPage": "config.html",
-    "usesPermissions": ["LaunchApps"],
+    "usesPermissions": [
+      "LaunchApps"
+    ],
     "plugin": {
       "description": "Open Activity shortcut settings. No activity sources or action proxy.",
       "script": "plugin.js",
       "sources": [],
       "actions": []
     },
-    "resources": {"media": []},
+    "resources": {
+      "media": []
+    },
     "messageKeys": {
       "OA_OPERATION": 2000,
       "OA_SESSION": 2001,
@@ -39,5 +48,8 @@
       "OA_TICKET": 2006,
       "OA_GESTURE": 2007
     }
+  },
+  "devDependencies": {
+    "terser": "5.46.0"
   }
 }

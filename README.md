@@ -128,6 +128,13 @@ system settings depends on the installed phone/firmware version.
 
 ## Development and validation
 
+The local 0.1.5 optimization candidate is built as
+`dist/Open-Activity-0.1.5.pbw`. Published 0.1.4 downloads above remain unchanged.
+It defers legacy settings initialization during Quick Launch, combines footer
+layout work into one animation frame, and reduces release JavaScript size.
+The [optimization evidence](docs/qa/0.1.5/optimization.json) records exact sizes;
+real-phone launch latency and battery have not been measured.
+
 With the Pebble SDK installed:
 
 ```sh
@@ -135,6 +142,8 @@ npm ci --ignore-scripts
 npm test
 npm run build
 npm run check:artifact
+python3 scripts/package-source.py
+python3 scripts/package-source.py --check
 ```
 
 Edit `src/pkjs/settings-page.js` for both configuration paths. The build generates
@@ -149,10 +158,21 @@ For browser checks, start local Chromium with debugging on port 9229, then run
 config plugin with isolated settings and a mock SDK bridge, checking read/save,
 errors, retry, discard and 320/360px light/dark layouts.
 
-There are no external npm dependencies. Distribution packaging adds
+There are no external runtime npm dependencies. The locked development-only
+Terser 5.46.0 tool removes whitespace and mangles local names for distribution;
+compression and property mangling are disabled, and function names and licence
+comments remain. SDK development output stays unminified. Distribution packaging adds
 `manifestVersion: 2`, `LaunchApps`, the offline page, the config-only plugin and
 license notices. Use the PBW under `dist/`; the plain SDK development PBW lacks
 the extra configuration packaging.
+
+Release source maps and the original SDK/plugin JavaScript are in the matching
+`Open-Activity-VERSION-debug.zip`, alongside the exact runtime scripts and their
+chained maps. The PBW has no map URL pointing to an absent file. Artifact checks
+recompute the transformation and compare every runtime script/map with that
+archive. Attach the debug ZIP separately when distributing a build; it is not
+installed on the watch. `package-source.py` writes a buildable source ZIP after
+the final documentation changes and updates all three artifact checksums.
 
 The [validation record](docs/VALIDATION.md) distinguishes portable fault tests,
 actual packaged-bundle checks and native-only QEMU evidence from the pending

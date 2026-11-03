@@ -13,6 +13,7 @@ function behavior(initial) {
   var assignment = document.getElementById('assignment-help');
   var loaded = false, repairing = false, migrating = false, uncertain = false, saved = '', phase = 'loading';
   var operation = 0, timer = null, bridgeReady = false;
+  var layoutPending = false, lastFlow = null, lastHeight = null;
   var legacy = initial.mode === 'legacy';
   function shortcut(value) {
     return ['none','hold-up','hold-select','hold-down','hold-back','tap-up','tap-down','combo-back-up','combo-up-down'].indexOf(value) !== -1;
@@ -35,13 +36,25 @@ function behavior(initial) {
   }
   function layoutActions() {
     if (typeof window === 'undefined' || typeof actions.getBoundingClientRect !== 'function') return;
+    if (layoutPending) return;
+    layoutPending = true;
+    // Status, viewport and ResizeObserver notifications may describe the same
+    // frame. Read geometry once after those changes and avoid unchanged writes.
+    if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(measureActions);
+    else setTimeout(measureActions, 0);
+  }
+  function measureActions() {
+    layoutPending = false;
     var viewport = window.visualViewport && window.visualViewport.height || window.innerHeight;
     var height = actions.getBoundingClientRect().height;
     // A short viewport or large text needs a normal-flow action area. Keeping
     // it fixed would cover the focused picker or the last help paragraph.
     var inFlow = viewport < 560 || height > viewport * 0.28;
-    actions.setAttribute('data-flow', inFlow ? 'true' : 'false');
-    document.documentElement.style.setProperty('--actions-height', (inFlow ? 0 : height) + 'px');
+    var flow = inFlow ? 'true' : 'false', reserved = (inFlow ? 0 : height) + 'px';
+    if (flow !== lastFlow) { actions.setAttribute('data-flow', flow); lastFlow = flow; }
+    if (reserved !== lastHeight) {
+      document.documentElement.style.setProperty('--actions-height', reserved); lastHeight = reserved;
+    }
   }
   function selectedLabel(field) {
     for (var i = 0; i < field.options.length; i++)

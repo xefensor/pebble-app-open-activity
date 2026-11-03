@@ -59,6 +59,7 @@ async function run() {
   };
   await send('Page.enable'); await send('Runtime.enable');
   const captures = [], layouts = [], checks = [];
+  let layoutWork;
   const key = require('../src/pkjs/settings').key;
   const pair = (primary = 'hold-down', secondary = 'hold-up') => ({version:2,primaryShortcut:primary,secondaryShortcut:secondary});
   const ids = ['hold-up','hold-select','hold-down','hold-back','tap-up','tap-down','combo-back-up','combo-up-down'];
@@ -114,6 +115,24 @@ async function run() {
   assert.equal(await evaluate('__qa.requests.some(m=>m.type==="saveSettings")'),false);
   assert.equal(await evaluate('__qa.requests.filter(m=>m.type==="getSettings").length'),1);
   checks.push('same-shortcut collision blocks Save without clearing either role; swaps save; one pending save; cold reopen and local Discard retain confirmed choices');
+  layoutWork = await evaluate(`(async()=>{
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const actions=document.getElementById('actions'),original=actions.getBoundingClientRect;
+    const result={resizeEvents:40,readsBeforeFrame:0,reads:0,writes:0};
+    actions.getBoundingClientRect=function(){result.reads++;return original.call(this);};
+    const observer=new MutationObserver(changes=>{result.writes+=changes.length;});
+    observer.observe(actions,{attributes:true,attributeFilter:['data-flow']});
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:['style']});
+    for(let i=0;i<20;i++){
+      window.dispatchEvent(new Event('resize'));
+      window.visualViewport.dispatchEvent(new Event('resize'));
+    }
+    result.readsBeforeFrame=result.reads;
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    observer.disconnect();actions.getBoundingClientRect=original;return result;
+  })()`);
+  assert.equal(layoutWork.readsBeforeFrame,0); assert.equal(layoutWork.reads,1); assert.equal(layoutWork.writes,0);
+  checks.push('40 synchronous viewport resize notifications cause one deferred footer geometry read and no unchanged layout writes');
   for (const id of ids) {
     for (const role of ['primary','secondary']) {
       await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair('none','none'))})});
@@ -219,7 +238,7 @@ async function run() {
   assert.deepEqual(errors, []);
   const report = {version, result: 'PASS', pbw: {file: path.basename(artifact), sha256: sha(fs.readFileSync(artifact))},
     executedPackagedFiles: Object.fromEntries(Object.entries(files).map(([name, value]) => [name, sha(value)])),
-    captures, layouts, accessibility, checks, errors,
+    captures, layouts, accessibility, layoutWork, checks, errors,
     scope: 'Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.'};
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   socket.close(); fs.rmSync(scratch, {recursive: true, force: true});

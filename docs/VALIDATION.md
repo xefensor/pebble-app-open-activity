@@ -1,5 +1,52 @@
 # Open Activity validation
 
+## 0.1.5 rendering and distribution optimization — 3 November 2026
+
+The native opening protocol, four-second deadline, settings model, permissions
+and app identity are unchanged. Quick Launch no longer executes the legacy
+settings renderer at startup. Navigation rejects strings over 512 UTF-16 code
+units before walking UTF-8, while keeping surrogate and byte-count validation.
+The settings page coalesces status, resize and observer notifications into one
+animation-frame measurement and skips unchanged style/attribute writes.
+
+- **53 JavaScript tests and both native harnesses pass**, including actual
+  minified packaged configuration, legacy return URLs, every shortcut/role,
+  migration, failures, expiry and duplicate suppression. New tests count work:
+  a 100,000-character invalid hint performs no character scans; resize/status
+  bursts cause one deferred geometry read and no unchanged writes.
+- **Actual packaged browser checks pass with 15 captures** at 320/360px,
+  light/dark, short/zoom-equivalent viewports and large text. Forty simultaneous
+  window/visual-viewport events cause **one deferred footer read, zero synchronous
+  reads and zero unchanged layout writes**. Twelve captures are pixel-identical
+  to 0.1.4; the other three retain the tested accessible geometry with normal
+  browser focus/scroll positioning. No product code moves focus or scroll.
+- **SDK 4.33.1 Emery build, exact transformation and artifact checks pass.**
+  Native remains 2,476 loaded / 2,548 virtual bytes. Native C is byte-identical;
+  binary differences from 0.1.4 are only SDK resource timestamp bytes 124–125.
+  Unchanged native QEMU evidence retains its historical scope.
+- Release PKJS falls **36,911 → 24,353 bytes**, the config plugin **6,480 →
+  4,050 bytes**, and the PBW **40,197 → 25,084 bytes**. The separate debug ZIP
+  is 59,876 bytes. The HTML is 641 bytes larger because it carries the bounded
+  scheduling/write checks. This is delivery size and reduced module execution,
+  not measured phone-startup, watch CPU or battery savings.
+
+Minification is pinned to Terser 5.46.0, ES5, without compression or property
+mangling. Function names and licence comments remain. The debug ZIP preserves
+original SDK/plugin code, original SDK map, exact runtime code and chained maps.
+Runtime files contain no URL to an absent map. The artifact check recomputes
+both transformations and their maps, verifies original SDK identity and licences,
+and verifies all declared artifact checksums. Source packaging is deterministic
+and excludes installed dependencies and generated QA PNGs.
+
+Evidence: [tests](qa/0.1.5/tests.log), [SDK build](qa/0.1.5/build.log),
+[artifact check](qa/0.1.5/artifact-check.log),
+[browser report](qa/0.1.5/settings/report.json) and
+[before/after identity and sizes](qa/0.1.5/optimization.json).
+PBW SHA-256: `b11a51f9352ad9a6efd5d187a82a8874f92bfc5e7f27e0cc264ce33f58392a06`.
+
+Real phone cold-start/Quick Launch latency, WebView keyboard behavior, physical
+watch and battery remain unmeasured. Existing release assets/tags are unchanged.
+
 ## 0.1.4 UI and accessibility pass — 3 November 2026
 
 The page retains exactly two shortcut choices and the same version2 record,
