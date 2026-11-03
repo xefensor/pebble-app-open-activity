@@ -56,7 +56,7 @@
     "timer": {
       "path": "pebble-app-timer/dist/Timer-0.9.0.pbw",
       "version": "0.9.0",
-      "sha256": "6962315cc2303a076d33c1a09d17a6600c47f4f7f4790fe24314d880e2378724",
+      "sha256": "44a2b09ce5a72455ae65694b8e22b05d5b5ab5276e0bd4891fc743b4e7ae0e3a",
       "executedScripts": {
         "pebble-js-app.js": "79cd2c61b7e5b69a5f7a6216277a9e354c40902d17c44616e5d2cfcb66db47b9",
         "plugin.js": "eb54fdbac2b65193a0c0c058a93c916ce4f0c29ae6d74d37200bae7e1f5a86e4"

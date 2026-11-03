@@ -43,6 +43,13 @@ and Discard use concise labels; uncertain writes retain Reload saved.
   privacy, notification expiry and duplicate suppression remain covered. SDK,
   clocks and native confirmation are simulated.
 
+Post-release follow-up: the current cross-app report uses Timer 0.9.0's final
+native header polish (`44a2b09c…` PBW), replacing the earlier unpublished Timer
+draft (`6962315c…`) recorded in the tagged 0.1.4 source snapshot. A fresh run
+passes with identical executed phone/plugin scripts and results; only the Timer
+artifact hash changes. This documentation update leaves Open Activity's tested
+commit, release tag, source archive and PBW bytes unchanged.
+
 Evidence: [UX review](UX-REVIEW.md), [tests](qa/0.1.4/tests.log),
 [build](qa/0.1.4/build.log), [artifact check](qa/0.1.4/artifact-check.log),
 [browser report](qa/0.1.4/settings/report.json),
