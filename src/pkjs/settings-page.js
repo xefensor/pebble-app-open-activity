@@ -9,6 +9,8 @@ function behavior(initial) {
   var fields = [primary, secondary], form = document.getElementById('settings');
   var save = document.getElementById('save'), discard = document.getElementById('discard');
   var retry = document.getElementById('retry'), status = document.getElementById('status');
+  var actions = document.getElementById('actions'), conflict = document.getElementById('shortcut-error');
+  var assignment = document.getElementById('assignment-help');
   var loaded = false, repairing = false, migrating = false, uncertain = false, saved = '', phase = 'loading';
   var operation = 0, timer = null, bridgeReady = false;
   var legacy = initial.mode === 'legacy';
@@ -29,23 +31,48 @@ function behavior(initial) {
   function dirty() { return loaded && (repairing || migrating || uncertain || edited()); }
   function message(text, error) {
     status.textContent = text; status.className = error ? 'status error' : 'status';
+    layoutActions();
+  }
+  function layoutActions() {
+    if (typeof window === 'undefined' || typeof actions.getBoundingClientRect !== 'function') return;
+    var viewport = window.visualViewport && window.visualViewport.height || window.innerHeight;
+    var height = actions.getBoundingClientRect().height;
+    // A short viewport or large text needs a normal-flow action area. Keeping
+    // it fixed would cover the focused picker or the last help paragraph.
+    var inFlow = viewport < 560 || height > viewport * 0.28;
+    actions.setAttribute('data-flow', inFlow ? 'true' : 'false');
+    document.documentElement.style.setProperty('--actions-height', (inFlow ? 0 : height) + 'px');
+  }
+  function selectedLabel(field) {
+    for (var i = 0; i < field.options.length; i++)
+      if (field.options[i].value === field.value) return field.options[i].textContent;
+    return '';
   }
   function describe() {
+    var duplicate = loaded && primary.value !== 'none' && primary.value === secondary.value;
+    conflict.hidden = !duplicate;
+    conflict.textContent = duplicate ? 'Choose a different shortcut for each activity.' : '';
     fields.forEach(function(field) {
       document.getElementById(field.id + '-help').textContent = !loaded ? 'Saved choice not loaded yet.' : field.value === 'none' ?
         'No shortcut assigned.' : field.id === 'secondary' ? 'Opens the smaller activity row.' : 'Opens the large activity.';
       field.options[0].textContent = phase === 'load-error' ? 'Not loaded' : 'Loading saved choice…';
-      field.setAttribute('aria-invalid', loaded && primary.value !== 'none' && primary.value === secondary.value ? 'true' : 'false');
+      field.setAttribute('aria-invalid', duplicate ? 'true' : 'false');
     });
+    var chosen = fields.filter(function(field) { return field.value && field.value !== 'none'; });
+    assignment.hidden = !!duplicate;
+    assignment.textContent = !loaded ? 'Choose shortcuts, then assign Open Activity to them in Pebble’s Quick Launch settings.' :
+      duplicate ? 'Use a different shortcut for each activity before setting up Quick Launch.' :
+      !chosen.length ? 'No activity shortcut is enabled. Choose a shortcut above to open an activity.' :
+      'In Pebble’s Quick Launch settings, assign Open Activity to ' + chosen.map(selectedLabel).join(' and ') + '.';
   }
   function controls() {
     var editing = loaded && phase !== 'saving';
     fields.forEach(function(field) { field.disabled = !editing; });
     save.disabled = !editing || !dirty() || !value();
-    save.textContent = phase === 'saving' ? 'Saving…' : 'Save settings';
+    save.textContent = phase === 'saving' ? 'Saving…' : 'Save';
     discard.hidden = !legacy && !loaded;
     discard.disabled = phase === 'saving' || !legacy && !uncertain && !edited();
-    discard.textContent = legacy ? 'Cancel' : uncertain ? 'Reload saved' : 'Discard changes';
+    discard.textContent = legacy ? 'Cancel' : uncertain ? 'Reload saved' : 'Discard';
     retry.hidden = phase !== 'load-error'; describe();
   }
   function changed() {
@@ -115,6 +142,11 @@ function behavior(initial) {
     }, saveFailed);
   };
   save.onclick = function(event) { if (event) event.preventDefault(); form.onsubmit(); };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', layoutActions);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', layoutActions);
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(layoutActions).observe(actions);
+  }
   if (legacy) apply(initial.settings, initial.needsRepair, initial.needsMigration);
   else {
     if (typeof Pebble !== 'undefined' && typeof Pebble.addEventListener === 'function') {
@@ -132,40 +164,42 @@ function render(initial) {
     var options = '<option value="none">Not assigned</option>' + model.shortcuts.map(function(shortcut) {
       return '<option value="' + shortcut.id + '">' + shortcut.label + '</option>';
     }).join('');
-    return '<label for="' + id + '">' + label + '</label><select id="' + id + '" aria-describedby="' + id + '-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option>' + options + '</select><p id="' + id + '-help" class="hint"></p>';
+    return '<label for="' + id + '">' + label + '</label><select id="' + id + '" aria-describedby="' + id + '-help shortcut-error" disabled><option value="" disabled hidden selected>Loading saved choice…</option>' + options + '</select><p id="' + id + '-help" class="hint"></p>';
   }
   return [
     '<!doctype html><html lang="en"><head><meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Open Activity</title><style>',
-    ':root{color-scheme:light;--page:#f4f5f7;--card:#fff;--ink:#101216;--muted:#5a6068;--line:#dde1e6;--accent:#145ca3;--field:#f4f5f7}',
-    '@media(prefers-color-scheme:dark){:root{color-scheme:dark;--page:#141618;--card:#212529;--ink:#f6f8fa;--muted:#b8c0c9;--line:#3c444d;--accent:#77bbff;--field:#2a3037}}',
+    ':root{color-scheme:light;--page:#f4f5f7;--card:#fff;--ink:#101216;--muted:#5a6068;--line:#dde1e6;--accent:#145ca3;--field:#f4f5f7;--error:#a1231d}',
+    '@media(prefers-color-scheme:dark){:root{color-scheme:dark;--page:#141618;--card:#212529;--ink:#f6f8fa;--muted:#b8c0c9;--line:#3c444d;--accent:#77bbff;--field:#2a3037;--error:#ffb4ab}}',
     '*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}',
-    'main{max-width:512px;margin:auto;padding:24px 16px 180px}h1{margin:0;font-size:28px;line-height:1.2;letter-spacing:-.6px}',
+    'html{scroll-padding-bottom:calc(var(--actions-height,144px) + 16px)}main{max-width:512px;margin:auto;padding:24px 16px calc(var(--actions-height,144px) + 24px)}h1{margin:0;font-size:28px;line-height:1.2;letter-spacing:-.6px}',
     'header>p{color:var(--muted);margin:12px 0 22px}h2{margin:0 0 10px;font-size:18px;color:var(--accent)}p{margin:0 0 16px}',
     '.card{margin:0 0 16px;padding:20px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px}',
     'label{display:block;margin:18px 0 7px;font-weight:650}select,button{font:inherit;min-height:44px;border-radius:8px}',
     'select{width:100%;padding:11px 10px;border:1px solid var(--line);background:var(--field);color:var(--ink)}',
+    'select[aria-invalid=true]{border-color:var(--error);box-shadow:0 0 0 1px var(--error)}.inline-error{margin:16px 0 0;font-size:14px;color:var(--error)}',
     'button{padding:10px 12px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-weight:650;cursor:pointer}',
     'button:disabled{opacity:.45;cursor:default}select:disabled{opacity:.6}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}',
     '.hint{font-size:14px;color:var(--muted);margin:8px 0 0}.intro{color:var(--muted);font-size:15px}',
     'details>summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:650}details.card>summary{color:var(--accent);font-size:17px}',
     '.help ol{margin:12px 0 16px;padding-left:22px}.help li{padding-left:3px;margin:9px 0}.help p{color:var(--muted);font-size:14px}.help p:last-child{margin-bottom:0}',
-    'footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:var(--page);border-top:1px solid var(--line)}',
-    '.footer-inner{max-width:480px;margin:auto}.status{font-size:14px;color:var(--muted);margin:0 0 10px;min-height:20px}.status.error{color:#a1231d}',
-    '@media(prefers-color-scheme:dark){.status.error{color:#ffb4ab}}.actions{display:flex;gap:8px}.actions button{flex:1;min-width:0}#save{background:#145ca3;border-color:#145ca3;color:#fff}',
+    'footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:var(--page);border-top:1px solid var(--line)}footer[data-flow=true]{position:static}',
+    '.footer-inner{max-width:480px;margin:auto}.status{font-size:14px;color:var(--muted);margin:0 0 10px;min-height:20px}.status.error{color:var(--error)}',
+    '.actions{display:flex;gap:8px}.actions button{flex:1;min-width:0;overflow-wrap:anywhere}footer[data-flow=true] .actions{flex-direction:column}#save{background:#145ca3;border-color:#145ca3;color:#fff}',
     '[hidden]{display:none!important}@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding-left:14px;padding-right:14px}footer{padding-left:12px;padding-right:12px}.actions button{font-size:15px}}',
+    '@media(max-width:260px){.actions{flex-direction:column}select{min-width:0}main{padding-top:16px}}',
     '</style></head><body><main><header><h1>Open Activity</h1><p>Choose a shortcut for each activity.</p></header>',
     '<form id="settings"><section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading">Activity shortcuts</h2>',
     picker('primary', 'Primary activity'), picker('secondary', 'Secondary activity'),
-    '<p class="intro" style="margin-top:20px">Assign Open Activity to these same shortcuts in Pebble’s Quick Launch settings.</p></section>',
+    '<p id="shortcut-error" class="inline-error" hidden></p><p id="assignment-help" class="intro" style="margin-top:20px"></p></section>',
     '</form><details class="card help"><summary>Setup &amp; help</summary><ol><li>Install the current Dynamic build.</li><li>Allow Open Activity to launch apps in the Pebble phone app.</li><li>In Pebble’s Quick Launch settings, assign this same <strong>Open Activity</strong> app to each shortcut you want to use.</li></ol>',
     '<p>Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>',
     '<p>A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.</p>',
     '<p>These choices apply when the shortcut is assigned to Open Activity. Other Quick Launch assignments stay as you set them.</p>',
     '<p>The app-list entry closes immediately. Configure it here, then use the assigned shortcuts.</p>',
     '<p>Back cancels while Opening… is shown. A launch already sent to the phone may still finish.</p>',
-    '</details></main><footer><div class="footer-inner"><p id="status" class="status" role="status" aria-live="polite">Loading settings…</p><div class="actions">',
-    '<button id="retry" type="button" hidden>Retry loading</button><button id="discard" type="button" disabled>Discard changes</button><button id="save" type="submit" form="settings" disabled>Save settings</button>',
+    '</details></main><footer id="actions"><div class="footer-inner"><p id="status" class="status" role="status" aria-live="polite">Loading settings…</p><div class="actions">',
+    '<button id="retry" type="button" hidden>Retry loading</button><button id="discard" type="button" disabled>Discard</button><button id="save" type="submit" form="settings" disabled>Save</button>',
     '</div></div></footer><script>(', behavior.toString(), ')(', JSON.stringify(initial).replace(/</g, '\\u003c'), ');</script></body></html>'
   ].join('\n');
 }

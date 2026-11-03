@@ -26,8 +26,8 @@ assigned to Open Activity close without opening an activity.
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.3.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.3/Open-Activity-0.1.3.pbw)
-from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.3)
+[`Open-Activity-0.1.4.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.4/Open-Activity-0.1.4.pbw)
+from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.4)
 and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
@@ -43,12 +43,18 @@ phone independently of the watch.
 
 Save is enabled only for edits, explicit conversion of older settings or a
 settings repair. Ordinary
-**Discard changes** restores the last confirmed choices without writing them.
+**Discard** restores the last confirmed choices without writing them.
 If a save is not confirmed, the page keeps the draft and offers **Reload saved**
 to read back storage, or an explicit Save retry; it does not pretend that local
 discard can undo an already sent save. Failed loading never supplies editable
 default choices. Phone Back closes without submitting unsaved edits; the legacy
 page also retains its Cancel return URL.
+
+The assignment instruction names the selected shortcuts. A conflict is explained
+beside both fields and in the status area. Save and Discard stay at the bottom
+on larger screens; on short screens or with oversized text, the actions move
+below the page so they cannot cover a focused choice. Both choices and Save
+remain reachable using the keyboard. See the [UI and UX review](docs/UX-REVIEW.md).
 
 In Pebble’s Quick Launch settings, assign **Open Activity** to each button you
 want to use. Combinations can be assigned in the phone app's Quick Launch

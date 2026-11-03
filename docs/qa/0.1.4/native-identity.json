@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "comparedSourceCommit": "5e5251fcd6e5c76523646ef43fbacffc09f6b6ac",
+  "nativeSourceUnchanged": true,
+  "nativeResourcesIdentical": true,
+  "configPluginIdentical": true,
+  "nativeBinaryIdenticalExceptResourceTimestamp": true,
+  "changedNativeOffsets": [
+    124,
+    125
+  ],
+  "allowedSdkMetadata": {
+    "field": "resource_timestamp",
+    "bytes": [
+      124,
+      128
+    ]
+  },
+  "nativeSha256": "cd6d865f1de9491d6d8b62c9a5a52823d407d3eb3339c2c09a74fff30e9b56cc",
+  "pbwSha256": "ea6ac6f87a93f839c159dcc353abfcd73ce0b767fd38359cbbcf77d80edef6a1",
+  "changedManifestFields": [
+    "versionLabel"
+  ],
+  "reusedNativeEvidence": "../0.1.2/emulator/report.json",
+  "scope": "Native code, resources and config plugin unchanged. Historical ordinary-launch QEMU evidence retains its original 0.1.2 scope; 0.1.4 browser and portable checks cover the changed phone UI."
+}

@@ -13,6 +13,7 @@ const files = JSON.parse(execFileSync('python3', ['-c',
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 assert.equal(files['config.html'], fs.readFileSync(path.join(root, 'config.html'), 'utf8'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'open-activity-ux-'));
+let activeSocket;
 fs.mkdirSync(output, {recursive: true});
 function fixture(seed = {}, faults = {}) {
   const shim = '<script>(function(){window.__qa={store:' + JSON.stringify(seed) + ',requests:[],faults:' + JSON.stringify(faults) + '};' +
@@ -31,6 +32,7 @@ function fixture(seed = {}, faults = {}) {
 async function run() {
   const tabs = await (await fetch(endpoint + '/json')).json();
   const socket = new WebSocket(tabs.find(tab => tab.type === 'page').webSocketDebuggerUrl);
+  activeSocket = socket;
   const pending = new Map(), errors = []; let sequence = 0;
   await new Promise((resolve, reject) => {socket.onopen = resolve; socket.onerror = reject;});
   socket.onmessage = event => {
@@ -74,7 +76,7 @@ async function run() {
     for (const theme of ['light','dark']) {
       await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
       captures.push(await capture('settings-' + width + '-' + theme + '.png'));
-      const layout=await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,selects:document.querySelectorAll("select").length,targets:Array.from(document.querySelectorAll("button,select,summary")).filter(e=>e.getClientRects().length).map(e=>({id:e.id||e.textContent,height:e.getBoundingClientRect().height})),labelled:Array.from(document.querySelectorAll("select")).every(e=>document.querySelector("label[for="+e.id+"]")&&document.getElementById(e.getAttribute("aria-describedby"))),background:getComputedStyle(document.body).backgroundColor})');
+      const layout=await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,selects:document.querySelectorAll("select").length,targets:Array.from(document.querySelectorAll("button,select,summary")).filter(e=>e.getClientRects().length).map(e=>({id:e.id||e.textContent,height:e.getBoundingClientRect().height})),labelled:Array.from(document.querySelectorAll("select")).every(e=>document.querySelector("label[for="+e.id+"]")&&e.getAttribute("aria-describedby").split(/\\s+/).every(id=>document.getElementById(id))),background:getComputedStyle(document.body).backgroundColor})');
       assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,2);
       assert.ok(layout.targets.every(target=>target.height>=44)); assert.equal(layout.labelled,true);
       layouts.push({width,theme,...layout});
@@ -87,6 +89,9 @@ async function run() {
   assert.equal(await evaluate('document.getElementById("secondary").value'),'hold-up');
   assert.equal(await evaluate('document.getElementById("save").disabled'),true);
   assert.equal(await evaluate('document.getElementById("status").textContent'),'Choose a different shortcut for each activity.');
+  assert.equal(await evaluate('document.getElementById("shortcut-error").hidden'),false);
+  assert.equal(await evaluate('document.getElementById("primary").getAttribute("aria-invalid")'),'true');
+  assert.equal(await evaluate('document.getElementById("primary").getAttribute("aria-describedby").includes("shortcut-error")'),true);
   await evaluate('document.getElementById("save").click()');
   assert.equal(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").length'),0);
   captures.push(await capture('collision-320.png'));
@@ -167,13 +172,60 @@ async function run() {
   await evaluate('document.querySelector(".help").open=true;document.querySelector(".help").scrollIntoView({block:"start"})');
   captures.push(await capture('setup-help-320.png'));
   checks.push('unreadable preferences require explicit repair Save; two selectors remain the entire configuration with setup disclosed separately');
+
+  // Keyboard-size and zoom-equivalent viewports expose footer overlap that is
+  // invisible in a tall screenshot. Native focus scrolling must keep fields
+  // and action buttons reachable, without product code moving focus.
+  const accessibility = [];
+  for (const viewport of [{name:'short',width:320,height:360},{name:'zoom-200-equivalent',width:160,height:400}]) {
+    await send('Emulation.setDeviceMetricsOverride',{width:viewport.width,height:viewport.height,deviceScaleFactor:1,mobile:true});
+    await send('Page.navigate',{url:fixture()}); await wait('!document.getElementById("primary").disabled');
+    await wait('document.getElementById("actions").getAttribute("data-flow")==="true"');
+    await evaluate('document.getElementById("secondary").focus()');
+    const geometry=await evaluate('(()=>{const f=document.getElementById("secondary").getBoundingClientRect(),b=document.getElementById("actions").getBoundingClientRect();return {active:document.activeElement.id,field:{top:f.top,bottom:f.bottom},footer:{top:b.top,height:b.height,position:getComputedStyle(document.getElementById("actions")).position},viewport:innerHeight,scrollWidth:document.documentElement.scrollWidth,fieldCovered:f.bottom>b.top&&f.top<b.bottom};})()');
+    assert.equal(geometry.active,'secondary'); assert.equal(geometry.footer.position,'static');
+    assert.equal(geometry.fieldCovered,false); assert.ok(geometry.field.top>=0&&geometry.field.bottom<=viewport.height);
+    assert.ok(geometry.scrollWidth<=viewport.width);
+    captures.push(await capture('focus-' + viewport.name + '.png'));
+    await change('primary','combo-back-up');
+    await evaluate('document.getElementById("primary").focus()');
+    for (let index=0; index<4; index++) {
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+      await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    }
+    const action=await evaluate('(()=>{const f=document.getElementById("save").getBoundingClientRect();return {active:document.activeElement.id,top:f.top,bottom:f.bottom};})()');
+    assert.equal(action.active,'save'); assert.ok(action.top>=0&&action.bottom<=viewport.height);
+    accessibility.push({viewport,focusedSecondary:geometry,keyboardSave:action});
+    captures.push(await capture('actions-' + viewport.name + '.png'));
+  }
+  checks.push('short320x360 and200%-zoom-equivalent160x400: focused Secondary and keyboard-reached Save are visible; action area returns to document flow; no horizontal overflow');
+  await send('Emulation.setDeviceMetricsOverride',{width:320,height:800,deviceScaleFactor:1,mobile:true});
+  await send('Page.navigate',{url:fixture()}); await wait('!document.getElementById("primary").disabled');
+  await evaluate('document.querySelectorAll("body,button,select,.status").forEach(e=>e.style.fontSize="32px")');
+  await wait('parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--actions-height"))>=document.getElementById("actions").getBoundingClientRect().height||document.getElementById("actions").getAttribute("data-flow")==="true"');
+  await evaluate('document.getElementById("secondary").focus()');
+  const largeText=await evaluate('(()=>{const f=document.getElementById("secondary").getBoundingClientRect(),a=document.getElementById("actions").getBoundingClientRect();return {flow:document.getElementById("actions").getAttribute("data-flow"),height:a.height,scrollWidth:document.documentElement.scrollWidth,fieldTop:f.top,fieldBottom:f.bottom,covered:f.bottom>a.top&&f.top<a.bottom};})()');
+  assert.equal(largeText.covered,false); assert.ok(largeText.fieldTop>=0&&largeText.fieldBottom<=800); assert.ok(largeText.scrollWidth<=320);
+  captures.push(await capture('large-text-focus-320.png'));
+  accessibility.push({largeText});
+  await evaluate('document.querySelectorAll("body,button,select,.status").forEach(e=>e.style.fontSize="48px")');
+  await wait('document.getElementById("actions").getAttribute("data-flow")==="true"');
+  await evaluate('document.getElementById("primary").focus();document.getElementById("secondary").focus()');
+  const oversizedText=await evaluate('(()=>{const f=document.getElementById("secondary").getBoundingClientRect(),a=document.getElementById("actions").getBoundingClientRect();return {flow:document.getElementById("actions").getAttribute("data-flow"),height:a.height,scrollWidth:document.documentElement.scrollWidth,fieldTop:f.top,fieldBottom:f.bottom,covered:f.bottom>a.top&&f.top<a.bottom};})()');
+  assert.equal(oversizedText.flow,'true'); assert.equal(oversizedText.covered,false); assert.ok(oversizedText.scrollWidth<=320);
+  captures.push(await capture('oversized-text-flow-320.png'));
+  accessibility.push({oversizedText});
+  checks.push('large text moves an oversized action area into document flow; selected shortcut names drive setup copy and disabled roles show no assignment');
   assert.deepEqual(errors, []);
   const report = {version, result: 'PASS', pbw: {file: path.basename(artifact), sha256: sha(fs.readFileSync(artifact))},
     executedPackagedFiles: Object.fromEntries(Object.entries(files).map(([name, value]) => [name, sha(value)])),
-    captures, layouts, checks, errors,
+    captures, layouts, accessibility, checks, errors,
     scope: 'Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.'};
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   socket.close(); fs.rmSync(scratch, {recursive: true, force: true});
   console.log(JSON.stringify({result: 'PASS', output, captures: captures.length, checks}, null, 2));
 }
-run().catch(error => {console.error(error); process.exitCode = 1;});
+run().catch(error => {console.error(error); process.exitCode = 1;}).finally(() => {
+  if (activeSocket) activeSocket.close();
+  fs.rmSync(scratch, {recursive:true,force:true});
+});

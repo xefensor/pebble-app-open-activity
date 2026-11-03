@@ -1,0 +1,13 @@
+{
+  "active": "secondary",
+  "field": {
+    "top": 315.546875,
+    "bottom": 359.546875
+  },
+  "footer": {
+    "top": 235.203125,
+    "height": 124.796875
+  },
+  "viewport": 360,
+  "covered": true
+}

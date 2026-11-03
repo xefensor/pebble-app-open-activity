@@ -1,0 +1,16 @@
+{
+  "result": "PASS",
+  "output": "/home/xela/Projekty/Pebble/pebble-app-open-activity/docs/qa/0.1.4/settings",
+  "captures": 15,
+  "checks": [
+    "exactly two role selectors, all eight choices and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load",
+    "same-shortcut collision blocks Save without clearing either role; swaps save; one pending save; cold reopen and local Discard retain confirmed choices",
+    "all eight shortcut choices save and cold-reopen independently for both roles; None disables the other role without a fallback",
+    "old mappings remain byte-identical on load; schema2 conversion uses explicit Save and keeps projected Primary/Secondary choices",
+    "failed loading shows unknown choices and Retry; failed Save keeps both role choices and retries explicitly",
+    "a write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; two selectors remain the entire configuration with setup disclosed separately",
+    "short320x360 and200%-zoom-equivalent160x400: focused Secondary and keyboard-reached Save are visible; action area returns to document flow; no horizontal overflow",
+    "large text moves an oversized action area into document flow; selected shortcut names drive setup copy and disabled roles show no assignment"
+  ]
+}

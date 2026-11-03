@@ -1,5 +1,63 @@
 # Open Activity validation
 
+## 0.1.4 UI and accessibility pass — 3 November 2026
+
+The page retains exactly two shortcut choices and the same version2 record,
+native behavior and permissions. The UI pass fixes a demonstrated overlap:
+in a 320×360 viewport, the previous fixed footer started at y235 while focused
+Secondary occupied y315–359. The new action area flows below the page in short
+viewports. Normal screens reserve the measured footer height; oversized action
+areas also flow below the page. No product code moves focus or scroll on load,
+Save or Retry.
+
+Conflicts now have an inline explanation associated with both invalid fields
+as well as the live status announcement. Generic assignment instructions are
+hidden while that conflict is active. Otherwise the setup instruction names
+the two selected shortcuts, or explains that neither role is assigned. Save
+and Discard use concise labels; uncertain writes retain Reload saved.
+
+- **50 JavaScript tests and both native harnesses pass.** Existing routing,
+  schema1 conversion, two-choice validation, empty/unassigned roles, no-write
+  loading, failure/retry/readback and packaged bridge behavior remain covered.
+  New source checks cover the field-associated conflict and selected-shortcut
+  setup instructions without adding configuration fields.
+- **Actual packaged browser checks pass with 15 reviewed captures.** This
+  includes 320/360px light/dark pages, all state/error/help captures, short
+  320×360 and zoom-equivalent 160×400 CSS viewports, and enlarged text. Native
+  focus scrolling keeps Secondary visible; actual Tab navigation reaches Save.
+  There are still exactly two selectors, 44px targets and no horizontal overflow.
+  The 160×400 CSS viewport models 200% reflow on a 320×800 display. Injected 32px
+  text verifies the measured fixed-area reservation; 48px text separately
+  verifies oversized actions returning to document flow. These are browser
+  fixtures, not a physical-phone keyboard, browser zoom or WebView claim.
+- **SDK 4.33.1 Emery build and artifact checks pass.** Loaded/complete native
+  bytes remain 2,476 and virtual bytes 2,548. PKJS is 36,911 bytes. Native C,
+  resources and the configuration plugin match 0.1.3 exactly. Native binary
+  differences are only SDK resource timestamp bytes 124–125; manifest differences
+  are only versionLabel. Its historical ordinary-launch QEMU evidence retains
+  its original scope, rather than being relabelled as a new native run.
+- **Six final cross-app privacy/role cases pass** with Dynamic 0.15.0, Timer
+  0.9.0 and Open Activity 0.1.4. The actual packaged scripts cover 48 selected
+  launches, 48 expired closures and 336 unselected-slot attempts without a
+  source subscription or invocation. Each shortcut is saved for both roles;
+  privacy, notification expiry and duplicate suppression remain covered. SDK,
+  clocks and native confirmation are simulated.
+
+Evidence: [UX review](UX-REVIEW.md), [tests](qa/0.1.4/tests.log),
+[build](qa/0.1.4/build.log), [artifact check](qa/0.1.4/artifact-check.log),
+[browser report](qa/0.1.4/settings/report.json),
+[visual review](qa/0.1.4/settings/review-sheet.png),
+[before/after geometry](qa/0.1.4/accessibility-comparison.json) and
+[native identity](qa/0.1.4/native-identity.json), plus the
+[final packaged cross-app report](qa/0.1.4/packaged-handoff.json).
+
+Final PBW SHA-256:
+`ea6ac6f87a93f839c159dcc353abfcd73ce0b767fd38359cbbcf77d80edef6a1`.
+
+Real phone WebView/keyboard behavior, Quick Launch timing, physical button
+release and battery remain device checks. Earlier source snapshots, tags,
+artifacts and validation evidence are preserved.
+
 ## 0.1.3 two activity shortcut choices — 3 November 2026
 
 The settings page now has exactly two dropdowns: **Primary activity** chooses

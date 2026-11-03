@@ -1,0 +1,42 @@
+{
+  "result": "PASS",
+  "baseline": {
+    "version": "0.1.3",
+    "pbwSha256": "a5cad61d26b06f9d15464785c9978882d3c6aa3e15e2b8a0d61503cc07911191",
+    "geometry": {
+      "active": "secondary",
+      "field": {
+        "top": 315.546875,
+        "bottom": 359.546875
+      },
+      "footer": {
+        "top": 235.203125,
+        "height": 124.796875
+      },
+      "viewport": 360,
+      "covered": true
+    },
+    "capture": "baseline/short-viewport.png"
+  },
+  "updated": {
+    "version": "0.1.4",
+    "pbwSha256": "ea6ac6f87a93f839c159dcc353abfcd73ce0b767fd38359cbbcf77d80edef6a1",
+    "geometry": {
+      "active": "secondary",
+      "field": {
+        "top": 299.546875,
+        "bottom": 343.546875
+      },
+      "footer": {
+        "top": 636.09375,
+        "height": 155.296875,
+        "position": "static"
+      },
+      "viewport": 360,
+      "scrollWidth": 320,
+      "fieldCovered": false
+    },
+    "capture": "settings/focus-short.png"
+  },
+  "scope": "Actual packaged pages with mocked SDK/storage in dedicatedChromium,320x360viewport andfocusedSecondary. No real-phone keyboard or WebView claim."
+}

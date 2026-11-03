@@ -50,9 +50,29 @@ test('a duplicate shortcut blocks Save without clearing either choice; None can 
   assert.equal(ui.elements.secondary.value, 'hold-up'); assert.equal(ui.elements.primary.value, 'hold-up');
   assert.equal(ui.elements.save.disabled, true);
   assert.equal(ui.elements.status.textContent, 'Choose a different shortcut for each activity.');
+  assert.equal(ui.elements['shortcut-error'].hidden, false);
+  assert.equal(ui.elements['shortcut-error'].textContent, 'Choose a different shortcut for each activity.');
+  assert.equal(ui.elements.primary.attributes['aria-invalid'], 'true');
+  assert.equal(ui.elements.secondary.attributes['aria-invalid'], 'true');
+  assert.equal(ui.elements['assignment-help'].hidden, true);
   ui.elements.save.onclick(); assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 0);
   ui.change('secondary', 'hold-down'); assert.equal(ui.elements.save.disabled, false, 'swapping resolves the conflict');
+  assert.equal(ui.elements['shortcut-error'].hidden, true);
+  assert.equal(ui.elements.primary.attributes['aria-invalid'], 'false');
+  assert.equal(ui.elements['assignment-help'].hidden, false);
   ui.change('primary', 'none'); ui.change('secondary', 'none'); assert.equal(ui.elements.save.disabled, false);
+});
+
+test('setup guidance names only the selected shortcuts and explains the disabled state', async () => {
+  const ui = mount(page.config(), () => Promise.resolve(loaded())); ui.ready(); await ui.tick();
+  assert.equal(ui.elements['assignment-help'].textContent,
+    'In Pebble’s Quick Launch settings, assign Open Activity to Hold Down and Hold Up.');
+  ui.change('primary', 'combo-back-up'); ui.change('secondary', 'tap-down');
+  assert.match(ui.elements['assignment-help'].textContent, /Hold Back \+ Up and Tap Down/);
+  ui.change('primary', 'none');
+  assert.match(ui.elements['assignment-help'].textContent, /to Tap Down\.$/);
+  ui.change('secondary', 'none');
+  assert.match(ui.elements['assignment-help'].textContent, /No activity shortcut is enabled/);
 });
 
 test('old mappings are projected without writes and converted only by explicit Save', async () => {

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.4
+
+- Keep the two Primary/Secondary shortcut choices, with setup guidance naming
+  the selected buttons and a clear state when neither role is assigned.
+- Keep focused fields visible on short screens and at enlarged text sizes.
+  Measure the action area and let it flow below the page when space is tight.
+- Explain shortcut conflicts beside both fields, mark the fields invalid and
+  retain the accessible status announcement without extra setup repetition.
+- Use concise Save/Discard actions and full-width actions in cramped layouts;
+  retain explicit readback for an unconfirmed save and all prior settings rules.
+- Preserve native launch behavior, model, identities, permissions and protocol.
+
 ## 0.1.3
 
 - Choose a shortcut for Primary activity and one for Secondary activity in two

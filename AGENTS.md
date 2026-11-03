@@ -59,3 +59,10 @@ the confirmed local snapshot without a backend write. An unconfirmed Save must
 remain uncertain until explicit readback or a confirmed retry; never claim
 that discarding a draft undoes a write already sent. Timeout/late callbacks
 must not overwrite a later loaded or edited draft.
+
+The action area reserves its measured height on regular screens. Short visual
+viewports and oversized action areas use normal document flow with full-width
+actions; never let fixed controls cover a focused field or the final help text.
+Keep focus and scroll under normal browser control during loading, saving and
+Retry. A shortcut conflict has an inline description associated with both fields
+and the live status announcement; hide generic assignment copy during a conflict.
