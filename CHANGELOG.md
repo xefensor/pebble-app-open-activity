@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.2
+
+- Configure all eight Quick Launch slots independently: four button holds,
+  Up/Down taps, and Back+Up or Up+Down combinations. Group them in phone settings.
+- Append `OA_GESTURE` (2007) so the phone distinguishes taps, holds and
+  combinations without changing existing message keys or launch safeguards.
+- Preserve version1 preferences and existing choices. New mappings inherit the
+  saved default until explicitly changed; system assignments stay user managed.
+- Verify 42 JavaScript checks, two native harnesses, 13 browser captures, the
+  SDK/artifact build and native ordinary-launch closure. Packaged SDK fixtures
+  cover 48 saved-slot launches and 48 expired-slot closures; physical gestures
+  and live phone/watch delivery remain device checks.
+
 ## 0.1.1
 
 - Organize phone settings around the two common hold mappings, with resolved
