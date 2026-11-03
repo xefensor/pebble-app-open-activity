@@ -1,5 +1,61 @@
 # Open Activity validation
 
+## 0.1.2 all Quick Launch shortcuts — 3 November 2026
+
+All eight shortcuts exposed by the current official phone app now have
+independent role mappings: four single-button holds, Up/Down taps, Back+Up and
+Up+Down holds. Native sends the exact gesture with its button in HELLO using
+appended key `OA_GESTURE` (2007); the phone no longer confuses taps/combinations
+with holds. UUID, existing key numbers, four-second budget, one-launch
+confirmation, Back cancellation, navigation expiry and permissions stay intact.
+Dynamic 0.14.0 and Timer 0.8.0 need no update for this helper change.
+
+- **42 JavaScript checks and both native harnesses pass.** Coverage includes
+  all eight slot identities, each mapped to either role, cold settings reads,
+  duplicate confirmation and rejection of unsupported/missing gesture metadata.
+  Packaged tests execute the actual PKJS and configuration plugin. UI tests
+  preserve all eight choices through Save/reopen, Discard and the legacy return
+  URL. Existing failure/retry/uncertain-save behavior remains covered.
+- **The version1 settings key/record and earlier choices are preserved.** New
+  optional tap/combination groups and Back/Center holds inherit the saved default
+  until explicitly changed. Loading old preferences does not write them or mark
+  the page dirty. Saving one mapping preserves all the other mappings.
+- **Actual packaged browser checks pass at 320/360px in light/dark mode.** The
+  shared page and config plugin save and cold-reopen all eight mappings. Thirteen
+  captures cover all three shortcut sections, loading/save errors and help;
+  labels, descriptions, 44px targets, fixed actions and no horizontal overflow
+  are checked. SDK storage/bridge are isolated browser fixtures.
+- **SDK 4.33.1 Emery build and artifact checks pass.** Loaded native bytes are
+  2,476 and virtual bytes 2,548. The complete native binary is 2,476 bytes and
+  PKJS is 34,483 bytes. The standalone PBW includes the shared configuration,
+  config-only plugin, LaunchApps permission and original license notices.
+- **The exact new native binary ran in isolated Emery QEMU.** Ordinary phone
+  launch closes and returns to the system. This native smoke test does not
+  simulate Quick Launch gestures or the real phone plugin runtime; the SDK
+  adapter harness separately exercises all eight gesture/button handshakes.
+- **Six packaged cross-app privacy/role cases pass.** Forty-eight saved-slot
+  launches cover all eight shortcuts with each mapped to both roles. Forty-eight
+  expired-slot attempts close. Baseline suppression, privacy, source expiry,
+  duplicate confirmation and underlying Timer/Music restoration remain covered.
+- The eight slot identities and Back-release behavior were independently
+  reviewed against pinned official phone/PebbleOS source and the local SDK.
+  No firmware or mobile-app fork is involved. Physical gesture timing remains
+  a device check, including Hold Back and the two combinations.
+
+Evidence: [tests](qa/0.1.2/tests.log), [SDK build](qa/0.1.2/build.log),
+[browser report](qa/0.1.2/settings/report.json),
+[native smoke](qa/0.1.2/emulator/report.json),
+[platform identities](qa/0.1.2/platform-quick-launch.json) and
+[packaged cross-app handoff](qa/0.1.2/packaged-handoff.json).
+
+Final PBW SHA-256:
+`356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96`.
+
+The integration fixture uses packaged Dynamic/Timer/Open Activity scripts with
+simulated clocks, SDK and native confirmation. Physical button releases, real
+phone settings/transport, cold-start latency, vibration and battery remain
+device checks. Earlier published tags and artifacts retain their original bytes.
+
 ## 0.1.1 settings UX — 3 November 2026
 
 This local candidate changes phone settings and their generated legacy fallback.

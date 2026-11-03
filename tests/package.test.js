@@ -16,6 +16,7 @@ const settings = require('../src/pkjs/settings');
 const mountSettings = require('./helpers/settings-page');
 const NOW = 1793700000000;
 const TIMER = '50e9ef12-a5ab-4369-a3b5-3447bfba5151';
+const MUSIC = '1f03293d-47af-4f28-b960-f2b02a6dd757';
 let bundle;
 if (built) bundle = JSON.parse(cp.execFileSync('python3', ['-c',
   'import json,sys,zipfile\nwith zipfile.ZipFile(sys.argv[1]) as z: print(json.dumps({name:z.read(name).decode() for name in ["appinfo.json","pebble-js-app.js","plugin.js","config.html"]}))', artifact], {encoding: 'utf8'}));
@@ -39,7 +40,9 @@ test('packaged config cold-starts without native watchapp and preserves settings
   const store = storage();
   const first = coldConfig(store);
   assert.deepEqual(first({type: 'getSettings'}), {ok: true, settings: settings.defaults(), needsRepair: false});
-  const chosen = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}};
+  const chosen = {version: 1, defaultRole: 'secondary',
+    holdOverrides: {up: 'primary', down: 'secondary', select: 'primary', back: 'secondary'},
+    tapOverrides: {up: 'secondary', down: 'primary'}, comboOverrides: {backUp: 'primary', upDown: 'secondary'}};
   assert.deepEqual(first({type: 'saveSettings', settings: chosen}), {ok: true});
   const second = coldConfig(store);
   assert.deepEqual(second({type: 'getSettings'}), {ok: true, settings: chosen, needsRepair: false});
@@ -86,38 +89,49 @@ test('packaged legacy configuration shares the page and retains cancel/save retu
   assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])),
     {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}});
 });
-test('packaged PKJS consumes Dynamic nav source and invokes exactly once only after native confirmation', {skip: !built}, () => {
-  const handlers = {}, messages = [], invocations = [];
-  let subscription;
-  const Clock = class extends Date {static now() {return NOW;}};
-  vm.runInNewContext(bundle['pebble-js-app.js'], {
-    Date: Clock, Math, Promise, localStorage: storage(), console: {error() {}, log() {}},
-    setTimeout() {return 1;}, clearTimeout() {},
-    Pebble: {
-      addEventListener(event, handler) {handlers[event] = handler;}, removeEventListener() {},
-      sendAppMessage(message, success) {messages.push(message); if (success) success();},
-      subscribeToSource(request) {subscription = request; return {unsubscribe() {}};},
-      invokeAction(request) {invocations.push(request); return new Promise(() => {});},
-      openURL() {throw new Error('unexpected configuration request');}
+test('packaged PKJS honors each saved slot and invokes exactly once after native confirmation', {skip: !built}, () => {
+  for (const [button, gesture, key] of [[0, 1, 'back'], [1, 1, 'up'], [2, 1, 'select'],
+    [3, 1, 'down'], [1, 2, 'up'], [3, 2, 'down'], [0, 3, 'backUp'], [1, 3, 'upDown']]) {
+    for (const chosenRole of ['primary', 'secondary']) {
+      const store = storage();
+      const chosen = {version: 1, defaultRole: chosenRole === 'primary' ? 'secondary' : 'primary', holdOverrides: {}};
+      if (gesture === protocol.gesture.hold) chosen.holdOverrides[key] = chosenRole;
+      else if (gesture === protocol.gesture.tap) chosen.tapOverrides = {[key]: chosenRole};
+      else chosen.comboOverrides = {[key]: chosenRole};
+      assert.deepEqual(coldConfig(store)({type: 'saveSettings', settings: chosen}), {ok: true});
+      const handlers = {}, messages = [], invocations = [];
+      let subscription;
+      const Clock = class extends Date {static now() {return NOW;}};
+      vm.runInNewContext(bundle['pebble-js-app.js'], {
+        Date: Clock, Math, Promise, localStorage: store, console: {error() {}, log() {}},
+        setTimeout() {return 1;}, clearTimeout() {},
+        Pebble: {
+          addEventListener(event, handler) {handlers[event] = handler;}, removeEventListener() {},
+          sendAppMessage(message, success) {messages.push(message); if (success) success();},
+          subscribeToSource(request) {subscription = request; return {unsubscribe() {}};},
+          invokeAction(request) {invocations.push(request); return new Promise(() => {});},
+          openURL() {throw new Error('unexpected configuration request');}
+        }
+      }, {timeout: 2000});
+      handlers.ready();
+      handlers.appmessage({payload: protocol.message(protocol.operation.HELLO,
+        {OA_SESSION: 9, OA_BUTTON: button, OA_GESTURE: gesture, OA_ELAPSED_MS: 100})});
+      assert.equal(subscription.plugin, navigation.dynamicUuid);
+      const hint = {schema: 1, watchfaceUuid: navigation.dynamicUuid, nativeSession: 99,
+        viewSequence: 41, presentationSequence: 7, presentedAtMs: NOW - 1000,
+        expiresAtMs: NOW + 40000, primary: {watchAppUuid: TIMER}, secondary: {watchAppUuid: MUSIC}};
+      subscription.onData({pluginUuid: navigation.dynamicUuid, validUntilMs: hint.expiresAtMs,
+        instances: [{instanceId: 'current', properties: {hint: {longText: {text: JSON.stringify(hint)}}}}]});
+      const prepare = messages.find(message => protocol.get(message, 'OA_OPERATION') === protocol.operation.PREPARE);
+      assert.ok(prepare);
+      assert.ok(protocol.get(prepare, 'OA_TICKET') > 0 && protocol.get(prepare, 'OA_TICKET') <= 2147483647);
+      assert.equal(invocations.length, 0);
+      const confirm = Object.assign({}, prepare, {[protocol.keys.OA_OPERATION]: protocol.operation.CONFIRM,
+        [protocol.keys.OA_ELAPSED_MS]: 200});
+      handlers.appmessage({payload: confirm}); handlers.appmessage({payload: confirm});
+      assert.equal(invocations.length, 1);
+      assert.equal(invocations[0].args.uuid, chosenRole === 'primary' ? TIMER : MUSIC);
+      assert.equal(invocations[0].action, 'launch_app');
     }
-  }, {timeout: 2000});
-  handlers.ready();
-  handlers.appmessage({payload: protocol.message(protocol.operation.HELLO,
-    {OA_SESSION: 9, OA_BUTTON: 3, OA_ELAPSED_MS: 100})});
-  assert.equal(subscription.plugin, navigation.dynamicUuid);
-  const hint = {schema: 1, watchfaceUuid: navigation.dynamicUuid, nativeSession: 99,
-    viewSequence: 41, presentationSequence: 7, presentedAtMs: NOW - 1000,
-    expiresAtMs: NOW + 40000, primary: {watchAppUuid: TIMER}, secondary: null};
-  subscription.onData({pluginUuid: navigation.dynamicUuid, validUntilMs: hint.expiresAtMs,
-    instances: [{instanceId: 'current', properties: {hint: {longText: {text: JSON.stringify(hint)}}}}]});
-  const prepare = messages.find(message => protocol.get(message, 'OA_OPERATION') === protocol.operation.PREPARE);
-  assert.ok(prepare);
-  assert.ok(protocol.get(prepare, 'OA_TICKET') > 0 && protocol.get(prepare, 'OA_TICKET') <= 2147483647);
-  assert.equal(invocations.length, 0);
-  const confirm = Object.assign({}, prepare, {[protocol.keys.OA_OPERATION]: protocol.operation.CONFIRM,
-    [protocol.keys.OA_ELAPSED_MS]: 200});
-  handlers.appmessage({payload: confirm}); handlers.appmessage({payload: confirm});
-  assert.equal(invocations.length, 1);
-  assert.equal(invocations[0].args.uuid, TIMER);
-  assert.equal(invocations[0].action, 'launch_app');
+  }
 });

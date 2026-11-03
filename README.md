@@ -4,34 +4,45 @@ One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
 and the official phone app. No phone-app or firmware fork is required.
 
-Assign this same app to two Quick Launch buttons, for example:
+Assign this same app to any of these Quick Launch shortcuts. Each has its own
+Primary / Secondary / Use default choice in Open Activity's phone settings:
 
 | Shortcut | Initial behavior |
 | --- | --- |
 | Hold Up | Open Dynamic’s Secondary activity app |
 | Hold Down | Open Dynamic’s Primary activity app |
+| Hold Center (Select) | Use default activity |
+| Hold Back | Use default activity |
+| Tap Up | Use default activity |
+| Tap Down | Use default activity |
+| Hold Back + Up | Use default activity |
+| Hold Up + Down | Use default activity |
 
-Both assignments are named **Open Activity**. Change the role mappings in Open
-Activity’s phone settings. Other supported hold buttons use Default activity,
-initially Primary. The app never modifies your global Quick Launch assignments.
+All assignments are named **Open Activity**. Default activity is initially
+Primary. Tap, hold and combination choices are independent, including on the
+same physical button. Existing Up/Down choices and your saved default survive
+upgrading; previously unconfigured shortcuts inherit that default. Opening
+settings does not save or reset anything. The app never modifies your global
+Quick Launch assignments.
 
 ## Installation and settings
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.1.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.1/Open-Activity-0.1.1.pbw)
-from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.1)
+[`Open-Activity-0.1.2.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.2/Open-Activity-0.1.2.pbw)
+from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.2)
 and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
-Open its phone settings to choose Hold Up, Hold Down and Default activity. The
+Open its phone settings to choose each shortcut and Default activity. The
 offline settings page is bundled in the PBW and works through a config-only
 plugin with the same app UUID. It does not require the transition watchapp to
 remain open, add another installed watchapp or expose an Activities service.
 
 The page explains Primary as the large activity and Secondary as the smaller
-row. **Default for other holds** is a disclosure below the two common mappings;
-each **Use default** option shows its resolved role. **Setup & help** contains
+row. **Button holds**, **Button taps** and **Button combinations** expose all
+eight mappings. **Default activity** is a disclosure below them; each **Use
+default** option shows its resolved role. **Setup & help** contains
 the permission and Quick Launch steps. Phone light/dark appearance follows the
 phone independently of the watch.
 
@@ -44,8 +55,11 @@ default choices. Phone Back closes without submitting unsaved edits; the legacy
 page also retains its Cancel return URL.
 
 In Pebble’s Quick Launch settings, assign **Open Activity** to each button you
-want to use. The app-list entry intentionally closes if opened normally; use
-the phone app for configuration and the configured holds for opening activities.
+want to use. Combinations can be assigned in the phone app's Quick Launch
+settings. Only shortcuts assigned to Open Activity use these role choices;
+other shortcuts keep their existing assigned apps. The app-list entry
+intentionally closes if opened normally; use the phone app for configuration
+and the configured shortcuts for opening activities.
 
 ## Behavior
 
@@ -92,11 +106,22 @@ uint32 `nativeSession`, `viewSequence`, `presentationSequence`, original
 `{watchAppUuid}`. The lease is at most 45 seconds. Unknown fields, malformed
 identities, wrong providers, expired data and helper-self destinations fail.
 
-Native validates Quick Launch reason/action/button, starts a session and sends
-its remaining UI budget. The phone resolves one destination, then asks native
+Native validates the exact eight Quick Launch action/button pairs, starts a
+session and sends the gesture, button and remaining UI budget. The appended
+`OA_GESTURE` message key is 2007; existing keys retain their numbers. Hold Back
+and the Back+Up combination are distinct from each other and from a fresh Back
+press that cancels an opening attempt. The phone resolves one destination, then asks native
 to confirm that exact session/ticket/role/destination. Only a matching live
 confirmation can issue one Watch State `launch_app` invocation. Duplicate and
 late callbacks cannot create another invocation.
+
+The version1 preference record and `open-activity-settings-v1` key are retained.
+`holdOverrides` supports `up`, `down`, `select` and `back`. Optional `tapOverrides`
+supports `up` and `down`; optional `comboOverrides` supports `backUp` and `upDown`.
+Omitted overrides use the saved `defaultRole`. The
+[platform identity evidence](docs/qa/0.1.2/platform-quick-launch.json) pins the
+official phone and firmware sources for these eight slots. Availability in
+system settings depends on the installed phone/firmware version.
 
 ## Development and validation
 

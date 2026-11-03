@@ -71,6 +71,41 @@ test('factory defaults, independent overrides and default hold buttons', () => {
   assert.equal(settings.select(reversed, 3), 'secondary');
   for (const value of ['toString', 'constructor', '__proto__', '1', 9, -1, null]) assert.equal(settings.select(saved, value), null);
 });
+test('all eight Quick Launch slots retain independent choices across a cold save/load', () => {
+  const previous = settings.defaults();
+  let encoded = JSON.stringify(previous), writes = 0;
+  const storage = {getItem: () => encoded, setItem(key, value) {assert.equal(key, settings.key); writes++; encoded = value;}};
+  assert.deepEqual(settings.load(storage), previous);
+  assert.equal(writes, 0, 'opening old settings never writes or changes choices');
+  const chosen = {version: 1, defaultRole: 'secondary',
+    holdOverrides: {back: 'primary', select: 'secondary', down: 'primary', up: 'secondary'},
+    tapOverrides: {down: 'secondary', up: 'primary'}, comboOverrides: {upDown: 'primary', backUp: 'secondary'}};
+  assert.equal(settings.save(storage, chosen), true);
+  const saved = settings.load(storage);
+  assert.deepEqual(Object.keys(saved.holdOverrides), ['up', 'down', 'select', 'back']);
+  assert.deepEqual(Object.keys(saved.tapOverrides), ['up', 'down']);
+  assert.deepEqual(Object.keys(saved.comboOverrides), ['backUp', 'upDown']);
+  for (const [button, gesture, expected] of [
+    [0, 1, 'primary'], [1, 1, 'secondary'], [2, 1, 'secondary'], [3, 1, 'primary'],
+    [1, 2, 'primary'], [3, 2, 'secondary'], [0, 3, 'secondary'], [1, 3, 'primary']
+  ]) assert.equal(settings.select(saved, button, gesture), expected);
+  assert.equal(writes, 1);
+});
+test('new slots inherit Default without changing old hold mappings or adding empty tap state', () => {
+  const previous = settings.defaults();
+  const migrated = settings.normalize({...previous,
+    holdOverrides: {...previous.holdOverrides, select: 'default', back: 'default'},
+    tapOverrides: {up: 'default', down: 'default'}, comboOverrides: {backUp: 'default', upDown: 'default'}});
+  assert.deepEqual(migrated, previous);
+  for (const [button, gesture] of [[0, 1], [2, 1], [1, 2], [3, 2], [0, 3], [1, 3]])
+    assert.equal(settings.select(migrated, button, gesture), 'primary');
+  for (const [button, gesture] of [[0, 2], [2, 2], [1, 0], [1, 4], [2, 3], [3, 3], [1, '1'], [1, null]])
+    assert.equal(settings.select(migrated, button, gesture), null);
+  for (const changes of [{holdOverrides: {other: 'primary'}}, {tapOverrides: {select: 'primary'}},
+    {tapOverrides: {back: 'secondary'}}, {tapOverrides: null}, {tapOverrides: []}, {tapOverrides: {up: 'unknown'}},
+    {comboOverrides: {back: 'primary'}}, {comboOverrides: {backUp: 'unknown'}}, {comboOverrides: null}])
+    assert.equal(settings.normalize({...previous, ...changes}), null);
+});
 test('corrupt, inherited-name and unsupported settings never silently become defaults', () => {
   for (const role of ['toString', 'constructor', '__proto__', 'unknown', '', null, 1]) {
     assert.equal(settings.normalize({version: 1, defaultRole: role, holdOverrides: {}}), null);

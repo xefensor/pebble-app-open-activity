@@ -1,0 +1,579 @@
+{
+  "result": "PASS",
+  "scope": "Actual packaged Dynamic PKJS/navigation provider, Timer PKJS/provider and Open Activity PKJS/config plugin, including all eight independently saved Quick Launch mappings. In-memory SDK, clocks and synthetic native presentation/gesture/confirmation messages; no real phone, physical watch or physical Quick Launch claim.",
+  "versions": {
+    "dynamic": "0.14.0",
+    "timer": "0.8.0",
+    "helper": "0.1.2"
+  },
+  "shortcutLaunches": 48,
+  "expiredShortcutAttempts": 48,
+  "testedShortcutRoles": {
+    "hold-up": [
+      "primary",
+      "secondary"
+    ],
+    "hold-down": [
+      "primary",
+      "secondary"
+    ],
+    "hold-select": [
+      "primary",
+      "secondary"
+    ],
+    "hold-back": [
+      "primary",
+      "secondary"
+    ],
+    "tap-up": [
+      "primary",
+      "secondary"
+    ],
+    "tap-down": [
+      "primary",
+      "secondary"
+    ],
+    "combo-back-up": [
+      "primary",
+      "secondary"
+    ],
+    "combo-up-down": [
+      "primary",
+      "secondary"
+    ]
+  },
+  "artifacts": {
+    "dynamic": {
+      "file": "dynamic-watchface/dist/Dynamic-0.14.0.pbw",
+      "sha256": "3e68889f805736e578e49e8fef34387f48279e3b293c3a8fddd6633458cc367a"
+    },
+    "timer": {
+      "file": "pebble-app-timer/dist/Timer-0.8.0.pbw",
+      "sha256": "b80010c2d83bec6f6986f39815fa87d5a72bcf3a37f11df6a8e5349ca4b0ba9e"
+    },
+    "helper": {
+      "file": "pebble-app-open-activity/dist/Open-Activity-0.1.2.pbw",
+      "sha256": "356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96"
+    }
+  },
+  "cases": [
+    {
+      "privacy": "message",
+      "role": "primary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    },
+    {
+      "privacy": "message",
+      "role": "secondary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    },
+    {
+      "privacy": "summary",
+      "role": "primary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    },
+    {
+      "privacy": "summary",
+      "role": "secondary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    },
+    {
+      "privacy": "app-only",
+      "role": "primary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    },
+    {
+      "privacy": "app-only",
+      "role": "secondary",
+      "notificationDestination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+      "otherDestination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+      "duplicateInvocationsSuppressed": true,
+      "existingBaselineSuppressed": true,
+      "privateContentsAbsentFromNavigation": true,
+      "coldSavedShortcutSettingsRespected": true,
+      "allEightShortcutMappingsRespected": true,
+      "shortcutResults": [
+        {
+          "shortcut": "hold-up",
+          "gesture": 1,
+          "button": 1,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-down",
+          "gesture": 1,
+          "button": 3,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-select",
+          "gesture": 1,
+          "button": 2,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "hold-back",
+          "gesture": 1,
+          "button": 0,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-up",
+          "gesture": 2,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        },
+        {
+          "shortcut": "tap-down",
+          "gesture": 2,
+          "button": 3,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-back-up",
+          "gesture": 3,
+          "button": 0,
+          "selectedRole": "secondary",
+          "destination": "b2cae818-10f8-46df-ad2b-98ad2254a3c1",
+          "invocations": 1
+        },
+        {
+          "shortcut": "combo-up-down",
+          "gesture": 3,
+          "button": 1,
+          "selectedRole": "primary",
+          "destination": "50e9ef12-a5ab-4369-a3b5-3447bfba5151",
+          "invocations": 1
+        }
+      ],
+      "allEightExpiredShortcutsClosed": true,
+      "expiryContracted": true,
+      "expiredRouteClosed": true,
+      "underlyingTimerAndMusicRestored": true
+    }
+  ],
+  "executedPackagedScripts": {
+    "dynamic": [
+      {
+        "file": "pebble-js-app.js",
+        "sha256": "04fd7805e32b311c823d73061d0a32782967e3954e5fc626ab3a9260041685e0"
+      },
+      {
+        "file": "plugin.js",
+        "sha256": "90bef7463fe17cdf79d1b40b9f9cbcaf60068314e5a4ea843c48a2cccdcf7940"
+      }
+    ],
+    "timer": [
+      {
+        "file": "pebble-js-app.js",
+        "sha256": "79cd2c61b7e5b69a5f7a6216277a9e354c40902d17c44616e5d2cfcb66db47b9"
+      },
+      {
+        "file": "plugin.js",
+        "sha256": "eb54fdbac2b65193a0c0c058a93c916ce4f0c29ae6d74d37200bae7e1f5a86e4"
+      }
+    ],
+    "helper": [
+      {
+        "file": "pebble-js-app.js",
+        "sha256": "13cbfa22c293bae9dc6788d801a9f4ed492f92c2d3fdca761eb8006f051ae9cc"
+      },
+      {
+        "file": "plugin.js",
+        "sha256": "7dd37f884a7d36bdf30367e839ec6cc07c1a9f633c7f44760d510c8d216bc504"
+      }
+    ]
+  }
+}

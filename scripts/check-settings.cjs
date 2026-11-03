@@ -97,7 +97,33 @@ async function run() {
   assert.equal(await evaluate('__qa.requests.some(m=>m.type==="saveSettings")'), false);
   assert.equal(await evaluate('__qa.requests.filter(m=>m.type==="getSettings").length'), 1, 'discard does no backend work');
   checks.push('resolved Default,dirty/saving/saved states,one save,actual packaged plugin cold-read/write/reopen,discard without write');
+  const choices = {up: 'primary', down: 'secondary', select: 'primary', back: 'secondary',
+    'tap-up': 'secondary', 'tap-down': 'primary', 'combo-back-up': 'primary', 'combo-up-down': 'secondary'};
+  for (const [id, choice] of Object.entries(choices)) await change(id, choice);
+  await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="Settings saved."');
+  const allShortcuts = await evaluate('__qa.store');
+  const mappings = JSON.parse(allShortcuts[key]);
+  const selectRole = require('../src/pkjs/settings').select;
+  for (const [button, gesture, expected] of [[1,1,'primary'],[3,1,'secondary'],[2,1,'primary'],[0,1,'secondary'],
+    [1,2,'secondary'],[3,2,'primary'],[0,3,'primary'],[1,3,'secondary']]) assert.equal(selectRole(mappings,button,gesture),expected);
+  await send('Page.navigate', {url: fixture(allShortcuts)}); await wait('!document.getElementById("up").disabled');
+  for (const [id, choice] of Object.entries(choices)) assert.equal(await evaluate('document.getElementById(' + JSON.stringify(id) + ').value'),choice);
+  assert.equal(await evaluate('document.getElementById("save").disabled'),true);
+  assert.equal(await evaluate('__qa.requests.some(m=>m.type==="saveSettings")'),false);
+  await send('Emulation.setDeviceMetricsOverride', {width:320,height:800,deviceScaleFactor:1,mobile:true});
+  for (const theme of ['light','dark']) {
+    await send('Emulation.setEmulatedMedia', {features:[{name:'prefers-color-scheme',value:theme}]});
+    await evaluate('document.querySelector("label[for=select]").scrollIntoView({block:"start"})');
+    captures.push(await capture('holds-lower-320-' + theme + '.png'));
+    await evaluate('document.getElementById("taps-heading").scrollIntoView({block:"start"})');
+    captures.push(await capture('taps-combinations-320-' + theme + '.png'));
+    await evaluate('document.getElementById("combos-heading").scrollIntoView({block:"start"})');
+    captures.push(await capture('combinations-320-' + theme + '.png'));
+  }
+  checks.push('all eight independent shortcut mappings save/cold-reopen through packaged plugin; tap/hold/combo identities route independently; existing settings load without writes');
   await send('Emulation.setDeviceMetricsOverride', {width: 320, height: 800, deviceScaleFactor: 1, mobile: true});
+  await send('Emulation.setEmulatedMedia', {features: [{name:'prefers-color-scheme',value:'light'}]});
   await send('Page.navigate', {url: fixture(stored, {load: 1})});
   await wait('!document.getElementById("retry").hidden');
   assert.equal(await evaluate('document.getElementById("save").disabled'), true);

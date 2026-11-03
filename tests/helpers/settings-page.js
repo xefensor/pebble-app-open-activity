@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 module.exports = function mount(html, reply) {
   const elements = {};
-  for (const id of ['up','down','role','settings','save','discard','retry','status','up-help','down-help','default-help'])
+  for (const id of ['up','down','select','back','tap-up','tap-down','combo-back-up','combo-up-down','role','settings','save','discard','retry','status','up-help','down-help','select-help','back-help','tap-up-help','tap-down-help','combo-back-up-help','combo-up-down-help','default-help'])
     elements[id] = {id, value: id === 'role' ? 'primary' : 'default', disabled: true, hidden: false,
       textContent: '', options: [{value: '', textContent: ''}, {value: 'default', textContent: ''}], className: ''};
   const requests = [], timers = new Map(), location = {href: ''};

@@ -7,6 +7,7 @@ static TextLayer *s_label;
 static AppTimer *s_timeout;
 static OaAttempt s_attempt;
 static ButtonId s_button;
+static AppQuickLaunchAction s_gesture;
 static bool s_sending;
 static uint8_t s_pending_operation;
 
@@ -46,7 +47,10 @@ static void send_operation(uint8_t operation) {
   dict_write_uint8(message, OA_KEY_OPERATION, operation);
   dict_write_uint32(message, OA_KEY_SESSION, s_attempt.session);
   dict_write_uint32(message, OA_KEY_ELAPSED_MS, oa_attempt_elapsed(&s_attempt, now_ms()));
-  if (operation == OA_HELLO) dict_write_uint8(message, OA_KEY_BUTTON, s_button);
+  if (operation == OA_HELLO) {
+    dict_write_uint8(message, OA_KEY_BUTTON, s_button);
+    dict_write_uint8(message, OA_KEY_GESTURE, s_gesture);
+  }
   if (operation == OA_CONFIRM) {
     dict_write_uint32(message, OA_KEY_TICKET, s_attempt.ticket);
     dict_write_uint8(message, OA_KEY_ROLE, s_attempt.role);
@@ -173,10 +177,16 @@ static void deinit(void) {
 
 int main(void) {
   uint32_t started = now_ms();
-  if (launch_reason() != APP_LAUNCH_QUICK_LAUNCH ||
-      launch_get_quick_launch_action() != APP_QUICK_LAUNCH_ACTION_HOLD) return 0;
+  if (launch_reason() != APP_LAUNCH_QUICK_LAUNCH) return 0;
+  s_gesture = launch_get_quick_launch_action();
   s_button = launch_button();
-  if (s_button >= NUM_BUTTONS) return 0;
+  if ((unsigned)s_button >= NUM_BUTTONS) return 0;
+  bool supported = s_gesture == APP_QUICK_LAUNCH_ACTION_HOLD ||
+    (s_gesture == APP_QUICK_LAUNCH_ACTION_TAP &&
+     (s_button == BUTTON_ID_UP || s_button == BUTTON_ID_DOWN)) ||
+    (s_gesture == APP_QUICK_LAUNCH_ACTION_COMBO &&
+     (s_button == BUTTON_ID_BACK || s_button == BUTTON_ID_UP));
+  if (!supported) return 0;
   init(started);
   if (s_attempt.phase != OA_CLOSED) app_event_loop();
   deinit();

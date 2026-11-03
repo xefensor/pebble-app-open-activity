@@ -6,6 +6,44 @@ const page = require('../src/pkjs/settings-page');
 const settings = require('../src/pkjs/settings');
 const mount = require('./helpers/settings-page');
 const loaded = () => ({ok: true, settings: settings.defaults(), needsRepair: false});
+test('all eight shortcuts save independently and reopen without resetting existing choices', async () => {
+  let stored = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}};
+  const reply = message => {
+    if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
+    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+  };
+  const ui = mount(page.config(), reply); ui.ready(); await ui.tick();
+  assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.elements.up.value, 'primary');
+  for (const id of ['select', 'back', 'tap-up', 'tap-down', 'combo-back-up', 'combo-up-down']) {
+    assert.equal(ui.elements[id].value, 'default');
+    assert.match(ui.elements[id + '-help'].textContent, /smaller secondary/);
+  }
+  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 0);
+  for (const [id, choice] of Object.entries({select: 'primary', back: 'secondary', 'tap-up': 'secondary', 'tap-down': 'primary', 'combo-back-up': 'primary', 'combo-up-down': 'secondary'})) ui.change(id, choice);
+  ui.elements.save.onclick(); await ui.tick();
+  assert.deepEqual(stored, {version: 1, defaultRole: 'secondary',
+    holdOverrides: {up: 'primary', down: 'secondary', select: 'primary', back: 'secondary'},
+    tapOverrides: {up: 'secondary', down: 'primary'}, comboOverrides: {backUp: 'primary', upDown: 'secondary'}});
+  const reopened = mount(page.config(), reply); reopened.ready(); await reopened.tick();
+  assert.equal(reopened.elements.save.disabled, true);
+  assert.equal(reopened.elements.back.value, 'secondary');
+  assert.equal(reopened.elements['tap-up'].value, 'secondary');
+  assert.equal(reopened.elements['combo-up-down'].value, 'secondary');
+  reopened.change('combo-up-down', 'primary'); reopened.elements.discard.onclick();
+  assert.equal(reopened.elements['combo-up-down'].value, 'secondary');
+  assert.equal(reopened.elements.save.disabled, true);
+});
+test('legacy Save retains new tap/combination choices and removes only explicit default overrides', () => {
+  const initial = {version: 1, defaultRole: 'primary', holdOverrides: {up: 'secondary', down: 'primary', back: 'secondary'},
+    tapOverrides: {up: 'primary'}, comboOverrides: {backUp: 'secondary'}};
+  const ui = mount(page(initial, false), () => {throw Error('legacy must not use plugin');});
+  ui.change('back', 'default'); ui.change('tap-down', 'secondary'); ui.elements.save.onclick();
+  const result = JSON.parse(decodeURIComponent(ui.location.href.split('#')[1]));
+  assert.deepEqual(settings.normalize(result), {version: 1, defaultRole: 'primary',
+    holdOverrides: {up: 'secondary', down: 'primary'}, tapOverrides: {up: 'primary', down: 'secondary'},
+    comboOverrides: {backUp: 'secondary'}});
+});
 test('shared bundled page waits for the plugin, disables unchanged saves and resolves Default', async () => {
   assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), page.config());
   const ui = mount(page.config(), () => Promise.resolve(loaded()));

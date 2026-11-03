@@ -1,0 +1,57 @@
+
+> pebble-app-open-activity@0.1.2 test
+> node --test tests/*.test.js && python3 scripts/test-native.py
+
+✔ one startup request, exact source, no dispatch before native confirmation (3.024876ms)
+✔ Up chooses Secondary; an absent Secondary closes without Primary fallback (0.399339ms)
+✔ saved independent mappings select a different role (0.43082ms)
+✔ all Quick Launch slots can independently open either role, including tap versus hold (1.48627ms)
+✔ unsupported or missing gesture never resolves a destination (0.310778ms)
+✔ wrong confirmation session, ticket, destination and role are ignored (0.266557ms)
+✔ Back before source reply prevents any later preparation or invocation (0.18046ms)
+✔ Back during prepare ignores a late matching confirmation (0.130451ms)
+✔ native elapsed time reduces phone budget; timeout never replays (0.240014ms)
+✔ candidate can expire between source result and final confirmation (0.264319ms)
+✔ a late/invalid native elapsed confirmation never dispatches (0.240687ms)
+✔ wrong provider, invalid source or SDK failure closes (0.258965ms)
+✔ synchronous source callback releases subscription and unsubscribes only once (0.124248ms)
+✔ duplicates and late provider updates cannot retarget a resolved attempt (0.104564ms)
+✔ invocation failure closes, success never issues return navigation (0.368676ms)
+✔ post-dispatch timeout/Back closes locally without pretending to recall operation (0.108964ms)
+✔ bad settings and malformed native hello never subscribe or launch (0.158022ms)
+✔ closing discards queued preparation before old transport callback fires (0.119684ms)
+✔ symbolic protocol keys are accepted alongside numeric SDK keys (0.096955ms)
+✔ exact Dynamic source selects either role without content or provider inference (0.180069ms)
+✔ source availability and original routing expiry are both enforced (0.261284ms)
+✔ wrong provider, missing/duplicate instances and malformed transport close (0.119681ms)
+✔ hint validator rejects unsupported schema, unknown fields and invalid clocks/counters (0.222829ms)
+✔ destination objects reject recursion, zero UUID, uppercase, extra args and wrong shapes (0.140966ms)
+✔ byte accounting handles UTF-8 and malformed surrogate text (0.095914ms)
+✔ factory defaults, independent overrides and default hold buttons (0.655506ms)
+✔ all eight Quick Launch slots retain independent choices across a cold save/load (0.348217ms)
+✔ new slots inherit Default without changing old hold mappings or adding empty tap state (0.177384ms)
+✔ corrupt, inherited-name and unsupported settings never silently become defaults (0.172353ms)
+✔ settings storage is read-back checked and contains only configuration (0.148506ms)
+✔ offline settings explain separate assignment and preserve selected roles (0.324171ms)
+✔ packaged config cold-starts without native watchapp and preserves settings across fresh plugin contexts (2.763893ms)
+✔ actual packaged HTML talks only to config plugin and saves without a native session (3.2065ms)
+✔ packaged legacy configuration shares the page and retains cancel/save return URLs (3.887935ms)
+✔ packaged PKJS honors each saved slot and invokes exactly once after native confirmation (19.353717ms)
+✔ all eight shortcuts save independently and reopen without resetting existing choices (1.913472ms)
+✔ legacy Save retains new tap/combination choices and removes only explicit default overrides (1.40069ms)
+✔ shared bundled page waits for the plugin, disables unchanged saves and resolves Default (2.133565ms)
+✔ malformed and timed-out loading retains disabled controls and permits an explicit retry (1.811678ms)
+✔ failed save keeps the draft, confirmed save clears dirty state, discard restores confirmed choices (1.181443ms)
+✔ an unconfirmed write is read back explicitly instead of treating local Discard as an undo (0.887431ms)
+✔ repair remains explicit and legacy Cancel returns without writing a draft (2.584929ms)
+ℹ tests 42
+ℹ suites 0
+ℹ pass 42
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 106.918719
+native attempt: liveness, roles, duplicate prepare, closure, wrap and destinations passed
+native SDK adapter: eight slots and gesture wire, unsupported gestures, handshake, malformed wire, timeout, Back and disconnected closure passed
+Native/phone/package message keys and timeout agree

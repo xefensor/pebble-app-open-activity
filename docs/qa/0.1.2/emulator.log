@@ -1,0 +1,41 @@
+Emery QEMU connected through local FIFOs; no phone runtime
+N/A%[=                                                      ]   0.0 B/s 0:00:00
+N/A%[=                                                    ]  71.0 KiB/s 0:00:00
+N/A%[=                                                    ]  73.6 KiB/s 0:00:00
+{
+  "version": "0.1.2",
+  "scope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch rejection and system return only",
+  "phoneRuntime": false,
+  "physicalWatch": false,
+  "quickLaunchHoldSimulated": false,
+  "pbwSha256": "356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96",
+  "nativeSha256": "73da900ec5b783be74b0d591a6f442541ad7f1ea43b693acea7daefda0132979",
+  "events": [
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    }
+  ],
+  "returnedAppUuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8",
+  "capture": {
+    "file": "phone-launch-returned.png",
+    "sha256": "b7a1b483b950a4cdea921446602ec314220cd7fcbd2e4470e164456b504618a3",
+    "pixels": [
+      200,
+      228
+    ],
+    "nativePixelsModified": false
+  }
+}

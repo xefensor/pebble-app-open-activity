@@ -53,8 +53,10 @@ module.exports = function (options) {
     var session = protocol.get(message, 'OA_SESSION');
     var elapsed = protocol.get(message, 'OA_ELAPSED_MS');
     var button = protocol.get(message, 'OA_BUTTON');
+    var gesture = protocol.get(message, 'OA_GESTURE');
     var saved = settings.load(options.storage);
-    var role = settings.select(saved, button);
+    var role = gesture === protocol.gesture.hold || gesture === protocol.gesture.tap || gesture === protocol.gesture.combo ?
+      settings.select(saved, button, gesture) : null;
     if (!uint32(session) || typeof elapsed !== 'number' || Math.floor(elapsed) !== elapsed ||
         elapsed < 0 || elapsed >= protocol.budgetMs || !role) {
       // A malformed hello never acquires a source or launches an app.

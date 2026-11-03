@@ -1,0 +1,69 @@
+
+> pebble-app-open-activity@0.1.2 build
+> python3 scripts/build.py
+
+'distclean' finished successfully (0.008s)
+Setting top to                           : /home/xela/Projekty/Pebble/pebble-app-open-activity 
+Setting out to                           : /home/xela/Projekty/Pebble/pebble-app-open-activity/build 
+Checking for program 'webpack'           : /home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/current/node_modules/.bin/webpack 
+Found Pebble SDK for emery in:           : /home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/current/sdk-core/pebble/emery 
+Checking for program 'gcc, cc'           : arm-none-eabi-gcc 
+Checking for program 'ar'                : arm-none-eabi-ar 
+'configure' finished successfully (0.036s)
+Waf: Entering directory `/home/xela/Projekty/Pebble/pebble-app-open-activity/build'
+[1/3] Creating message_key_json:  -> build/js/message_keys.json
+[2/3] Creating message_key_definitions:  -> build/src/message_keys.auto.c
+[3/3] Creating message_key_header:  -> build/include/message_keys.auto.h
+[ 4/17] Creating emery | resource_ball:  -> build/emery/system_resources.resball
+[ 5/17] Creating emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/appinfo.auto.c:  -> build/emery/appinfo.auto.c
+[ 6/17] Compiling emery | generate_resource_id_definitions: build/emery/system_resources.resball -> build/emery/src/resource_ids.auto.c
+[ 7/17] Compiling emery | subst: ../.recovery-tools/data/pebble-sdk/SDKs/current/sdk-core/pebble/common/pebble_app.ld.template -> build/emery/pebble_app.ld.auto
+[ 8/17] Compiling emery | c: build/src/message_keys.auto.c -> build/src/message_keys.auto.c.9.o
+[ 9/17] Compiling emery | c: src/c/attempt.c -> build/src/c/attempt.c.9.o
+[10/17] Compiling emery | generate_pbpack: build/emery/system_resources.resball -> build/emery/app_resources.pbpack
+[11/17] Creating emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/appinfo.json:  -> build/appinfo.json
+[12/17] Compiling emery | generate_resource_id_header: build/emery/system_resources.resball -> build/emery/src/resource_ids.auto.h
+[13/17] Compiling emery | c: build/emery/src/resource_ids.auto.c -> build/emery/src/resource_ids.auto.c.9.o
+[14/17] Compiling emery | c: src/c/main.c -> build/src/c/main.c.9.o
+[15/17] Compiling emery | c: build/emery/appinfo.auto.c -> build/emery/appinfo.auto.c.9.o
+[16/17] Linking emery | cprogram: build/src/c/attempt.c.9.o build/src/c/main.c.9.o build/emery/appinfo.auto.c.9.o build/emery/src/resource_ids.auto.c.9.o build/src/message_keys.auto.c.9.o -> build/emery/pebble-app.elf
+/home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/4.33.1/toolchain/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: warning: /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/pebble-app.elf has a LOAD segment with RWX permissions
+
+[17/17] Processing emery | memory_usage_report: build/emery/pebble-app.elf build/emery/app_resources.pbpack
+-------------------------------------------------------
+EMERY APP MEMORY USAGE
+Total size of resources:        4092 bytes / 256.0KB
+Total footprint in RAM:         2547 bytes / 128.0KB
+Free RAM available (heap):      128525 bytes
+------------------------------------------------------- 
+[18/21] Compiling emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/pebble-app.raw.bin: build/emery/pebble-app.elf -> build/emery/pebble-app.raw.bin
+[19/21] Processing merge_js: src/pkjs/index.js src/pkjs/launcher.js src/pkjs/navigation.js src/pkjs/protocol.js src/pkjs/queue.js src/pkjs/settings-page.js src/pkjs/settings.js -> build/pebble-js-app.js build/pebble-js-app.js.map
+[20/21] Processing emery | inject-metadata: build/emery/pebble-app.raw.bin build/emery/pebble-app.elf build/emery/app_resources.pbpack -> build/emery/pebble-app.bin
+[21/21] Creating app_bundle:  -> build/pebble-app-open-activity.pbw
+Waf: Leaving directory `/home/xela/Projekty/Pebble/pebble-app-open-activity/build'
+'build' finished successfully (0.262s)
+Shared configuration template: PASS
+{
+  "pbw": "/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.1.2.pbw",
+  "sha256": "356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96",
+  "nativeFileBytes": 2476,
+  "nativeLoadedBytes": 2476,
+  "nativeVirtualBytes": 2548,
+  "phoneBundleBytes": 34483,
+  "permissions": [
+    "LaunchApps"
+  ]
+}
+✔ packaged config cold-starts without native watchapp and preserves settings across fresh plugin contexts (4.711277ms)
+✔ actual packaged HTML talks only to config plugin and saves without a native session (4.823673ms)
+✔ packaged legacy configuration shares the page and retains cancel/save return URLs (4.161648ms)
+✔ packaged PKJS honors each saved slot and invokes exactly once after native confirmation (20.897795ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.025983
+/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.1.2.pbw

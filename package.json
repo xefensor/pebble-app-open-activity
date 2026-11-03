@@ -1,6 +1,6 @@
 {
   "name": "pebble-app-open-activity",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -36,7 +36,8 @@
       "OA_ROLE": 2003,
       "OA_DESTINATION": 2004,
       "OA_ELAPSED_MS": 2005,
-      "OA_TICKET": 2006
+      "OA_TICKET": 2006,
+      "OA_GESTURE": 2007
     }
   }
 }

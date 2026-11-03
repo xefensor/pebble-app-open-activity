@@ -7,7 +7,7 @@
 
 typedef enum { BUTTON_ID_BACK, BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN, NUM_BUTTONS } ButtonId;
 typedef enum { APP_LAUNCH_SYSTEM, APP_LAUNCH_USER, APP_LAUNCH_PHONE, APP_LAUNCH_QUICK_LAUNCH } AppLaunchReason;
-typedef enum { APP_QUICK_LAUNCH_ACTION_NONE, APP_QUICK_LAUNCH_ACTION_HOLD, APP_QUICK_LAUNCH_ACTION_TAP } AppQuickLaunchAction;
+typedef enum { APP_QUICK_LAUNCH_ACTION_NONE, APP_QUICK_LAUNCH_ACTION_HOLD, APP_QUICK_LAUNCH_ACTION_TAP, APP_QUICK_LAUNCH_ACTION_COMBO } AppQuickLaunchAction;
 typedef enum { APP_MSG_OK, APP_MSG_ERROR } AppMessageResult;
 enum { TUPLE_BYTE_ARRAY, TUPLE_CSTRING, TUPLE_UINT, TUPLE_INT };
 typedef union { int8_t int8; uint8_t uint8; int16_t int16; uint16_t uint16; int32_t int32; uint32_t uint32; char cstring[64]; } TupleValue;

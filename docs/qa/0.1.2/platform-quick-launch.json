@@ -1,0 +1,104 @@
+{
+  "result": "PASS",
+  "checkedDate": "2026-11-03",
+  "scope": "Primary-source verification of available shortcut identities. This does not establish which firmware/mobile build is installed, physical gesture behavior, real-phone delivery or battery use.",
+  "sources": {
+    "phoneDefinitions": {
+      "repository": "coredevices/mobileapp",
+      "commit": "e6ec6a2ed75284221e6c0ef7d24981c7d5d48829",
+      "path": "libpebble3/src/commonMain/kotlin/io/rebble/libpebblecommon/database/entity/WatchPrefEntity.kt",
+      "blob": "3e90aec2e3154c707d79157f9fb27e22a602cf44",
+      "lines": [292, 314],
+      "url": "https://github.com/coredevices/mobileapp/blob/e6ec6a2ed75284221e6c0ef7d24981c7d5d48829/libpebble3/src/commonMain/kotlin/io/rebble/libpebblecommon/database/entity/WatchPrefEntity.kt#L292-L314",
+      "finding": "All eight shortcuts have independent assignable watch preferences."
+    },
+    "phoneSettingsSection": {
+      "repository": "coredevices/mobileapp",
+      "commit": "e6ec6a2ed75284221e6c0ef7d24981c7d5d48829",
+      "path": "pebble/src/commonMain/kotlin/coredevices/pebble/ui/WatchPrefsScreen.kt",
+      "blob": "f90dee683210c2b96b7206569631c3da120d98fa",
+      "lines": [180, 187],
+      "url": "https://github.com/coredevices/mobileapp/blob/e6ec6a2ed75284221e6c0ef7d24981c7d5d48829/pebble/src/commonMain/kotlin/coredevices/pebble/ui/WatchPrefsScreen.kt#L180-L187",
+      "finding": "All eight preferences are included in the phone Quick Launch section."
+    },
+    "firmwareDispatch": {
+      "repository": "coredevices/PebbleOS",
+      "commit": "6768a9c34610995def6e864f817338f0f3ce0632",
+      "path": "fw/shell/normal/watchface.c",
+      "blob": "a98ff23423bbb126869609e868e1bc8f9655db16",
+      "url": "https://github.com/coredevices/PebbleOS/blob/6768a9c34610995def6e864f817338f0f3ce0632/fw/shell/normal/watchface.c#L85-L105",
+      "comboLines": [85, 105],
+      "ordinaryDispatchLines": [181, 231],
+      "finding": "Non-Timeline apps launch with APP_LAUNCH_QUICK_LAUNCH, a representative button and the gesture action. COMBO plus BACK identifies Back+Up; COMBO plus UP identifies Up+Down."
+    },
+    "watchSettingsMenu": {
+      "repository": "coredevices/PebbleOS",
+      "commit": "6768a9c34610995def6e864f817338f0f3ce0632",
+      "path": "fw/apps/system/settings/quick_launch.c",
+      "blob": "14f994527e63824a4db80a6b51d15558a24a7dd5",
+      "lines": [30, 68],
+      "url": "https://github.com/coredevices/PebbleOS/blob/6768a9c34610995def6e864f817338f0f3ce0632/fw/apps/system/settings/quick_launch.c#L30-L68",
+      "finding": "The native watch settings menu lists four holds and two taps. Combination assignments are exposed by the phone settings."
+    },
+    "publicApi": {
+      "url": "https://developer.repebble.com/docs/c/Foundation/Launch_Reason/",
+      "finding": "launch_get_quick_launch_action returns NONE, HOLD, TAP or COMBO; launch_button supplies button identity for Quick Launch."
+    },
+    "appClickInitialization": {
+      "repository": "coredevices/PebbleOS",
+      "commit": "6768a9c34610995def6e864f817338f0f3ce0632",
+      "path": "fw/process_state/app_state/app_state.c",
+      "lines": [267, 270],
+      "url": "https://github.com/coredevices/PebbleOS/blob/6768a9c34610995def6e864f817338f0f3ce0632/fw/process_state/app_state/app_state.c#L267-L270",
+      "finding": "Each app initializes its own click manager."
+    },
+    "clickReleaseHandling": {
+      "repository": "coredevices/PebbleOS",
+      "commit": "6768a9c34610995def6e864f817338f0f3ce0632",
+      "path": "fw/applib/ui/click.c",
+      "blob": "37cd32739a9c8717d578d8bf09f2bfcc3f160a65",
+      "url": "https://github.com/coredevices/PebbleOS/blob/6768a9c34610995def6e864f817338f0f3ce0632/fw/applib/ui/click.c#L255-L273",
+      "resetLines": [44, 51],
+      "initializationLines": [319, 325],
+      "releaseLines": [255, 273],
+      "finding": "Initialized recognizers have is_button_down=false; an unmatched release returns before ordinary click recognition. Open Activity subscribes an ordinary Back single-click, not a raw release handler. Static review therefore found no obvious launch-hold release that would cancel the helper. Physical gesture timing remains a device check."
+    }
+  },
+  "sdkVerification": {
+    "sdkVersion": "4.33.1",
+    "platform": "emery",
+    "header": "sdk-core/pebble/emery/include/pebble.h",
+    "sha256": "2c801c32d77fab70f576482afb21586deba256fbda90a3528f6b02fbe3025548",
+    "actionEnumLines": [3339, 3343],
+    "actions": {"none": 0, "hold": 1, "tap": 2, "combo": 3},
+    "buttons": {"back": 0, "up": 1, "select": 2, "down": 3}
+  },
+  "slots": [
+    {"id": "hold_back", "label": "Hold Back", "watchPreference": "qlBack", "action": 1, "button": 0},
+    {"id": "hold_up", "label": "Hold Up", "watchPreference": "qlUp", "action": 1, "button": 1},
+    {"id": "hold_select", "label": "Hold Center / Select", "watchPreference": "qlSelect", "action": 1, "button": 2},
+    {"id": "hold_down", "label": "Hold Down", "watchPreference": "qlDown", "action": 1, "button": 3},
+    {"id": "tap_up", "label": "Tap Up", "watchPreference": "qlSingleClickUp", "action": 2, "button": 1},
+    {"id": "tap_down", "label": "Tap Down", "watchPreference": "qlSingleClickDown", "action": 2, "button": 3},
+    {"id": "combo_back_up", "label": "Hold Back + Up", "watchPreference": "qlComboBackUp", "action": 3, "button": 0},
+    {"id": "combo_up_down", "label": "Hold Up + Down", "watchPreference": "qlComboUpDown", "action": 3, "button": 1}
+  ],
+  "validationRule": "Accept only the eight action/button pairs listed above; do not infer a hold from an unsupported or absent gesture.",
+  "independentReview": {
+    "reviewer": "audit_quick_launch_slots",
+    "result": "PASS",
+    "scope": "Read-only code review plus targeted navigation, launcher and settings-page test files; no physical watch or real phone claim.",
+    "checks": [
+      "Native and phone use action 1/2/3 with the exact eight representative-button pairs.",
+      "Unsupported tap/combo pairs and missing wire gesture close without resolving a destination.",
+      "The shared UI serializes all eight independent mappings using the same canonical ordering as the backend.",
+      "Existing schema1 Up/Down overrides and saved Default role survive load without a storage write.",
+      "New slots inherit the saved Default until explicitly configured.",
+      "Ordinary opening remains unchanged; Back cancellation remains an ordinary fresh single-click handler."
+    ],
+    "remainingDeviceChecks": [
+      "Release a physical Hold Back or Back+Up launch without a new Back press and confirm opening proceeds.",
+      "While Opening is visible, make a fresh Back press and confirm cancellation before dispatch."
+    ]
+  }
+}

@@ -1,0 +1,329 @@
+{
+  "version": "0.1.2",
+  "result": "PASS",
+  "pbw": {
+    "file": "Open-Activity-0.1.2.pbw",
+    "sha256": "356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96"
+  },
+  "executedPackagedFiles": {
+    "config.html": "73ee610b8a3e01334a747be945a8421d8f901f9af709f0f6065f315e42e0efb4",
+    "plugin.js": "7dd37f884a7d36bdf30367e839ec6cc07c1a9f633c7f44760d510c8d216bc504"
+  },
+  "captures": [
+    {
+      "file": "settings-320-light.png",
+      "sha256": "e8088cc3795f97513567c3101c8d6997f886d35ff061797238e2ae22948b293d"
+    },
+    {
+      "file": "settings-320-dark.png",
+      "sha256": "fcb0949cf30f130625de246e83f3f58766b8060ddb13c07b929f804931c237e6"
+    },
+    {
+      "file": "settings-360-light.png",
+      "sha256": "1eb509b791211dd81795cf3127e2f0e5db86d8418aa66dfe738c7e3b30dbde39"
+    },
+    {
+      "file": "settings-360-dark.png",
+      "sha256": "3673608cdec5b6fe95eeb733f0212bebcc813c435bffd9ad60125f098fe05157"
+    },
+    {
+      "file": "holds-lower-320-light.png",
+      "sha256": "cbbde31d55b64b6bc855eff9eaab0ee2c348f9fe7a2961d2320af7a50a777b1b"
+    },
+    {
+      "file": "taps-combinations-320-light.png",
+      "sha256": "4a22856082af0975bb5b9f3f87062f60e40ba8726be4844c664ee451896775c6"
+    },
+    {
+      "file": "combinations-320-light.png",
+      "sha256": "1da26905eca78426ce977e0cc76dfb5b12ebc1f32933c5218f4b1631f80a47e9"
+    },
+    {
+      "file": "holds-lower-320-dark.png",
+      "sha256": "0b86d042f9cc7518fc04509a8e2c520c0a5c49e8c1f420886018793b26ca5cc1"
+    },
+    {
+      "file": "taps-combinations-320-dark.png",
+      "sha256": "c4eb3f1dc7ba0bbe37ac2b9d92bef1aefcdc5223d1834ea40b53ee008dbfea68"
+    },
+    {
+      "file": "combinations-320-dark.png",
+      "sha256": "02b4bad01c2e6920a3b257b787ddc9c3f29a3d205e953bcc6312b9fe4f31714e"
+    },
+    {
+      "file": "load-error-320.png",
+      "sha256": "58ba72b10387223bf4a4712cebc7f7f4c81544ae6172133b6819b67cbcc9912b"
+    },
+    {
+      "file": "save-error-320.png",
+      "sha256": "c168c0d7da0c8597e48421d37ded29695ff7c8b27e0bbc2105c753437e4cdb3e"
+    },
+    {
+      "file": "setup-help-320.png",
+      "sha256": "5b913bd2838274eac3e6dfc88fb17c6ec4a064c02b1899e8f2011dae7d556265"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "select",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "back",
+          "height": 44
+        },
+        {
+          "id": "tap-up",
+          "height": 44
+        },
+        {
+          "id": "tap-down",
+          "height": 44
+        },
+        {
+          "id": "combo-back-up",
+          "height": 44
+        },
+        {
+          "id": "combo-up-down",
+          "height": 44
+        },
+        {
+          "id": "Default activity",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "select",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "back",
+          "height": 44
+        },
+        {
+          "id": "tap-up",
+          "height": 44
+        },
+        {
+          "id": "tap-down",
+          "height": 44
+        },
+        {
+          "id": "combo-back-up",
+          "height": 44
+        },
+        {
+          "id": "combo-up-down",
+          "height": 44
+        },
+        {
+          "id": "Default activity",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "scrollWidth": 360,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "select",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "back",
+          "height": 44
+        },
+        {
+          "id": "tap-up",
+          "height": 44
+        },
+        {
+          "id": "tap-down",
+          "height": 44
+        },
+        {
+          "id": "combo-back-up",
+          "height": 44
+        },
+        {
+          "id": "combo-up-down",
+          "height": 44
+        },
+        {
+          "id": "Default activity",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "scrollWidth": 360,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "select",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "back",
+          "height": 44
+        },
+        {
+          "id": "tap-up",
+          "height": 44
+        },
+        {
+          "id": "tap-down",
+          "height": 44
+        },
+        {
+          "id": "combo-back-up",
+          "height": 44
+        },
+        {
+          "id": "combo-up-down",
+          "height": 44
+        },
+        {
+          "id": "Default activity",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    }
+  ],
+  "checks": [
+    "320/360 light/dark, labels/descriptions,44px targets,no horizontal overflow,unchanged save disabled,no writes on load",
+    "resolved Default,dirty/saving/saved states,one save,actual packaged plugin cold-read/write/reopen,discard without write",
+    "all eight independent shortcut mappings save/cold-reopen through packaged plugin; tap/hold/combo identities route independently; existing settings load without writes",
+    "load failure+retry preserves stored preferences; save failure retains draft and retries explicitly",
+    "backend write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; setup/help disclosure and fixed save area"
+  ],
+  "errors": [],
+  "scope": "Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.",
+  "visualReview": {
+    "reviewed": true,
+    "reviewer": "root",
+    "result": "PASS",
+    "captures": 13,
+    "scope": "All unaltered 320/360px light/dark captures, lower holds, taps, combinations, error/recovery and setup; scrollable page with fixed actions."
+  }
+}

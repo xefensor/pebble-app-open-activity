@@ -96,6 +96,7 @@ static void handshake_script(void) {
   request();assert(sent==1);
   assert(dict_find(&outgoing,OA_KEY_OPERATION)->value->uint8==OA_HELLO);
   assert(dict_find(&outgoing,OA_KEY_BUTTON)->value->uint8==BUTTON_ID_UP);
+  assert(dict_find(&outgoing,OA_KEY_GESTURE)->value->uint8==APP_QUICK_LAUNCH_ACTION_HOLD);
   outbox_sent(NULL,NULL);
   uint32_t session=s_attempt.session;
   assert(session>0&&session<=INT32_MAX);
@@ -110,16 +111,41 @@ static void handshake_script(void) {
 }
 static void back_script(void) {assert(back_click);back_click(NULL,NULL);assert(popped==1&&s_attempt.phase==OA_CLOSED);}
 static void malformed_script(void) {prepare(s_attempt.session,true);assert(popped==1&&s_attempt.phase==OA_CLOSED);}
+static void slot_script(void) {
+  request();assert(sent==1);
+  assert(dict_find(&outgoing,OA_KEY_BUTTON)->value->uint8==button);
+  assert(dict_find(&outgoing,OA_KEY_GESTURE)->value->uint8==gesture);
+  outbox_sent(NULL,NULL);prepare(s_attempt.session,false);
+  assert(sent==2&&s_attempt.phase==OA_CONFIRMED);
+  outbox_sent(NULL,NULL);prepare(s_attempt.session,false);assert(sent==2);
+  back_script();
+}
 int main(void) {
   reset();reason=APP_LAUNCH_USER;helper_app_main();assert(created==0&&loops==0);
   reset();reason=APP_LAUNCH_PHONE;helper_app_main();assert(created==0&&loops==0);
-  reset();gesture=APP_QUICK_LAUNCH_ACTION_TAP;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=APP_QUICK_LAUNCH_ACTION_NONE;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=APP_QUICK_LAUNCH_ACTION_COMBO;button=BUTTON_ID_SELECT;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=APP_QUICK_LAUNCH_ACTION_COMBO;button=BUTTON_ID_DOWN;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=(AppQuickLaunchAction)99;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=APP_QUICK_LAUNCH_ACTION_TAP;button=BUTTON_ID_BACK;helper_app_main();assert(created==0&&loops==0);
+  reset();gesture=APP_QUICK_LAUNCH_ACTION_TAP;button=BUTTON_ID_SELECT;helper_app_main();assert(created==0&&loops==0);
   reset();button=NUM_BUTTONS;helper_app_main();assert(created==0&&loops==0);
   reset();connected=false;helper_app_main();assert(created==1&&popped==1&&loops==0);
   reset();opening_result=APP_MSG_ERROR;helper_app_main();assert(popped==1&&loops==0);
   reset();button=BUTTON_ID_UP;loop_script=handshake_script;helper_app_main();assert(loops==1&&popped==1);
   reset();loop_script=back_script;helper_app_main();assert(loops==1&&popped==1);
   reset();loop_script=malformed_script;helper_app_main();assert(loops==1&&popped==1);
-  puts("native SDK adapter: launch gating, handshake, malformed wire, timeout, Back and disconnected closure passed");
+  for (ButtonId candidate=BUTTON_ID_BACK;candidate<NUM_BUTTONS;candidate++) {
+    reset();button=candidate;loop_script=slot_script;helper_app_main();assert(loops==1&&popped==1);
+  }
+  for (ButtonId candidate=BUTTON_ID_UP;candidate<=BUTTON_ID_DOWN;candidate+=2) {
+    reset();button=candidate;gesture=APP_QUICK_LAUNCH_ACTION_TAP;
+    loop_script=slot_script;helper_app_main();assert(loops==1&&popped==1);
+  }
+  for (ButtonId candidate=BUTTON_ID_BACK;candidate<=BUTTON_ID_UP;candidate++) {
+    reset();button=candidate;gesture=APP_QUICK_LAUNCH_ACTION_COMBO;
+    loop_script=slot_script;helper_app_main();assert(loops==1&&popped==1);
+  }
+  puts("native SDK adapter: eight slots and gesture wire, unsupported gestures, handshake, malformed wire, timeout, Back and disconnected closure passed");
   return 0;
 }

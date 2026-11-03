@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "version": "0.1.2",
+  "pbwSha256": "356dfe96eb3b33f95c2e193c5fa59c1f18e0b62f99735ed37e64cdf769d83b96",
+  "jsTests": 42,
+  "nativeHarnesses": 2,
+  "browserCaptures": 13,
+  "visualReview": "PASS",
+  "sdkBuild": "PASS",
+  "artifactCheck": "PASS",
+  "nativeSmoke": "ordinary phone launch closes in isolated QEMU",
+  "quickLaunchSlots": 8,
+  "packagedEachSlotBothRoles": true,
+  "crossAppPrivacyRoleCases": 6,
+  "crossAppSavedSlotLaunches": 48,
+  "crossAppExpiredAttempts": 48,
+  "existingSettingsPreserved": true,
+  "oldArtifactsUnchanged": true,
+  "scope": "Actual packaged scripts/browser with isolated SDK models, native adapter harness and ordinary-launch QEMU smoke. No physical Quick Launch gesture or real-phone claim."
+}

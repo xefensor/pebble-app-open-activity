@@ -51,9 +51,9 @@ function rig(options = {}) {
     launcher, messages, invocations, queued,
     get subscription() {return subscription;},
     get unsubscribed() {return unsubscribed;},
-    hello(button = 3, elapsed = 10) {
+    hello(button = 3, elapsed = 10, gesture = protocol.gesture.hold) {
       launcher.ready();
-      launcher.message(protocol.message(op.HELLO, {OA_SESSION: 42, OA_BUTTON: button, OA_ELAPSED_MS: elapsed}));
+      launcher.message(protocol.message(op.HELLO, {OA_SESSION: 42, OA_BUTTON: button, OA_GESTURE: gesture, OA_ELAPSED_MS: elapsed}));
     },
     data(envelope = source()) {subscription.onData(envelope);},
     error() {subscription.onError({code: 'UNAVAILABLE'});},
@@ -104,6 +104,40 @@ test('saved independent mappings select a different role', () => {
   const app = rig({encodedSettings: JSON.stringify(value)}); app.hello(3); app.data();
   assert.equal(protocol.get(app.prepare(), 'OA_DESTINATION'), MUSIC);
 });
+test('all Quick Launch slots can independently open either role, including tap versus hold', () => {
+  for (const [button, gesture, key] of [[0, 1, 'back'], [1, 1, 'up'], [2, 1, 'select'],
+    [3, 1, 'down'], [1, 2, 'up'], [3, 2, 'down'], [0, 3, 'backUp'], [1, 3, 'upDown']]) {
+    for (const role of ['primary', 'secondary']) {
+      const chosen = {version: 1, defaultRole: role === 'primary' ? 'secondary' : 'primary', holdOverrides: {}};
+      if (gesture === 1) chosen.holdOverrides[key] = role;
+      else if (gesture === 2) chosen.tapOverrides = {[key]: role};
+      else chosen.comboOverrides = {[key]: role};
+      const app = rig({encodedSettings: JSON.stringify(chosen)});
+      app.hello(button, 10, gesture); app.data();
+      assert.equal(protocol.get(app.prepare(), 'OA_DESTINATION'), role === 'primary' ? TIMER : MUSIC);
+      assert.equal(app.invocations.length, 0);
+      app.confirm(); app.confirm();
+      assert.equal(app.invocations.length, 1);
+      assert.equal(app.invocations[0].args.uuid, role === 'primary' ? TIMER : MUSIC);
+    }
+  }
+  const chosen = {version: 1, defaultRole: 'primary', holdOverrides: {up: 'secondary'}, tapOverrides: {up: 'primary'}};
+  const tap = rig({encodedSettings: JSON.stringify(chosen)}); tap.hello(1, 10, 2); tap.data();
+  const hold = rig({encodedSettings: JSON.stringify(chosen)}); hold.hello(1, 10, 1); hold.data();
+  assert.equal(protocol.get(tap.prepare(), 'OA_DESTINATION'), TIMER);
+  assert.equal(protocol.get(hold.prepare(), 'OA_DESTINATION'), MUSIC);
+});
+test('unsupported or missing gesture never resolves a destination', () => {
+  for (const [button, gesture] of [[1, 0], [1, 4], [1, -1], [1, '1'], [1, null], [0, 2], [2, 2], [2, 3], [3, 3]]) {
+    const app = rig(); app.hello(button, 10, gesture);
+    assert.equal(app.subscription, undefined);
+    assert.equal(app.launcher.state(), 'closed');
+  }
+  const missing = rig(); missing.launcher.ready();
+  missing.launcher.message(protocol.message(op.HELLO, {OA_SESSION: 42, OA_BUTTON: 1, OA_ELAPSED_MS: 10}));
+  assert.equal(missing.subscription, undefined);
+  assert.equal(missing.launcher.state(), 'closed');
+});
 test('wrong confirmation session, ticket, destination and role are ignored', () => {
   const app = rig(); app.hello(); app.data();
   for (const change of [
@@ -132,7 +166,7 @@ test('native elapsed time reduces phone budget; timeout never replays', () => {
   app.advance(10);
   assert.equal(app.launcher.state(), 'closed');
   app.data(); app.launcher.ready();
-  app.launcher.message(protocol.message(op.HELLO, {OA_SESSION: 99, OA_BUTTON: 3, OA_ELAPSED_MS: 0}));
+  app.launcher.message(protocol.message(op.HELLO, {OA_SESSION: 99, OA_BUTTON: 3, OA_GESTURE: protocol.gesture.hold, OA_ELAPSED_MS: 0}));
   assert.equal(app.invocations.length, 0);
 });
 test('candidate can expire between source result and final confirmation', () => {
@@ -214,7 +248,7 @@ test('closing discards queued preparation before old transport callback fires', 
 });
 test('symbolic protocol keys are accepted alongside numeric SDK keys', () => {
   const app = rig(); app.launcher.ready();
-  app.launcher.message({OA_OPERATION: op.HELLO, OA_SESSION: 42, OA_BUTTON: 1, OA_ELAPSED_MS: 0});
+  app.launcher.message({OA_OPERATION: op.HELLO, OA_SESSION: 42, OA_BUTTON: 1, OA_GESTURE: protocol.gesture.hold, OA_ELAPSED_MS: 0});
   app.data();
   assert.equal(protocol.get(app.prepare(), 'OA_DESTINATION'), MUSIC);
 });
