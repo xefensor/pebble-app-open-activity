@@ -27,6 +27,12 @@ On 3 November 2026, with SDK 4.33.1 and the workspace recovery environment:
   loaded default settings, saved independent mappings and read them from a new
   plugin context without any native session. The config plugin declares no
   sources/actions. This checks the packaged bridge contract, not a WebView.
+- **The offline settings layout** was rendered in installed Chromium at 320px
+  and 360px widths and visually reviewed. Controls and labels fit inside the
+  page padding, and the Save button remains readable. The
+  [capture report](qa/0.1.0/settings/report.json) identifies the source HTML and
+  images. A mock ready/settings bridge fills the initial choices; this is a
+  browser layout preview, not a real phone WebView.
 - **The standalone distribution PBW built** and passed identity, permission,
   numeric message-key, offline configuration, notice and ELF/header checks.
   Loaded native image is 2,436 bytes; virtual image is 2,508 bytes. This establishes
@@ -40,7 +46,7 @@ On 3 November 2026, with SDK 4.33.1 and the workspace recovery environment:
 
 Only the SDK’s standard RWX linker-segment warning remains in the build; native
 source compiled without additional warnings. The PBW currently validated has
-SHA-256 `6e798b2fe52fb006caabeac4d0a85c582403529d82769364bb150200065083db`.
+SHA-256 `fc21fe61f649412b52bfda16469d0b09556a794d1e9c8c206ddbc0911d23a6d9`.
 
 The workspace command environment is
 `source /home/xela/Projekty/Pebble/recovery-validation/env.sh`. It supplies the

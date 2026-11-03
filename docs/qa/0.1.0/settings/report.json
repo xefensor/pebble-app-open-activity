@@ -1,0 +1,31 @@
+{
+  "scope": "Actual offline config.html rendered in Chromium with a mock ready/settings bridge; not a phone WebView or SDK runtime",
+  "browser": "Chromium 156.0.8078.73 stable",
+  "configHtmlSha256": "318dfd2e42df585f0bbf30c1eec6782c1a97d4dcfd5b98b0b104a34cba273a3d",
+  "mockSettings": {
+    "version": 1,
+    "defaultRole": "primary",
+    "holdOverrides": {
+      "up": "secondary",
+      "down": "primary"
+    }
+  },
+  "captures": [
+    {
+      "file": "settings-320.png",
+      "pixels": [
+        320,
+        1040
+      ],
+      "sha256": "d044e76a4754ae0998dce2158bfb1a6154151b7e55356495d4e53f7b734c8f90"
+    },
+    {
+      "file": "settings-360.png",
+      "pixels": [
+        360,
+        940
+      ],
+      "sha256": "1dc936d96502f58550ce2c0abc3a05224f7aa07fab4c8d610dcd259a81ac5c3d"
+    }
+  ]
+}

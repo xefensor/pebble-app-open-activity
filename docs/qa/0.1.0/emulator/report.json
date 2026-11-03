@@ -4,8 +4,8 @@
   "phoneRuntime": false,
   "physicalWatch": false,
   "quickLaunchHoldSimulated": false,
-  "pbwSha256": "6e798b2fe52fb006caabeac4d0a85c582403529d82769364bb150200065083db",
-  "nativeSha256": "b44072719774007814b03c849147c458167d9d251d763147ddd6e02c5a6f2492",
+  "pbwSha256": "fc21fe61f649412b52bfda16469d0b09556a794d1e9c8c206ddbc0911d23a6d9",
+  "nativeSha256": "4921ba237fea381d1442ae214f45bda0cfdb195d1f1a931b19301e552ec7acc1",
   "events": [
     {
       "kind": "stop",
@@ -27,7 +27,7 @@
   "returnedAppUuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8",
   "capture": {
     "file": "phone-launch-returned.png",
-    "sha256": "b7add7ecb54ed4ae2046fb084e56e8a6b68232d0e6d5b0936f386058e58c9694",
+    "sha256": "58aa76211233029298fc9d61b3ef4931449ca86ec2fc4a6ee672be4312ae9bd9",
     "pixels": [
       200,
       228
