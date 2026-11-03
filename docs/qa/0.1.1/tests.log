@@ -1,0 +1,51 @@
+
+> pebble-app-open-activity@0.1.1 test
+> node --test tests/*.test.js && python3 scripts/test-native.py
+
+✔ one startup request, exact source, no dispatch before native confirmation (2.665604ms)
+✔ Up chooses Secondary; an absent Secondary closes without Primary fallback (0.428863ms)
+✔ saved independent mappings select a different role (0.280136ms)
+✔ wrong confirmation session, ticket, destination and role are ignored (0.30851ms)
+✔ Back before source reply prevents any later preparation or invocation (0.153129ms)
+✔ Back during prepare ignores a late matching confirmation (0.186344ms)
+✔ native elapsed time reduces phone budget; timeout never replays (0.279732ms)
+✔ candidate can expire between source result and final confirmation (0.243649ms)
+✔ a late/invalid native elapsed confirmation never dispatches (0.433813ms)
+✔ wrong provider, invalid source or SDK failure closes (0.452969ms)
+✔ synchronous source callback releases subscription and unsubscribes only once (0.227879ms)
+✔ duplicates and late provider updates cannot retarget a resolved attempt (0.222691ms)
+✔ invocation failure closes, success never issues return navigation (0.318114ms)
+✔ post-dispatch timeout/Back closes locally without pretending to recall operation (0.107368ms)
+✔ bad settings and malformed native hello never subscribe or launch (0.148407ms)
+✔ closing discards queued preparation before old transport callback fires (0.145396ms)
+✔ symbolic protocol keys are accepted alongside numeric SDK keys (0.085608ms)
+✔ exact Dynamic source selects either role without content or provider inference (0.144037ms)
+✔ source availability and original routing expiry are both enforced (0.131288ms)
+✔ wrong provider, missing/duplicate instances and malformed transport close (0.113754ms)
+✔ hint validator rejects unsupported schema, unknown fields and invalid clocks/counters (0.189191ms)
+✔ destination objects reject recursion, zero UUID, uppercase, extra args and wrong shapes (0.124871ms)
+✔ byte accounting handles UTF-8 and malformed surrogate text (0.076561ms)
+✔ factory defaults, independent overrides and default hold buttons (0.118432ms)
+✔ corrupt, inherited-name and unsupported settings never silently become defaults (0.180609ms)
+✔ settings storage is read-back checked and contains only configuration (0.151601ms)
+✔ offline settings explain separate assignment and preserve selected roles (0.29624ms)
+✔ packaged config cold-starts without native watchapp and preserves settings across fresh plugin contexts (3.139691ms)
+✔ actual packaged HTML talks only to config plugin and saves without a native session (2.711898ms)
+✔ packaged legacy configuration shares the page and retains cancel/save return URLs (3.557418ms)
+✔ packaged PKJS consumes Dynamic nav source and invokes exactly once only after native confirmation (1.516348ms)
+✔ shared bundled page waits for the plugin, disables unchanged saves and resolves Default (1.020044ms)
+✔ malformed and timed-out loading retains disabled controls and permits an explicit retry (1.306861ms)
+✔ failed save keeps the draft, confirmed save clears dirty state, discard restores confirmed choices (0.865747ms)
+✔ an unconfirmed write is read back explicitly instead of treating local Discard as an undo (0.806751ms)
+✔ repair remains explicit and legacy Cancel returns without writing a draft (1.833243ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 77.007028
+native attempt: liveness, roles, duplicate prepare, closure, wrap and destinations passed
+native SDK adapter: launch gating, handshake, malformed wire, timeout, Back and disconnected closure passed
+Native/phone/package message keys and timeout agree

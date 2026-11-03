@@ -8,6 +8,7 @@ import zipfile
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / 'package.json').read_text())
+subprocess.run(['node', str(root / 'scripts/generate-config.cjs')], cwd=root, check=True)
 subprocess.run(['pebble', 'clean'], cwd=root, check=True)
 subprocess.run(['python3', str(root / 'scripts/bundle-plugin.py'), str(root / 'build/plugin.js')], cwd=root, check=True)
 subprocess.run(['pebble', 'build'], cwd=root, check=True)

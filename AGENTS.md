@@ -30,3 +30,18 @@ phone attempt; `navigation.js` validates the read-only routing record.
 `config.html` and `src/plugin/index.js` provide the primary phone settings page
 independently of native lifetime. The config-only plugin is bundled in this same
 PBW, exposes no sources/actions and uses the same UUID-scoped settings store.
+
+`src/pkjs/settings-page.js` owns the shared bundled/legacy settings template.
+The build generates `config.html` with `scripts/generate-config.cjs`; do not
+maintain a separate layout or controller in generated HTML. Both paths retain
+the version1 preference schema and the legacy Cancel/Save return URL.
+
+Phone settings use the phone's light/dark appearance, clear cards, 44px targets,
+an always reachable Save/status area and disclosed setup/default help. Keep
+unchanged saves disabled. A load failure must show unknown choices and Retry,
+never editable replacement defaults. An unreadable preference record may show
+defaults for review, but only explicit Save repairs it. Ordinary Discard restores
+the confirmed local snapshot without a backend write. An unconfirmed Save must
+remain uncertain until explicit readback or a confirmed retry; never claim
+that discarding a draft undoes a write already sent. Timeout/late callbacks
+must not overwrite a later loaded or edited draft.

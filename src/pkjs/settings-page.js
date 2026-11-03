@@ -1,35 +1,173 @@
 'use strict';
 
-function choices(values, selected) {
-  return values.map(function (value) {
-    return '<option value="' + value + '"' + (value === selected ? ' selected' : '') + '>' +
-      value.charAt(0).toUpperCase() + value.slice(1) + '</option>';
-  }).join('');
+var model = require('./settings');
+
+// Both settings paths use this layout. The build writes config.html from it.
+function behavior(initial) {
+  'use strict';
+  var up = document.getElementById('up'), down = document.getElementById('down');
+  var role = document.getElementById('role'), form = document.getElementById('settings');
+  var save = document.getElementById('save'), discard = document.getElementById('discard');
+  var retry = document.getElementById('retry'), status = document.getElementById('status');
+  var loaded = false, repairing = false, uncertain = false, saved = '', phase = 'loading';
+  var operation = 0, timer = null, bridgeReady = false;
+  var legacy = initial.mode === 'legacy';
+  function isRole(value) { return value === 'primary' || value === 'secondary'; }
+  function normalize(value) {
+    if (!value || value.version !== 1 || !isRole(value.defaultRole) ||
+        !value.holdOverrides || typeof value.holdOverrides !== 'object' || Array.isArray(value.holdOverrides)) return null;
+    var result = {version: 1, defaultRole: value.defaultRole, holdOverrides: {}};
+    for (var i = 0; i < 2; i++) {
+      var button = i ? 'down' : 'up', choice = value.holdOverrides[button];
+      if (choice !== undefined && choice !== 'default' && !isRole(choice)) return null;
+      if (isRole(choice)) result.holdOverrides[button] = choice;
+    }
+    return result;
+  }
+  function value() {
+    return normalize({version: 1, defaultRole: role.value, holdOverrides: {up: up.value, down: down.value}});
+  }
+  function dirty() { return loaded && (repairing || uncertain || JSON.stringify(value()) !== saved); }
+  function message(text, error) {
+    status.textContent = text; status.className = error ? 'status error' : 'status';
+  }
+  function describe() {
+    var fallback = role.value === 'secondary' ? 'Secondary' : 'Primary';
+    [up, down].forEach(function(field) {
+      for (var i = 0; i < field.options.length; i++)
+        if (field.options[i].value === 'default') field.options[i].textContent = 'Use default (' + fallback + ')';
+      var resolved = field.value === 'default' ? role.value : field.value;
+      document.getElementById(field.id + '-help').textContent = !loaded ? 'Saved choice not loaded yet.' : resolved === 'secondary' ?
+        'Opens the smaller secondary activity.' : 'Opens the large primary activity.';
+    });
+    [up, down, role].forEach(function(field) { field.options[0].textContent = phase === 'load-error' ? 'Not loaded' : 'Loading saved choice…'; });
+    document.getElementById('default-help').textContent = loaded ? 'Other supported holds open the ' + fallback + ' activity.' : 'Saved choice not loaded yet.';
+  }
+  function controls() {
+    var editing = loaded && phase !== 'saving';
+    up.disabled = down.disabled = role.disabled = !editing;
+    save.disabled = !editing || !dirty();
+    save.textContent = phase === 'saving' ? 'Saving…' : 'Save settings';
+    discard.hidden = !legacy && !loaded;
+    discard.disabled = phase === 'saving' || !legacy && !dirty();
+    discard.textContent = legacy ? 'Cancel' : uncertain ? 'Reload saved' : 'Discard changes';
+    retry.hidden = phase !== 'load-error'; describe();
+  }
+  function changed() {
+    controls();
+    message(uncertain ? 'Save not confirmed. Reload saved choices or save again.' : dirty() ? repairing ? 'Review these choices and save to repair unreadable settings.' : 'Unsaved changes.' : 'No changes to save.', uncertain);
+  }
+  function apply(settings, repair) {
+    up.value = settings.holdOverrides.up || 'default';
+    down.value = settings.holdOverrides.down || 'default'; role.value = settings.defaultRole;
+    loaded = true; repairing = repair; uncertain = false; saved = JSON.stringify(settings); phase = 'ready';
+    controls();
+    message(repair ? 'Saved settings could not be read. Review these choices before saving.' : 'No changes to save.', repair);
+  }
+  function stopTimer() { if (timer !== null) clearTimeout(timer); timer = null; }
+  function loadFailed() {
+    loaded = false; phase = 'load-error'; controls();
+    message('Could not load settings. Retry, or reopen this page from Pebble.', true);
+  }
+  function request(payload, complete, failed) {
+    var current = ++operation; stopTimer();
+    timer = setTimeout(function() { if (current === operation) { operation++; timer = null; failed(); } }, 6000);
+    function finish(callback, response) {
+      if (current !== operation) return;
+      operation++; stopTimer(); callback(response);
+    }
+    try {
+      var pending = Pebble.sendMessage('plugin', payload);
+      if (!pending || typeof pending.then !== 'function') { finish(failed); return; }
+      pending.then(function(response) { finish(complete, response); }, function() { finish(failed); });
+    } catch (error) { finish(failed); }
+  }
+  function load() {
+    var readback = uncertain;
+    loaded = false; phase = 'loading'; up.value = down.value = role.value = ''; controls(); message('Loading settings…');
+    if (!bridgeReady) { stopTimer(); timer = setTimeout(loadFailed, 6000); return; }
+    request({type: 'getSettings'}, function(response) {
+      var settings = response && response.ok === true && normalize(response.settings);
+      if (!settings) { loadFailed(); return; }
+      apply(settings, response.needsRepair === true);
+      if (readback && !repairing) message('Saved settings reloaded.');
+    }, loadFailed);
+  }
+  [up, down, role].forEach(function(field) { field.onchange = changed; });
+  retry.onclick = load;
+  discard.onclick = function() {
+    if (legacy) location.href = 'pebblejs://close#';
+    else if (loaded && uncertain) load();
+    else if (loaded) apply(JSON.parse(saved), repairing);
+  };
+  function saveFailed() {
+    uncertain = true; phase = 'ready'; controls();
+    message('Save not confirmed. Reload saved choices or save again.', true);
+  }
+  form.onsubmit = function(event) {
+    if (event) event.preventDefault();
+    if (save.disabled) return;
+    var selected = value();
+    if (!selected) { saveFailed(); return; }
+    if (legacy) { location.href = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(selected)); return; }
+    phase = 'saving'; controls(); message('Saving settings…');
+    request({type: 'saveSettings', settings: selected}, function(response) {
+      if (!response || response.ok !== true) { saveFailed(); return; }
+      saved = JSON.stringify(selected); repairing = false; uncertain = false; phase = 'ready'; controls(); message('Settings saved.');
+    }, saveFailed);
+  };
+  save.onclick = function(event) { if (event) event.preventDefault(); form.onsubmit(); };
+  if (legacy) apply(initial.settings, initial.needsRepair);
+  else {
+    if (typeof Pebble !== 'undefined' && typeof Pebble.addEventListener === 'function') {
+      Pebble.addEventListener('ready', function(event) {
+        if (event && event.target && event.target !== 'plugin') return;
+        if (bridgeReady) return;
+        bridgeReady = true; load();
+      });
+    }
+    load();
+  }
 }
-module.exports = function (settings, invalid) {
-  var up = settings.holdOverrides.up || 'default';
-  var down = settings.holdOverrides.down || 'default';
-  return '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
-    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Open Activity</title>' +
-    '<style>*{box-sizing:border-box}body{font:17px system-ui,sans-serif;background:#f5f5f1;color:#171717;margin:0}' +
-    'main{max-width:36rem;margin:auto;padding:24px}h1{font-size:28px;margin:0 0 16px}' +
-    'p{line-height:1.5}label{display:block;margin:24px 0 8px;font-weight:650}' +
-    'select,button{font:inherit;border:1px solid #999;border-radius:8px;padding:12px;width:100%;background:white}' +
-    'button{margin-top:24px;background:#171717;color:white;border:0;font-weight:650}' +
-    '.cancel{background:transparent;color:#333;margin-top:8px}.notice{padding:12px;background:#fff2d4}</style>' +
-    '</head><body><main><h1>Open Activity</h1>' +
-    '<p>Assign <strong>Open Activity</strong> to your buttons in Pebble’s Quick Launch settings. ' +
-    'Choose which Dynamic activity each shortcut opens here.</p>' +
-    (invalid ? '<p class="notice">Saved settings could not be read. Save these choices to repair them.</p>' : '') +
-    '<label for="up">Hold Up</label><select id="up">' + choices(['default', 'primary', 'secondary'], up) + '</select>' +
-    '<label for="down">Hold Down</label><select id="down">' + choices(['default', 'primary', 'secondary'], down) + '</select>' +
-    '<label for="role">Default activity</label><select id="role">' + choices(['primary', 'secondary'], settings.defaultRole) + '</select>' +
-    '<p>Other hold shortcuts use Default. A missing activity returns to the watchface. ' +
-    'This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>' +
-    '<p>Use one connected watch and allow Open Activity to launch apps in the Pebble app.</p>' +
-    '<button id="save">Save settings</button><button id="cancel" class="cancel">Cancel</button>' +
-    '<script>document.getElementById("save").onclick=function(){var value={version:1,' +
-    'defaultRole:document.getElementById("role").value,holdOverrides:{up:document.getElementById("up").value,' +
-    'down:document.getElementById("down").value}};location.href="pebblejs://close#"+encodeURIComponent(JSON.stringify(value));};' +
-    'document.getElementById("cancel").onclick=function(){location.href="pebblejs://close#";};</script></main></body></html>';
+function render(initial) {
+  return [
+    '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Open Activity</title><style>',
+    ':root{color-scheme:light;--page:#f4f5f7;--card:#fff;--ink:#101216;--muted:#5a6068;--line:#dde1e6;--accent:#145ca3;--field:#f4f5f7}',
+    '@media(prefers-color-scheme:dark){:root{color-scheme:dark;--page:#141618;--card:#212529;--ink:#f6f8fa;--muted:#b8c0c9;--line:#3c444d;--accent:#77bbff;--field:#2a3037}}',
+    '*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}',
+    'main{max-width:512px;margin:auto;padding:24px 16px 180px}h1{margin:0;font-size:28px;line-height:1.2;letter-spacing:-.6px}',
+    'header>p{color:var(--muted);margin:12px 0 22px}h2{margin:0 0 10px;font-size:18px;color:var(--accent)}p{margin:0 0 16px}',
+    '.card{margin:0 0 16px;padding:20px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px}',
+    'label{display:block;margin:18px 0 7px;font-weight:650}select,button{font:inherit;min-height:44px;border-radius:8px}',
+    'select{width:100%;padding:11px 10px;border:1px solid var(--line);background:var(--field);color:var(--ink)}',
+    'button{padding:10px 12px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-weight:650;cursor:pointer}',
+    'button:disabled{opacity:.45;cursor:default}select:disabled{opacity:.6}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}',
+    '.hint{font-size:14px;color:var(--muted);margin:8px 0 0}.intro{color:var(--muted);font-size:15px}',
+    'details>summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:650}details.card>summary{color:var(--accent);font-size:17px}',
+    '.fallback{margin-top:20px;border-top:1px solid var(--line);padding-top:10px}.fallback p{margin-top:10px}',
+    '.help ol{margin:12px 0 16px;padding-left:22px}.help li{padding-left:3px;margin:9px 0}.help p{color:var(--muted);font-size:14px}.help p:last-child{margin-bottom:0}',
+    'footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:var(--page);border-top:1px solid var(--line)}',
+    '.footer-inner{max-width:480px;margin:auto}.status{font-size:14px;color:var(--muted);margin:0 0 10px;min-height:20px}.status.error{color:#a1231d}',
+    '@media(prefers-color-scheme:dark){.status.error{color:#ffb4ab}}.actions{display:flex;gap:8px}.actions button{flex:1;min-width:0}#save{background:#145ca3;border-color:#145ca3;color:#fff}',
+    '[hidden]{display:none!important}@media(max-width:340px){main{padding-left:12px;padding-right:12px}.card{padding-left:14px;padding-right:14px}footer{padding-left:12px;padding-right:12px}.actions button{font-size:15px}}',
+    '</style></head><body><main><header><h1>Open Activity</h1><p>Choose which Dynamic activity each shortcut opens.</p></header>',
+    '<form id="settings"><section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading">Quick Launch shortcuts</h2><p class="intro">Primary is the large activity. Secondary is the smaller row.</p>',
+    '<label for="up">Hold Up</label><select id="up" aria-describedby="up-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option><option value="default">Use default (Primary)</option><option value="primary">Primary activity</option><option value="secondary">Secondary activity</option></select><p id="up-help" class="hint"></p>',
+    '<label for="down">Hold Down</label><select id="down" aria-describedby="down-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option><option value="default">Use default (Primary)</option><option value="primary">Primary activity</option><option value="secondary">Secondary activity</option></select><p id="down-help" class="hint"></p>',
+    '<details class="fallback"><summary>Default for other holds</summary><p class="hint">Used by other supported hold buttons and shortcuts set to Use default.</p>',
+    '<label for="role">Default activity</label><select id="role" aria-describedby="default-help" disabled><option value="" disabled hidden selected>Loading saved choice…</option><option value="primary">Primary activity</option><option value="secondary">Secondary activity</option></select><p id="default-help" class="hint"></p></details>',
+    '</section></form><details class="card help"><summary>Setup &amp; help</summary><ol><li>Install the current Dynamic build.</li><li>Allow Open Activity to launch apps in the Pebble phone app.</li><li>In Pebble’s Quick Launch settings, assign this same <strong>Open Activity</strong> app to each button you want to use.</li></ol>',
+    '<p>Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>',
+    '<p>A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.</p>',
+    '<p>The app-list entry closes immediately. Configure it here, then use the assigned hold buttons.</p>',
+    '<p>Back cancels while Opening… is shown. A launch already sent to the phone may still finish.</p>',
+    '</details></main><footer><div class="footer-inner"><p id="status" class="status" role="status" aria-live="polite">Loading settings…</p><div class="actions">',
+    '<button id="retry" type="button" hidden>Retry loading</button><button id="discard" type="button" disabled>Discard changes</button><button id="save" type="submit" form="settings" disabled>Save settings</button>',
+    '</div></div></footer><script>(', behavior.toString(), ')(', JSON.stringify(initial).replace(/</g, '\\u003c'), ');</script></body></html>'
+  ].join('\n');
+}
+module.exports = function(settings, invalid) {
+  return render({mode: 'legacy', settings: model.normalize(settings) || model.defaults(), needsRepair: !!invalid});
 };
+module.exports.config = function() { return render({mode: 'plugin'}); };

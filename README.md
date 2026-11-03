@@ -19,13 +19,27 @@ initially Primary. The app never modifies your global Quick Launch assignments.
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Install the local
-`dist/Open-Activity-0.1.0.pbw` through the Pebble app. Enable the current plugin
+`dist/Open-Activity-0.1.1.pbw` through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
 Open its phone settings to choose Hold Up, Hold Down and Default activity. The
 offline settings page is bundled in the PBW and works through a config-only
 plugin with the same app UUID. It does not require the transition watchapp to
 remain open, add another installed watchapp or expose an Activities service.
+
+The page explains Primary as the large activity and Secondary as the smaller
+row. **Default for other holds** is a disclosure below the two common mappings;
+each **Use default** option shows its resolved role. **Setup & help** contains
+the permission and Quick Launch steps. Phone light/dark appearance follows the
+phone independently of the watch.
+
+Save is enabled only for edits or an explicit settings repair. Ordinary
+**Discard changes** restores the last confirmed choices without writing them.
+If a save is not confirmed, the page keeps the draft and offers **Reload saved**
+to read back storage, or an explicit Save retry; it does not pretend that local
+discard can undo an already sent save. Failed loading never supplies editable
+default choices. Phone Back closes without submitting unsaved edits; the legacy
+page also retains its Cancel return URL.
 
 In Pebble’s Quick Launch settings, assign **Open Activity** to each button you
 want to use. The app-list entry intentionally closes if opened normally; use
@@ -92,6 +106,18 @@ npm test
 npm run build
 npm run check:artifact
 ```
+
+Edit `src/pkjs/settings-page.js` for both configuration paths. The build generates
+`config.html` from that shared template; `node scripts/generate-config.cjs --check`
+detects drift. The primary page uses Pebble's
+[bundled settings bridge](https://developer.repebble.com/guides/plugins/preview/#settings-pages);
+the legacy path keeps its `pebblejs://close#` return contract. Neither path
+changes the preference schema or Quick Launch assignments.
+
+For browser checks, start local Chromium with debugging on port 9229, then run
+`node scripts/check-settings.cjs`. It executes the actual packaged HTML and
+config plugin with isolated settings and a mock SDK bridge, checking read/save,
+errors, retry, discard and 320/360px light/dark layouts.
 
 There are no external npm dependencies. Distribution packaging adds
 `manifestVersion: 2`, `LaunchApps`, the offline page, the config-only plugin and

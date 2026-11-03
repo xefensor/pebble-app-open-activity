@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "output": "/home/xela/Projekty/Pebble/pebble-app-open-activity/docs/qa/0.1.1/settings",
+  "captures": 7,
+  "checks": [
+    "320/360 light/dark, labels/descriptions,44px targets,no horizontal overflow,unchanged save disabled,no writes on load",
+    "resolved Default,dirty/saving/saved states,one save,actual packaged plugin cold-read/write/reopen,discard without write",
+    "load failure+retry preserves stored preferences; save failure retains draft and retries explicitly",
+    "backend write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; setup/help disclosure and fixed save area"
+  ]
+}

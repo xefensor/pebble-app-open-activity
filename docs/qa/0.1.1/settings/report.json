@@ -1,0 +1,211 @@
+{
+  "version": "0.1.1",
+  "result": "PASS",
+  "pbw": {
+    "file": "Open-Activity-0.1.1.pbw",
+    "sha256": "7cc5002735cccfb99f4c80881c8ac85ef988521ac183554fb7561feebd4be70c"
+  },
+  "executedPackagedFiles": {
+    "config.html": "da5f81ea67b5ea58745f0b46fde8b21d028d1f4b9871fd62bb07d423c536b741",
+    "plugin.js": "6ab747c5a6d46d9e76467e207d538f255ae5adebdccfd094eab2047efcf80630"
+  },
+  "captures": [
+    {
+      "file": "settings-320-light.png",
+      "sha256": "07a86cd4741b47f5ee6cc7787cc893b504a496bf5f9d78538a60369413ea6cc7"
+    },
+    {
+      "file": "settings-320-dark.png",
+      "sha256": "dcd96ae4a33da1ec50f1b0c814064e4f510651f281ce5a87057adb81512a61c8"
+    },
+    {
+      "file": "settings-360-light.png",
+      "sha256": "53025873d1d5eae94ebc372ab6fd2b6374db9364860414a6026072b43751b7a7"
+    },
+    {
+      "file": "settings-360-dark.png",
+      "sha256": "54117e030666cb2706b425a7699b13e2490005d89479a48f45d8f565d31fef3e"
+    },
+    {
+      "file": "load-error-320.png",
+      "sha256": "01c647b5457afc06c12407c0e2e126a13cd5bd260d85cea00d2d85dc109ff855"
+    },
+    {
+      "file": "save-error-320.png",
+      "sha256": "0ac99541fedc5ccde19c9a20ea146b5a0288d683f82055dead46841e5caa8bef"
+    },
+    {
+      "file": "setup-help-320.png",
+      "sha256": "ece2313287181e9f0ca01844549007ad7a694ca3b068a635c2de4d5ed2e8d07d"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "Default for other holds",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "Default for other holds",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 65.5
+        },
+        {
+          "id": "save",
+          "height": 65.5
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "scrollWidth": 360,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "Default for other holds",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "scrollWidth": 360,
+      "targets": [
+        {
+          "id": "up",
+          "height": 44
+        },
+        {
+          "id": "down",
+          "height": 44
+        },
+        {
+          "id": "Default for other holds",
+          "height": 44
+        },
+        {
+          "id": "role",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 45.1875
+        },
+        {
+          "id": "save",
+          "height": 45.1875
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(20, 22, 24)"
+    }
+  ],
+  "checks": [
+    "320/360 light/dark, labels/descriptions,44px targets,no horizontal overflow,unchanged save disabled,no writes on load",
+    "resolved Default,dirty/saving/saved states,one save,actual packaged plugin cold-read/write/reopen,discard without write",
+    "load failure+retry preserves stored preferences; save failure retains draft and retries explicitly",
+    "backend write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; setup/help disclosure and fixed save area"
+  ],
+  "errors": [],
+  "scope": "Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.",
+  "visualReview": {
+    "reviewed": true,
+    "reviewers": [
+      "root",
+      "implement-open-activity-agent"
+    ],
+    "captures": 7,
+    "result": "PASS",
+    "scope": "Final packaged-page captures at320/360px in phone light/dark, plus error/help states. This is browser appearance, not a real phone WebView."
+  }
+}

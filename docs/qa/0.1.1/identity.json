@@ -1,0 +1,49 @@
+{
+  "version": "0.1.1",
+  "result": "PASS",
+  "pbw": {
+    "file": "Open-Activity-0.1.1.pbw",
+    "sha256": "7cc5002735cccfb99f4c80881c8ac85ef988521ac183554fb7561feebd4be70c"
+  },
+  "reference": {
+    "file": "Open-Activity-0.1.0.pbw",
+    "sha256": "fc21fe61f649412b52bfda16469d0b09556a794d1e9c8c206ddbc0911d23a6d9"
+  },
+  "unchangedSourceSha256": {
+    "src/c/attempt.c": "f0f5e6052e08ec131c27a80ab97ae10fa093c342c944d0c9020d69c778c82442",
+    "src/c/attempt.h": "a37fa78c83c8a17a801585e2bb94f22a284fb64d69df5051cfe50789c787ae30",
+    "src/c/main.c": "f1c9a3581ef4676162abc5bb99fe946423c445f7c5b5f320e6a4482c6a506278",
+    "src/c/protocol.h": "d18da51581a8679c9ccead881e3b3e79f7083495d9026f01d2a88b3733fcb424",
+    "src/pkjs/index.js": "eeff7f8a8842f7ff954584c02fce1610999917a58a6eca1576c9410756b46330",
+    "src/pkjs/launcher.js": "ac7c69fafa2fb489c7a710cbdf97099cd12a8edc0de67d744c4ae83b98df635c",
+    "src/pkjs/navigation.js": "30368a859cb3cab729f25a0c3cf1d6f5d0268c6c4909117a844f3e37539a26a1",
+    "src/pkjs/protocol.js": "fc8c7a73e7f492685b6bf9f732d0360c86c817c128878244a155e6de4eb5d77d",
+    "src/pkjs/queue.js": "d6b1b1810561922eebd6474fe01c68a5fb1b37d9c88dca7a68f164e5f61c05d8",
+    "src/pkjs/settings.js": "8969682013028b89f9218f8291196753bc463179cc928be5c58711ebd6b1a6bb",
+    "src/plugin/index.js": "db0f7986112acac9fb7a7f944b62c44da9762c3343ddadd024d10e883cc85b4f"
+  },
+  "configPluginByteIdentical": true,
+  "nativeResourcesByteIdentical": true,
+  "nativeBinaryIdenticalExceptResourceTimestamp": true,
+  "nativeBinaryChangedOffsets": [
+    124,
+    125
+  ],
+  "ignoredNativeField": {
+    "name": "PebbleProcessInfo.resource_timestamp",
+    "offset": 124,
+    "bytes": 4,
+    "source": "SDK4.33.1 emery/include/pebble_process_info.h"
+  },
+  "nativeLoadedBytes": 2436,
+  "nativeVirtualBytes": 2508,
+  "payloadSha256": {
+    "config.html": "da5f81ea67b5ea58745f0b46fde8b21d028d1f4b9871fd62bb07d423c536b741",
+    "plugin.js": "6ab747c5a6d46d9e76467e207d538f255ae5adebdccfd094eab2047efcf80630",
+    "pebble-js-app.js": "62d17730a51fd8652063978980ce94c5f31b1fad17e026c1a124f8ee223749b5",
+    "emery/pebble-app.bin": "c188f86f202f50b47aab5ed39930fa8428a9c9f12bebfd0d03a321093c308fc3",
+    "emery/app_resources.pbpack": "b58d8f0fc04367f823045aafa7724dee47b1fe6674411d117e32909b3f527a31"
+  },
+  "scope": "Settings presentation and its feedback only. Native source, launch protocol, preference schema/storage, config-only plugin and permissions are unchanged. No new emulator or physical-device behavior claimed.",
+  "referenceCommit": "8f7898a581703318999766421d596dcf8f515616"
+}

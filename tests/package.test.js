@@ -13,6 +13,7 @@ const built = fs.existsSync(artifact);
 const protocol = require('../src/pkjs/protocol');
 const navigation = require('../src/pkjs/navigation');
 const settings = require('../src/pkjs/settings');
+const mountSettings = require('./helpers/settings-page');
 const NOW = 1793700000000;
 const TIMER = '50e9ef12-a5ab-4369-a3b5-3447bfba5151';
 let bundle;
@@ -49,30 +50,41 @@ test('packaged config cold-starts without native watchapp and preserves settings
 test('actual packaged HTML talks only to config plugin and saves without a native session', {skip: !built}, async () => {
   const store = storage();
   const invoke = coldConfig(store);
-  const elements = {};
-  for (const id of ['up', 'down', 'role', 'save', 'status']) elements[id] = {value: '', disabled: true, textContent: ''};
-  let ready;
-  const requests = [];
-  const script = bundle['config.html'].match(/<script>([\s\S]*?)<\/script>/)[1];
-  vm.runInNewContext(script, {
-    document: {getElementById(id) {assert.ok(elements[id]); return elements[id];}},
-    Pebble: {
-      addEventListener(event, handler) {assert.equal(event, 'ready'); ready = handler;},
-      sendMessage(target, message) {assert.equal(target, 'plugin'); requests.push(message); return Promise.resolve(invoke(message));}
-    }
-  }, {timeout: 2000});
-  ready(); await Promise.resolve(); await Promise.resolve();
+  const ui = mountSettings(bundle['config.html'], message => Promise.resolve(invoke(message)));
+  const elements = ui.elements, requests = ui.requests;
+  ui.ready(); await ui.tick();
   assert.equal(elements.up.value, 'secondary');
   assert.equal(elements.down.value, 'primary');
-  assert.equal(elements.save.disabled, false);
-  elements.up.value = 'primary'; elements.down.value = 'secondary'; elements.role.value = 'secondary';
-  elements.save.onclick(); await Promise.resolve(); await Promise.resolve();
+  assert.equal(elements.save.disabled, true);
+  ui.change('up', 'primary'); ui.change('down', 'secondary'); ui.change('role', 'secondary');
+  elements.save.onclick(); await ui.tick();
   assert.equal(elements.status.textContent, 'Settings saved.');
   assert.equal(requests.length, 2);
   assert.equal(coldConfig(store)({type: 'getSettings'}).settings.holdOverrides.down, 'secondary');
   assert.doesNotMatch(bundle['config.html'], /https?:\/\//);
   assert.deepEqual(JSON.parse(bundle['appinfo.json']).plugin.sources, []);
   assert.deepEqual(JSON.parse(bundle['appinfo.json']).plugin.actions, []);
+});
+test('packaged legacy configuration shares the page and retains cancel/save return URLs', {skip: !built}, () => {
+  const handlers = {}, urls = [], store = storage();
+  const chosen = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary'}};
+  settings.save(store, chosen);
+  vm.runInNewContext(bundle['pebble-js-app.js'], {
+    localStorage: store, setTimeout() {return 1;}, clearTimeout() {}, console: {log() {}, error() {}},
+    Pebble: {addEventListener(event, handler) {handlers[event] = handler;}, openURL(url) {urls.push(url);}}
+  }, {timeout: 2000});
+  handlers.showConfiguration();
+  const html = decodeURIComponent(urls[0].replace(/^data:text\/html;charset=utf-8,/, ''));
+  const ui = mountSettings(html, () => {throw Error('legacy config cannot use the plugin bridge');});
+  assert.equal(ui.elements.discard.textContent, 'Cancel'); assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.elements.up.value, 'primary'); assert.equal(ui.elements.down.value, 'default');
+  ui.change('down', 'secondary'); ui.elements.discard.onclick();
+  assert.equal(ui.location.href, 'pebblejs://close#');
+  assert.deepEqual(settings.load(store), chosen);
+  const save = mountSettings(html, () => {throw Error('legacy config cannot use the plugin bridge');});
+  save.change('down', 'secondary'); save.elements.save.onclick();
+  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])),
+    {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}});
 });
 test('packaged PKJS consumes Dynamic nav source and invokes exactly once only after native confirmation', {skip: !built}, () => {
   const handlers = {}, messages = [], invocations = [];

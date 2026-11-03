@@ -4,10 +4,12 @@ from pathlib import Path
 import hashlib
 import json
 import struct
+import subprocess
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / 'package.json').read_text())
+subprocess.run(['node', str(root / 'scripts/generate-config.cjs'), '--check'], cwd=root, check=True)
 pbw = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
 with zipfile.ZipFile(pbw) as archive:
     appinfo = json.loads(archive.read('appinfo.json'))

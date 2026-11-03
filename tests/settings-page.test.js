@@ -1,0 +1,81 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const page = require('../src/pkjs/settings-page');
+const settings = require('../src/pkjs/settings');
+const mount = require('./helpers/settings-page');
+const loaded = () => ({ok: true, settings: settings.defaults(), needsRepair: false});
+test('shared bundled page waits for the plugin, disables unchanged saves and resolves Default', async () => {
+  assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), page.config());
+  const ui = mount(page.config(), () => Promise.resolve(loaded()));
+  ui.ready('pkjs'); assert.equal(ui.requests.length, 0);
+  ui.ready(); ui.ready(); await ui.tick();
+  assert.equal(ui.requests.length, 1); assert.equal(ui.elements.save.disabled, true);
+  ui.change('up', 'default'); ui.change('role', 'secondary');
+  assert.equal(ui.elements.save.disabled, false);
+  assert.equal(ui.elements.up.options[1].textContent, 'Use default (Secondary)');
+  assert.match(ui.elements['up-help'].textContent, /smaller secondary/);
+  assert.equal(ui.requests.length, 1, 'editing never writes settings');
+});
+test('malformed and timed-out loading retains disabled controls and permits an explicit retry', async () => {
+  let resolve, bad = true;
+  const ui = mount(page.config(), () => bad ? new Promise(done => {resolve = done;}) : Promise.resolve(loaded()));
+  ui.ready(); ui.timeout();
+  assert.equal(ui.elements.retry.hidden, false); assert.equal(ui.elements.save.disabled, true);
+  bad = false; ui.elements.retry.onclick(); await ui.tick(); assert.equal(ui.elements.up.disabled, false);
+  ui.change('down', 'secondary');
+  resolve({ok: true, settings: {version: 1, defaultRole: 'secondary', holdOverrides: {}}}); await ui.tick();
+  assert.equal(ui.elements.role.value, 'primary');
+  assert.equal(ui.elements.down.value, 'secondary', 'stale load cannot overwrite the edited post-Retry draft');
+  const malformed = mount(page.config(), () => Promise.resolve({ok: true, settings: {version: 1}}));
+  malformed.ready(); await malformed.tick();
+  assert.equal(malformed.elements.save.disabled, true); assert.equal(malformed.elements.retry.hidden, false);
+});
+test('failed save keeps the draft, confirmed save clears dirty state, discard restores confirmed choices', async () => {
+  let stored = settings.defaults(), fail = true;
+  const ui = mount(page.config(), message => {
+    if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
+    if (fail) return Promise.reject(Error('bridge'));
+    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+  });
+  ui.ready(); await ui.tick(); ui.change('up', 'primary'); ui.elements.save.onclick(); await ui.tick();
+  assert.equal(ui.elements.up.value, 'primary'); assert.equal(ui.elements.save.disabled, false);
+  assert.equal(ui.elements.discard.textContent, 'Reload saved');
+  assert.match(ui.elements.status.textContent, /not confirmed/); assert.equal(stored.holdOverrides.up, 'secondary');
+  fail = false; ui.elements.save.onclick(); await ui.tick();
+  assert.equal(ui.elements.status.textContent, 'Settings saved.'); assert.equal(ui.elements.save.disabled, true);
+  ui.change('down', 'secondary'); ui.elements.discard.onclick(); await ui.tick();
+  assert.equal(ui.elements.down.value, 'primary'); assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.requests.filter(message => message.type === 'getSettings').length, 1, 'discard restores the last confirmed snapshot without backend work');
+});
+test('an unconfirmed write is read back explicitly instead of treating local Discard as an undo', async () => {
+  let stored = settings.defaults(), acknowledge;
+  const ui = mount(page.config(), message => {
+    if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
+    stored = JSON.parse(JSON.stringify(message.settings));
+    return new Promise(resolve => {acknowledge = resolve;});
+  });
+  ui.ready(); await ui.tick(); ui.change('up', 'primary'); ui.elements.save.onclick();
+  ui.elements.save.onclick(); assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1);
+  ui.timeout(); assert.equal(ui.elements.discard.textContent, 'Reload saved');
+  ui.change('up', 'secondary');
+  assert.equal(ui.elements.save.disabled, false, 'matching the old snapshot does not resolve an uncertain save');
+  assert.match(ui.elements.status.textContent, /not confirmed/);
+  ui.elements.discard.onclick(); await ui.tick();
+  assert.equal(ui.elements.up.value, 'primary', 'readback shows the write that lost its acknowledgement');
+  assert.equal(ui.elements.status.textContent, 'Saved settings reloaded.');
+  ui.change('down', 'secondary'); acknowledge({ok: true}); await ui.tick();
+  assert.equal(ui.elements.down.value, 'secondary'); assert.equal(ui.elements.save.disabled, false);
+  assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1, 'readback never writes');
+});
+test('repair remains explicit and legacy Cancel returns without writing a draft', () => {
+  const ui = mount(page(settings.defaults(), true), () => {throw Error('legacy must not use plugin');});
+  assert.equal(ui.elements.save.disabled, false); assert.match(ui.elements.status.textContent, /before saving/);
+  ui.change('up', 'primary'); ui.elements.discard.onclick(); assert.equal(ui.location.href, 'pebblejs://close#');
+  assert.equal(ui.requests.length, 0);
+  const save = mount(page(settings.defaults(), false), () => {throw Error('legacy must not use plugin');});
+  save.change('down', 'default'); save.change('role', 'secondary'); save.elements.save.onclick();
+  const result = JSON.parse(decodeURIComponent(save.location.href.split('#')[1]));
+  assert.deepEqual(settings.normalize(result), {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'secondary'}});
+});

@@ -15,12 +15,13 @@ import tempfile
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--browser', default=shutil.which('chromium'))
-parser.add_argument('--output', type=Path, default=root / 'docs/qa/0.1.0/settings')
+version = json.loads((root / 'package.json').read_text())['version']
+parser.add_argument('--output', type=Path, default=root / 'docs/qa' / version / 'settings-layout')
 args = parser.parse_args()
 if not args.browser:
     raise SystemExit('An installed Chromium is required; specify --browser.')
 source = (root / 'config.html').read_text()
-shim = """<script>window.Pebble={addEventListener:function(name,fn){document.addEventListener('DOMContentLoaded',fn);},sendMessage:function(target,message){return Promise.resolve({ok:true,settings:{version:1,defaultRole:'primary',holdOverrides:{up:'secondary',down:'primary'}}});}};</script>"""
+shim = """<script>window.Pebble={addEventListener:function(name,fn){document.addEventListener('DOMContentLoaded',function(){fn({target:'plugin'});});},sendMessage:function(target,message){return Promise.resolve({ok:true,settings:{version:1,defaultRole:'primary',holdOverrides:{up:'secondary',down:'primary'}}});}};</script>"""
 args.output.mkdir(parents=True, exist_ok=True)
 captures = []
 with tempfile.TemporaryDirectory(prefix='open-activity-settings-') as scratch:
