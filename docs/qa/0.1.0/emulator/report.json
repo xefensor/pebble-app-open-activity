@@ -1,0 +1,37 @@
+{
+  "version": "0.1.0",
+  "scope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch rejection and system return only",
+  "phoneRuntime": false,
+  "physicalWatch": false,
+  "quickLaunchHoldSimulated": false,
+  "pbwSha256": "6e798b2fe52fb006caabeac4d0a85c582403529d82769364bb150200065083db",
+  "nativeSha256": "b44072719774007814b03c849147c458167d9d251d763147ddd6e02c5a6f2492",
+  "events": [
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    }
+  ],
+  "returnedAppUuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8",
+  "capture": {
+    "file": "phone-launch-returned.png",
+    "sha256": "b7add7ecb54ed4ae2046fb084e56e8a6b68232d0e6d5b0936f386058e58c9694",
+    "pixels": [
+      200,
+      228
+    ],
+    "nativePixelsModified": false
+  }
+}

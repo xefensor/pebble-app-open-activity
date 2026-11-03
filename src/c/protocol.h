@@ -1,0 +1,19 @@
+#pragma once
+
+#define OA_KEY_OPERATION 2000
+#define OA_KEY_SESSION 2001
+#define OA_KEY_BUTTON 2002
+#define OA_KEY_ROLE 2003
+#define OA_KEY_DESTINATION 2004
+#define OA_KEY_ELAPSED_MS 2005
+#define OA_KEY_TICKET 2006
+
+enum {
+  OA_REQUEST = 1, OA_HELLO = 2, OA_PREPARE = 3,
+  OA_CONFIRM = 4, OA_CLOSE = 5, OA_CANCEL = 6
+};
+
+enum { OA_PRIMARY = 1, OA_SECONDARY = 2 };
+#define OA_BUDGET_MS 4000u
+#define OA_UUID_LENGTH 36u
+#define OA_HELPER_UUID "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"

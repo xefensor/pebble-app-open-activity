@@ -1,0 +1,42 @@
+{
+  "name": "pebble-app-open-activity",
+  "version": "0.1.0",
+  "author": "Xef",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "description": "One Quick Launch app for Dynamic's recently displayed primary or secondary activity.",
+  "scripts": {
+    "test": "node --test tests/*.test.js && python3 scripts/test-native.py",
+    "build": "python3 scripts/build.py",
+    "check:artifact": "python3 scripts/check-artifact.py"
+  },
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Open Activity",
+    "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
+    "sdkVersion": "3",
+    "projectType": "native",
+    "enableMultiJS": true,
+    "targetPlatforms": ["emery"],
+    "watchapp": {"watchface": false},
+    "capabilities": ["configurable"],
+    "configPage": "config.html",
+    "usesPermissions": ["LaunchApps"],
+    "plugin": {
+      "description": "Open Activity shortcut settings. No activity sources or action proxy.",
+      "script": "plugin.js",
+      "sources": [],
+      "actions": []
+    },
+    "resources": {"media": []},
+    "messageKeys": {
+      "OA_OPERATION": 2000,
+      "OA_SESSION": 2001,
+      "OA_BUTTON": 2002,
+      "OA_ROLE": 2003,
+      "OA_DESTINATION": 2004,
+      "OA_ELAPSED_MS": 2005,
+      "OA_TICKET": 2006
+    }
+  }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Open Activity</title>
+  <style>
+    body { font: 17px system-ui, sans-serif; background: #f5f5f1; color: #171717; margin: 0; }
+    main { max-width: 36rem; margin: auto; padding: 24px; }
+    h1 { font-size: 28px; margin: 0 0 16px; }
+    p { line-height: 1.5; }
+    label { display: block; margin: 24px 0 8px; font-weight: 650; }
+    select, button { font: inherit; border: 1px solid #999; border-radius: 8px; padding: 12px; width: 100%; background: white; }
+    button { margin-top: 24px; background: #171717; color: white; border: 0; font-weight: 650; }
+    button:disabled, select:disabled { opacity: .5; }
+    #status { min-height: 26px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Open Activity</h1>
+    <p>Assign <strong>Open Activity</strong> to your buttons in Pebble’s Quick Launch settings.
+      Choose which Dynamic activity each shortcut opens here.</p>
+    <label for="up">Hold Up</label>
+    <select id="up" disabled>
+      <option value="default">Default</option><option value="primary">Primary</option><option value="secondary">Secondary</option>
+    </select>
+    <label for="down">Hold Down</label>
+    <select id="down" disabled>
+      <option value="default">Default</option><option value="primary">Primary</option><option value="secondary">Secondary</option>
+    </select>
+    <label for="role">Default activity</label>
+    <select id="role" disabled>
+      <option value="primary">Primary</option><option value="secondary">Secondary</option>
+    </select>
+    <p>Other hold shortcuts use Default. A missing activity returns to the watchface.
+      This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>
+    <p>Use one connected watch and allow Open Activity to launch apps in the Pebble app.</p>
+    <button id="save" disabled>Save settings</button>
+    <p id="status" role="status" aria-live="polite">Loading settings…</p>
+  </main>
+  <script>
+    (function () {
+      'use strict';
+      var started = false;
+      var up = document.getElementById('up');
+      var down = document.getElementById('down');
+      var role = document.getElementById('role');
+      var save = document.getElementById('save');
+      var status = document.getElementById('status');
+      function enable(value) {
+        up.disabled = down.disabled = role.disabled = save.disabled = !value;
+      }
+      function failed() {
+        status.textContent = 'Could not load settings. Close this page and try again.';
+      }
+      Pebble.addEventListener('ready', function () {
+        if (started) return;
+        started = true;
+        Pebble.sendMessage('plugin', {type: 'getSettings'}).then(function (response) {
+          if (!response || response.ok !== true || !response.settings) { failed(); return; }
+          var settings = response.settings;
+          up.value = settings.holdOverrides.up || 'default';
+          down.value = settings.holdOverrides.down || 'default';
+          role.value = settings.defaultRole;
+          enable(true);
+          status.textContent = response.needsRepair ? 'Saved settings could not be read. Save these choices to repair them.' : '';
+        }, failed);
+      });
+      save.onclick = function () {
+        enable(false);
+        status.textContent = 'Saving…';
+        Pebble.sendMessage('plugin', {type: 'saveSettings', settings: {
+          version: 1, defaultRole: role.value,
+          holdOverrides: {up: up.value, down: down.value}
+        }}).then(function (response) {
+          status.textContent = response && response.ok === true ? 'Settings saved.' : 'Could not save settings. Try again.';
+          enable(true);
+        }, function () {
+          status.textContent = 'Could not save settings. Try again.';
+          enable(true);
+        });
+      };
+    })();
+  </script>
+</body>
+</html>

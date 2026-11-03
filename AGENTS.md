@@ -1,0 +1,32 @@
+# Open Activity maintainer notes
+
+This is one stock PebbleOS Quick Launch watchapp for both Dynamic activity
+positions. Preserve UUID `d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9` and message keys.
+Target Emery. Keep the repository local until publication is requested.
+
+- Use the existing SDK and official phone app. No firmware/mobile-app forks.
+- Never change global Quick Launch assignments. Users assign this same app to
+  their desired buttons; the phone settings choose Primary or Secondary.
+- Native validates launch reason, gesture and button. Ordinary menu launches and
+  unsupported gestures close. Native owns the four-second UI deadline and Back.
+- Dynamic's exact navigation source returns recent displayed destinations.
+  Validate provider, schema, bounded metadata, original expiry and selected role.
+  Never independently rank activities or substitute Primary for absent Secondary.
+- Keep one transient opening attempt and one AppMessage queue. Confirm native
+  liveness immediately before dispatch, invoke once, and never replay after a
+  duplicate, timeout, reconnect or unrelated session.
+- Store only user settings. Never cache navigation records, activity content,
+  notification text, titles, artwork or invocation arguments in this app.
+- The official launch API cannot recall a command already sent and currently
+  targets every connected watch. Document one-connected-watch support and the
+  recent-Dynamic behavior across watchfaces; do not invent stricter guarantees.
+- Use `npm test`, `npm run build` and the packaged artifact check. Separate
+  portable/emulator evidence from real-phone and physical-watch testing.
+- Preserve the PolyForm Noncommercial required notice and the SDK Apache notice.
+
+`src/c/attempt.*` is the portable native attempt state machine; `main.c` owns SDK
+input, lifecycle, UI and messaging. `src/pkjs/launcher.js` owns the single bounded
+phone attempt; `navigation.js` validates the read-only routing record.
+`config.html` and `src/plugin/index.js` provide the primary phone settings page
+independently of native lifetime. The config-only plugin is bundled in this same
+PBW, exposes no sources/actions and uses the same UUID-scoped settings store.
