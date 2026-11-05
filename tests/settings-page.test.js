@@ -79,7 +79,7 @@ test('old mappings are projected without writes and converted only by explicit S
   let stored = legacy(); const original = JSON.stringify(stored);
   const ui = mount(page.config(), message => {
     if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: settings.choices(stored), needsMigration: stored.version === 1});
-    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true, settings: stored});
   });
   ui.ready(); await ui.tick();
   assert.equal(JSON.stringify(stored), original);
@@ -108,7 +108,7 @@ test('failed Save retains choices, retry confirms, and ordinary Discard never wr
   const ui = mount(page.config(), message => {
     if (message.type === 'getSettings') return Promise.resolve({ok: true, settings: stored});
     if (fail) return Promise.reject(Error('bridge'));
-    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true});
+    stored = JSON.parse(JSON.stringify(message.settings)); return Promise.resolve({ok: true, settings: stored});
   });
   ui.ready(); await ui.tick(); ui.change('primary', 'hold-back'); ui.elements.save.onclick(); await ui.tick();
   assert.equal(ui.elements.primary.value, 'hold-back'); assert.equal(ui.elements.save.disabled, false);

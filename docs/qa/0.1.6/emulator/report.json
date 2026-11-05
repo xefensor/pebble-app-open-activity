@@ -1,0 +1,112 @@
+{
+  "version": "0.1.6",
+  "scope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.",
+  "phoneRuntime": false,
+  "physicalWatch": false,
+  "quickLaunchHoldSimulated": false,
+  "pbwSha256": "0977885135f68687f86297adbcd1b3a19b90debc9d09810f398346f31a1fb580",
+  "nativeSha256": "a5f1fd32dd00df9c7de7b439beef8bbb51d37a7c495df810db1f81fd679f9f4a",
+  "events": [
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    }
+  ],
+  "checks": {
+    "ordinarySetupStaysOpen": true,
+    "outlivesQuickLaunchBudget": true,
+    "offlineSetupStaysOpen": true,
+    "backReturns": true,
+    "noNativeHandshake": true
+  },
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "275c2ff3220e8f5caaab173f6d702ba32487c77354481751a919647b336e48a5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-still-open-after-budget.png",
+      "sha256": "275c2ff3220e8f5caaab173f6d702ba32487c77354481751a919647b336e48a5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-back-returned.png",
+      "sha256": "9c83e37ace07765b1f6e4258a269fc6912ce685d0426a3b4aad844dcc0cdd860",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-offline.png",
+      "sha256": "275c2ff3220e8f5caaab173f6d702ba32487c77354481751a919647b336e48a5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    }
+  ]
+}

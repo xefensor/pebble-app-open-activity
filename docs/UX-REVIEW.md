@@ -1,5 +1,14 @@
 # Open Activity UI and UX review
 
+Version 0.1.6 fixes access to phone settings. Opening from the ordinary watch app
+list now shows setup instructions and a standard clock until Back. It creates
+no native opening attempt, while valid Quick Launch retains its four-second
+transition and failure-close behavior. Phone settings still have exactly two
+choices and preserve ordinary focus. Active/closed save ownership and exact
+acknowledgments prevent Android's old runtime snapshot replacing saved choices.
+See [0.1.6 evidence](qa/0.1.6). The earlier review below retains its historical
+scope, including the previous ordinary-launch closure.
+
 Version 0.1.4 keeps exactly two choices: a shortcut for Primary activity and a
 shortcut for Secondary activity. It improves the existing flows without adding
 configuration fields or changing routing, permissions or native timing.

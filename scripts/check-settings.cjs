@@ -1,5 +1,5 @@
 'use strict';
-// Actual packaged HTML/config plugin in Chromium; only the SDK bridge/storage
+// Actual packaged HTML/config handlers in Chromium; only the SDK bridge/storage
 // are simulated. Requires an existing local Chromium debugging endpoint.
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const crypto = require('node:crypto'), assert = require('node:assert/strict');
@@ -9,22 +9,77 @@ const artifact = path.join(root, 'dist/Open-Activity-' + version + '.pbw');
 const output = path.resolve(process.argv[2] || path.join(root, 'docs/qa', version, 'settings'));
 const endpoint = process.env.OPEN_ACTIVITY_CHROMIUM_ENDPOINT || 'http://127.0.0.1:9229';
 const files = JSON.parse(execFileSync('python3', ['-c',
-  'import json,sys,zipfile\nwith zipfile.ZipFile(sys.argv[1]) as z: print(json.dumps({n:z.read(n).decode() for n in ["config.html","plugin.js"]}))', artifact], {encoding: 'utf8'}));
+  'import json,sys,zipfile\nwith zipfile.ZipFile(sys.argv[1]) as z: print(json.dumps({n:z.read(n).decode() for n in ["config.html","plugin.js","pebble-js-app.js"]}))', artifact], {encoding: 'utf8'}));
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
+const expectedSha = process.env.OPEN_ACTIVITY_EXPECTED_SHA256;
+if (expectedSha) assert.equal(sha(fs.readFileSync(artifact)), expectedSha, 'Exact reviewed PBW required');
 assert.equal(files['config.html'], fs.readFileSync(path.join(root, 'config.html'), 'utf8'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'open-activity-ux-'));
 let activeSocket;
 fs.mkdirSync(output, {recursive: true});
+function simulatedSdk(seed, faults, pluginCode, pkjsCode, persistenceKey) {
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const previous=sessionStorage.getItem(persistenceKey);
+  const state = window.__qa = {generation:Math.random().toString(36),store:previous?JSON.parse(previous):copy(seed), dom:null, requests:[], targetQueries:[], faults,
+    active:false, forbidden:{appMessages:0,subscriptions:0,actions:0}};
+  const persist=()=>sessionStorage.setItem(persistenceKey,JSON.stringify(state.store));
+  let pluginHandler, events = {};
+  const owns = (store, key) => Object.prototype.hasOwnProperty.call(store,key) ? store[key] : null;
+  const nativeStorage = {getItem:key=>owns(state.store,key),setItem:(key,value)=>{state.store[key]=String(value);persist();}};
+  const forbidden = name => () => {state.forbidden[name]++;throw Error('Settings must not start '+name);};
+  new Function('Pebble','localStorage',pluginCode)({registerConfigHandler:fn=>{pluginHandler=fn;}},nativeStorage);
+  state.startPkjs = function() {
+    state.dom=copy(state.store); events={};
+    const storage={getItem:key=>owns(state.dom,key),setItem:(key,value)=>{state.dom[key]=String(value);state.store[key]=String(value);persist();}};
+    new Function('Pebble','localStorage',pkjsCode)({addEventListener:(name,fn)=>{events[name]=fn;},
+      sendAppMessage:forbidden('appMessages'),subscribeToSource:forbidden('subscriptions'),invokeAction:forbidden('actions')},storage);
+    // Do not dispatch ready/appmessage: settings must not begin a launch attempt.
+    state.active=true;
+  };
+  state.teardownPkjs = function() {
+    // Android WebViewJsRunner persists its complete restored DOM map on stop.
+    state.store=copy(state.dom);state.active=false;events={};persist();
+  };
+  if(faults.active)state.startPkjs();
+  window.Pebble={
+    targets() {
+      state.targetQueries.push(state.active);
+      if(state.faults.targetsFail){state.faults.targetsFail--;return Promise.reject(Error('target discovery failed'));}
+      return Promise.resolve(state.active?[{id:'plugin'},{id:'pkjs'}]:[{id:'plugin'}]);
+    },
+    addEventListener(name,fn) {
+      if(name==='ready')document.addEventListener('DOMContentLoaded',()=>{fn({target:'plugin'});if(state.active)fn({target:'pkjs'});});
+    },
+    sendMessage(target,message) {
+      if(target!=='plugin'&&target!=='pkjs')throw Error('Unexpected target');
+      state.requests.push(Object.assign({target},copy(message)));
+      return new Promise((resolve,reject)=>{
+        if(message.type==='getSettings'&&state.faults.load){state.faults.load--;reject(Error('load'));return;}
+        if(message.type==='saveSettings'&&state.faults.save){state.faults.save--;resolve({ok:false});return;}
+        if(message.type==='saveSettings'&&target==='pkjs'&&state.faults.pkjsReject){
+          state.faults.pkjsReject--;if(state.faults.goneOnFailure)state.teardownPkjs();
+          reject(Error('PKJS transport failed'));return;
+        }
+        if(message.type==='saveSettings'&&state.faults.mismatchedAck){
+          state.faults.mismatchedAck--;resolve({ok:true,settings:{version:2,primaryShortcut:'none',secondaryShortcut:'none'}});return;
+        }
+        const dispatch=respond=>{
+          if(target==='plugin')pluginHandler(message,response=>{
+            if(message.type==='saveSettings'&&state.faults.appearAfterPluginSave){state.faults.appearAfterPluginSave--;state.startPkjs();}
+            respond(response);
+          });
+          else if(state.active&&events.configmessage)events.configmessage({data:message,respond});
+          else reject(Error('No live PKJS settings handler'));
+        };
+        if(message.type==='saveSettings'&&state.faults.ackLost){state.faults.ackLost--;dispatch(()=>reject(Error('lost acknowledgement')));return;}
+        setTimeout(()=>dispatch(resolve),state.faults.delay||0);
+      });
+    }
+  };
+}
 function fixture(seed = {}, faults = {}) {
-  const shim = '<script>(function(){window.__qa={store:' + JSON.stringify(seed) + ',requests:[],faults:' + JSON.stringify(faults) + '};' +
-    'var handler;function cold(){(function(Pebble,localStorage){' + files['plugin.js'] +
-    '\n})({registerConfigHandler:function(fn){handler=fn;}},{getItem:function(k){return Object.prototype.hasOwnProperty.call(__qa.store,k)?__qa.store[k]:null;},setItem:function(k,v){__qa.store[k]=v;}});}cold();' +
-    'window.Pebble={addEventListener:function(name,fn){document.addEventListener("DOMContentLoaded",function(){fn({target:"plugin"});});},sendMessage:function(target,message){' +
-    'if(target!=="plugin")throw Error("Unexpected target");__qa.requests.push(message);return new Promise(function(resolve,reject){' +
-    'if(message.type==="getSettings"&&__qa.faults.load){__qa.faults.load--;reject(Error("load"));return;}' +
-    'if(message.type==="saveSettings"&&__qa.faults.save){__qa.faults.save--;resolve({ok:false});return;}' +
-    'if(message.type==="saveSettings"&&__qa.faults.ackLost){__qa.faults.ackLost--;handler(message,function(){reject(Error("lost acknowledgement"));});return;}' +
-    'setTimeout(function(){handler(message,resolve);},__qa.faults.delay||0);});}};})();</script>';
+  const args=[seed,faults,files['plugin.js'],files['pebble-js-app.js'],'oa-settings-'+crypto.randomBytes(8).toString('hex')].map(value=>JSON.stringify(value).replace(/<\/script/gi,'<\\/script'));
+  const shim='<script>('+simulatedSdk.toString()+')('+args.join(',')+');</script>';
   const name = path.join(scratch, 'page-' + crypto.randomBytes(4).toString('hex') + '.html');
   fs.writeFileSync(name, files['config.html'].replace('<script>', shim + '<script>'));
   return 'file://' + name;
@@ -192,6 +247,99 @@ async function run() {
   captures.push(await capture('setup-help-320.png'));
   checks.push('unreadable preferences require explicit repair Save; two selectors remain the entire configuration with setup disclosed separately');
 
+  const storageCases=[];
+  const assertNoLaunchWork=async()=>assert.deepEqual(await evaluate('__qa.forbidden'),{appMessages:0,subscriptions:0,actions:0});
+  const focusState=()=>evaluate('({tag:document.activeElement.tagName,id:document.activeElement.id})');
+  for(const active of [false,true]) {
+    const route=active?'pkjs':'plugin',chosen=pair('tap-up','combo-up-down');
+    await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active})});
+    await wait('!document.getElementById("primary").disabled');
+    assert.deepEqual(await focusState(),{tag:'BODY',id:''},'loading must not choose focus');
+    await change('primary',chosen.primaryShortcut);await change('secondary',chosen.secondaryShortcut);
+    await evaluate('document.getElementById("save").click()');
+    await wait('document.getElementById("status").textContent==="Settings saved."');
+    const requests=await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")');
+    assert.deepEqual(requests.map(request=>request.target),[route]);
+    assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),chosen);
+    if(active) {
+      assert.deepEqual(JSON.parse(await evaluate('__qa.dom['+JSON.stringify(key)+']')),chosen,'PKJS must update its own restored DOM snapshot');
+      await evaluate('__qa.teardownPkjs()');
+      assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),chosen,'SDK teardown must not overwrite confirmed choices');
+    }
+    await assertNoLaunchWork();
+    const previousGeneration=await evaluate('__qa.generation');
+    await send('Page.reload',{ignoreCache:true});
+    await wait('window.__qa&&__qa.generation!=='+JSON.stringify(previousGeneration)+'&&!!document.getElementById("primary")');
+    await wait('!document.getElementById("primary").disabled');
+    assert.equal(await evaluate('document.getElementById("primary").value'),chosen.primaryShortcut);
+    assert.equal(await evaluate('document.getElementById("secondary").value'),chosen.secondaryShortcut);
+    assert.equal(await evaluate('document.getElementById("save").disabled'),true);
+    assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")'),[],'reopening only reads confirmed preferences');
+    const focus=await focusState();assert.deepEqual(focus,{tag:'BODY',id:''},'full reopen must not choose focus');
+    await assertNoLaunchWork();
+    storageCases.push({route,fullPageReload:true,androidSeparateStores:true,pkjsTeardown:active,settings:chosen,focus});
+    if(active)captures.push(await capture('settings-live-save-reopened-320.png'));
+  }
+  checks.push('closed plugin and active packaged PKJS save the exact two choices; separate Android DOM/native stores survive SDK teardown and full Page.reload with no autofocus or launch work');
+
+  await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active:true,pkjsReject:1})});
+  await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
+  await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent.indexOf("not confirmed")>=0');
+  assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),['pkjs']);
+  assert.ok(await evaluate('__qa.targetQueries.length>=2'),'failed live transport must recheck current targets');
+  assert.equal(await evaluate('__qa.active'),true);
+  assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
+  assert.equal(await evaluate('document.getElementById("primary").value'),'hold-select');
+  assert.equal(await evaluate('document.getElementById("save").disabled'),false);
+  await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="Settings saved."');
+  assert.deepEqual(JSON.parse(await evaluate('__qa.dom['+JSON.stringify(key)+']')),pair('hold-select'));
+  await assertNoLaunchWork();
+  checks.push('still-live PKJS transport failure rechecks targets, never writes through the plugin, retains the draft and supports an explicit successful retry');
+
+  await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active:true,pkjsReject:1,goneOnFailure:true})});
+  await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
+  await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="Settings saved."');
+  assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),['pkjs','plugin']);
+  assert.equal(await evaluate('__qa.active'),false);
+  assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair('hold-select'));
+  await assertNoLaunchWork();
+  checks.push('plugin fallback occurs only after fresh target discovery confirms PKJS has exited and its old DOM has been persisted');
+
+  for(const active of [false,true]) {
+    await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active,mismatchedAck:1})});
+    await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
+    await evaluate('document.getElementById("save").click()');
+    await wait('document.getElementById("status").textContent.indexOf("not confirmed")>=0');
+    assert.equal(await evaluate('document.getElementById("primary").value'),'hold-select');
+    assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
+    assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),[active?'pkjs':'plugin']);
+    await assertNoLaunchWork();
+  }
+  checks.push('an ok acknowledgement containing different choices is unconfirmed on both routes and never triggers an alternate write');
+
+  await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active:true})});
+  await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
+  await evaluate('__qa.faults.targetsFail=1;document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent.indexOf("not confirmed")>=0');
+  assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")'),[]);
+  assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
+  await assertNoLaunchWork();
+  checks.push('failed current-target discovery preserves the draft without dispatching a save to an assumed destination');
+
+  await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{appearAfterPluginSave:1})});
+  await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
+  await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="Settings saved."');
+  assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),['plugin','pkjs']);
+  assert.deepEqual(JSON.parse(await evaluate('__qa.dom['+JSON.stringify(key)+']')),pair('hold-select'));
+  await evaluate('__qa.teardownPkjs()');
+  assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair('hold-select'));
+  await assertNoLaunchWork();
+  checks.push('PKJS appearing during a plugin save receives the exact confirmed choices before success, so its later teardown preserves them');
+
   // Keyboard-size and zoom-equivalent viewports expose footer overlap that is
   // invisible in a tall screenshot. Native focus scrolling must keep fields
   // and action buttons reachable, without product code moving focus.
@@ -238,8 +386,8 @@ async function run() {
   assert.deepEqual(errors, []);
   const report = {version, result: 'PASS', pbw: {file: path.basename(artifact), sha256: sha(fs.readFileSync(artifact))},
     executedPackagedFiles: Object.fromEntries(Object.entries(files).map(([name, value]) => [name, sha(value)])),
-    captures, layouts, accessibility, layoutWork, checks, errors,
-    scope: 'Actual packaged offline config HTML and config-only plugin in installed Chromium. Mock SDK bridge and isolated in-memory settings; no native lifetime, real phone WebView or physical-watch Quick Launch claim.'};
+    captures, layouts, accessibility, layoutWork, storageCases, checks, errors,
+    scope: 'Actual packaged offline config HTML, config plugin and PKJS configmessage handler in installed Chromium. Mock SDK bridge, separate modeled Android DOM/native preference stores and simulated SDK teardown; no PKJS ready/appmessage dispatch, native lifetime, live phone WebView or physical-watch Quick Launch claim.'};
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   socket.close(); fs.rmSync(scratch, {recursive: true, force: true});
   console.log(JSON.stringify({result: 'PASS', output, captures: captures.length, checks}, null, 2));

@@ -6,7 +6,8 @@
 #include <time.h>
 
 typedef enum { BUTTON_ID_BACK, BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN, NUM_BUTTONS } ButtonId;
-typedef enum { APP_LAUNCH_SYSTEM, APP_LAUNCH_USER, APP_LAUNCH_PHONE, APP_LAUNCH_QUICK_LAUNCH } AppLaunchReason;
+typedef enum { APP_LAUNCH_SYSTEM, APP_LAUNCH_USER, APP_LAUNCH_PHONE, APP_LAUNCH_WAKEUP,
+  APP_LAUNCH_WORKER, APP_LAUNCH_QUICK_LAUNCH, APP_LAUNCH_TIMELINE_ACTION, APP_LAUNCH_SMARTSTRAP } AppLaunchReason;
 typedef enum { APP_QUICK_LAUNCH_ACTION_NONE, APP_QUICK_LAUNCH_ACTION_HOLD, APP_QUICK_LAUNCH_ACTION_TAP, APP_QUICK_LAUNCH_ACTION_COMBO } AppQuickLaunchAction;
 typedef enum { APP_MSG_OK, APP_MSG_ERROR } AppMessageResult;
 enum { TUPLE_BYTE_ARRAY, TUPLE_CSTRING, TUPLE_UINT, TUPLE_INT };
@@ -18,12 +19,15 @@ typedef struct { struct {int16_t x,y;} origin; struct {int16_t w,h;} size; } GRe
 typedef struct {int unused;} Window;
 typedef struct {int unused;} Layer;
 typedef struct {int unused;} TextLayer;
+typedef struct {int unused;} StatusBarLayer;
 typedef struct {bool active; uint32_t delay; void (*callback)(void *);} AppTimer;
 typedef void *ClickRecognizerRef;
 typedef int GColor;
 typedef const void *GFont;
 enum {GColorWhite,GColorBlack,GColorClear,GTextAlignmentCenter};
 #define FONT_KEY_GOTHIC_28_BOLD "GOTHIC_28_BOLD"
+#define FONT_KEY_GOTHIC_24_BOLD "GOTHIC_24_BOLD"
+#define FONT_KEY_GOTHIC_18 "GOTHIC_18"
 typedef struct {void (*pebble_app_connection_handler)(bool);} ConnectionHandlers;
 
 AppLaunchReason launch_reason(void);
@@ -61,6 +65,10 @@ GFont fonts_get_system_font(const char *);
 Layer *text_layer_get_layer(TextLayer *);
 void layer_add_child(Layer *,Layer *);
 void text_layer_destroy(TextLayer *);
+StatusBarLayer *status_bar_layer_create(void);
+void status_bar_layer_set_colors(StatusBarLayer *,GColor,GColor);
+Layer *status_bar_layer_get_layer(StatusBarLayer *);
+void status_bar_layer_destroy(StatusBarLayer *);
 void window_destroy(Window *);
 void connection_service_subscribe(ConnectionHandlers);
 void connection_service_unsubscribe(void);

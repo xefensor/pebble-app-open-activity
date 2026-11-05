@@ -82,7 +82,7 @@ test('packaged config stores only the two role choices across fresh plugin conte
   assert.deepEqual(initial.settings, pair()); assert.equal(initial.needsRepair, false); assert.equal(!!initial.needsMigration, false);
   assert.equal(store.items.size, 0, 'reading defaults never writes');
   const chosen = pair('combo-back-up', 'tap-down');
-  assert.deepEqual(first({type: 'saveSettings', settings: chosen}), {ok: true});
+  assert.deepEqual(first({type: 'saveSettings', settings: chosen}), {ok: true, settings: chosen});
   const second = coldConfig(store); assert.deepEqual(second({type: 'getSettings'}).settings, chosen);
   assert.deepEqual(Array.from(store.items.keys()), [settings.key]);
   assert.deepEqual(second({type: 'saveSettings', settings: pair('tap-down', 'tap-down')}), {ok: false});
@@ -97,7 +97,7 @@ test('packaged old settings are projected without a write and convert only on an
   const config = coldConfig(store), loaded = config({type: 'getSettings'});
   assert.deepEqual(loaded.settings, settings.choices(old)); assert.equal(loaded.needsMigration, true);
   assert.equal(store.getItem(settings.key), encoded);
-  assert.deepEqual(config({type: 'saveSettings', settings: loaded.settings}), {ok: true});
+  assert.deepEqual(config({type: 'saveSettings', settings: loaded.settings}), {ok: true, settings: loaded.settings});
   assert.deepEqual(JSON.parse(store.getItem(settings.key)), settings.choices(old));
   assert.equal(!!coldConfig(store)({type: 'getSettings'}).needsMigration, false);
 });

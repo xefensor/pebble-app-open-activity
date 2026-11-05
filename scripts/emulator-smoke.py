@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Isolated Emery QEMU check of ordinary phone-launch rejection, never hardware.
+"""Isolated Emery QEMU check of the native setup screen, never hardware.
 
 This does not run the plugin phone runtime or simulate a Quick Launch hold.
 The portable SDK adapter tests cover the hold/prepare/confirmation path.
@@ -10,30 +10,37 @@ import hashlib
 import importlib.util
 import json
 import os
+import tempfile
 import time
 import uuid
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
+package = json.loads((root / 'package.json').read_text())
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--pipe-helper', type=Path,
                     default=root.parent / 'recovery-validation/pipe_emulator.py')
-parser.add_argument('--output', type=Path, default=root / 'docs/qa/0.1.0/emulator')
+parser.add_argument('--output', type=Path, default=root / 'docs/qa' / package['version'] / 'emulator')
+parser.add_argument('--expected-sha256', help='Require the exact candidate PBW bytes')
 args = parser.parse_args()
 if not args.pipe_helper.is_file():
     raise SystemExit('Supply the local SDK FIFO emulator helper with --pipe-helper.')
-os.environ.setdefault('PEBBLE_QA_STATE', str(root.parent / '.recovery-tools/emulator-open-activity'))
+os.environ.setdefault('PEBBLE_QA_STATE', tempfile.mkdtemp(prefix='open-activity-setup-'))
 spec = importlib.util.spec_from_file_location('open_activity_pipe_emulator', args.pipe_helper)
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)
 
 from pebble_tool.commands.install import ToolAppInstaller
-from libpebble2.protocol.apps import AppRunState, AppRunStateStart, AppRunStateStop
+from libpebble2.protocol.apps import AppRunState, AppRunStateStart, AppRunStateStop, AppRunStateRequest
+from libpebble2.communication.transports.qemu.protocol import QemuButton, QemuBluetoothConnection
+from pebble_tool.commands.emucontrol import send_data_to_qemu
+from libpebble2.services.appmessage import AppMessageService
 from libpebble2.services.screenshot import Screenshot
 from PIL import Image
 
-package = json.loads((root / 'package.json').read_text())
 pbw = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
+if args.expected_sha256 and hashlib.sha256(pbw.read_bytes()).hexdigest() != args.expected_sha256:
+    raise AssertionError('Candidate PBW bytes changed before native setup QA')
 target = uuid.UUID(package['pebble']['uuid'])
 connection = helper.connect()
 assert connection.transport.__class__.__name__ == 'PipeTransport'
@@ -44,38 +51,64 @@ def event_received(event):
     elif isinstance(event.data, AppRunStateStop):
         events.append({'kind': 'stop', 'uuid': str(event.data.uuid)})
 connection.register_endpoint(AppRunState, event_received)
+native_messages = []
+appmessages = AppMessageService(connection)
+appmessages.register_handler('appmessage', lambda _tid, app, data: native_messages.append(data) if app == target else None)
 ToolAppInstaller(connection, str(pbw), quiet=True).install()
 time.sleep(.6)
 start = len(events)
-connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
-deadline = time.monotonic() + 3
-while time.monotonic() < deadline:
-    observed = events[start:]
-    if any(value == {'kind': 'stop', 'uuid': str(target)} for value in observed):
-        break
-    time.sleep(.05)
-else:
-    raise AssertionError('Helper did not reject the ordinary phone launch.')
-observed = events[start:]
-assert any(value == {'kind': 'start', 'uuid': str(target)} for value in observed)
-time.sleep(.3)
-assert events[-1]['kind'] == 'start' and events[-1]['uuid'] != str(target)
 args.output.mkdir(parents=True, exist_ok=True)
-image = args.output / 'phone-launch-returned.png'
-rows = Screenshot(connection).grab_image()
-Image.frombytes('RGB', (200, 228), b''.join(rows)).save(image)
+captures = []
+def foreground():
+    return getattr(connection.send_and_read(AppRunState(data=AppRunStateRequest()), AppRunState).data, 'uuid', None)
+def await_foreground(expected):
+    deadline = time.monotonic() + 6
+    while time.monotonic() < deadline:
+        if (foreground() == target) == expected:
+            return
+        time.sleep(.1)
+    raise AssertionError('Native setup foreground did not settle')
+def capture(name):
+    image = args.output / (name + '.png')
+    rows = Screenshot(connection).grab_image()
+    Image.frombytes('RGB', (200, 228), b''.join(rows)).save(image)
+    captures.append({'file': image.name, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest(),
+                     'pixels': [200, 228], 'nativePixelsModified': False})
+def back():
+    send_data_to_qemu(connection.transport, QemuButton(state=int(QemuButton.Button.Back)))
+    time.sleep(.12)
+    send_data_to_qemu(connection.transport, QemuButton(state=0))
+    await_foreground(False)
+
+send_data_to_qemu(connection.transport, QemuBluetoothConnection(connected=True))
+connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
+await_foreground(True)
+capture('setup-phone-launch')
+time.sleep(5.2)
+assert foreground() == target, 'Normal setup must outlive the Quick Launch budget'
+capture('setup-still-open-after-budget')
+back()
+capture('setup-back-returned')
+send_data_to_qemu(connection.transport, QemuBluetoothConnection(connected=False))
+connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
+await_foreground(True)
+time.sleep(5.2)
+assert foreground() == target, 'Offline setup must stay open'
+capture('setup-offline')
+back()
+assert not native_messages, 'Setup must not emit a native activity handshake'
 with zipfile.ZipFile(pbw) as archive:
     binary = archive.read('emery/pebble-app.bin')
 report = {
     'version': package['version'],
-    'scope': 'Real packaged native binary in isolated Emery QEMU; ordinary phone-launch rejection and system return only',
+    'scope': 'Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.',
     'phoneRuntime': False, 'physicalWatch': False, 'quickLaunchHoldSimulated': False,
     'pbwSha256': hashlib.sha256(pbw.read_bytes()).hexdigest(),
     'nativeSha256': hashlib.sha256(binary).hexdigest(),
-    'events': observed,
-    'returnedAppUuid': events[-1]['uuid'],
-    'capture': {'file': image.name, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest(),
-                'pixels': [200, 228], 'nativePixelsModified': False}
+    'events': events[start:],
+    'checks': {'ordinarySetupStaysOpen': True, 'outlivesQuickLaunchBudget': True,
+               'offlineSetupStaysOpen': True, 'backReturns': True, 'noNativeHandshake': True},
+    'captures': captures
 }
 (args.output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))

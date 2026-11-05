@@ -1,0 +1,6 @@
+{
+  "result": "HARNESS_BUTTON_API_ERROR",
+  "candidatePbwSha256": "0977885135f68687f86297adbcd1b3a19b90debc9d09810f398346f31a1fb580",
+  "reason": "QemuButton uses state, not buttons; native setup stayed open and was captured, but Back/offline checks were not reached.",
+  "productChangesRequired": false
+}

@@ -4,6 +4,10 @@ One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
 and the official phone app. No phone-app or firmware fork is required.
 
+**0.1.6 is a local candidate** fixing settings access and save persistence. Use
+`dist/Open-Activity-0.1.6.pbw`; [validation](docs/qa/0.1.6) records its checks.
+The published 0.1.5 downloads below remain unchanged.
+
 Choose one shortcut for each activity in Open Activity's phone settings:
 
 | Activity | Initial shortcut |
@@ -31,10 +35,15 @@ from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-
 and install it through the Pebble app. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
-Open its phone settings to choose Primary activity and Secondary activity. The
-offline settings page is bundled in the PBW and works through a config-only
-plugin with the same app UUID. It does not require the transition watchapp to
-remain open, add another installed watchapp or expose an Activities service.
+Open **Open Activity from the watch's app list**. It stays on a setup screen
+with the time and instructions. Then open its settings in the Pebble phone app,
+choose Primary/Secondary shortcuts and Save. Press Back on the watch when done.
+This makes the normal settings route usable when the phone requires the
+watchapp to be running. Quick Launch retains its automatic transition behavior.
+
+The offline settings page is bundled in the same PBW/UUID. Its config-only
+plugin can serve settings independently when the phone UI allows closed-app
+configuration; no extra watchapp or Activities service is required.
 
 The page explains Primary as the large activity and Secondary as the smaller
 row. The page has two shortcut dropdowns. **Setup & help** contains
@@ -49,6 +58,11 @@ to read back storage, or an explicit Save retry; it does not pretend that local
 discard can undo an already sent save. Failed loading never supplies editable
 default choices. Phone Back closes without submitting unsaved edits; the legacy
 page also retains its Cancel return URL.
+While the helper is running, saves pass through its phone runtime so Android's
+cached settings cannot replace the new choices when the app closes. When it is
+closed, the config plugin saves them directly. A save is confirmed only when the
+backend returns the exact selected choices. Opening settings moves no focus and
+never starts an activity-opening attempt.
 
 The assignment instruction names the selected shortcuts. A conflict is explained
 beside both fields and in the status area. Save and Discard stay at the bottom
@@ -59,18 +73,18 @@ remain reachable using the keyboard. See the [UI and UX review](docs/UX-REVIEW.m
 In Pebble’s Quick Launch settings, assign **Open Activity** to each button you
 want to use. Combinations can be assigned in the phone app's Quick Launch
 settings. Only shortcuts assigned to Open Activity use these role choices;
-other shortcuts keep their existing assigned apps. The app-list entry
-intentionally closes if opened normally; use the phone app for configuration
-and the configured shortcuts for opening activities.
+other shortcuts keep their existing assigned apps. Normal app-list launches stay
+open for setup; use the configured shortcuts for opening activities.
 
 ## Behavior
 
-The helper briefly shows Opening… while it reads Dynamic’s confirmed recent
+When started by Quick Launch, the helper briefly shows Opening… while it reads Dynamic’s confirmed recent
 destinations. A valid selected destination opens automatically. A missing
 Secondary never falls back to Primary. Missing/expired data, unsupported SDK,
 disconnection, denied permission or a resolution error closes the helper.
 Back stays available, and the initial native UI limit is four seconds from app
-startup, including phone startup time.
+startup, including phone startup time. The normal setup screen has no opening
+timeout, survives disconnection and exits through ordinary Back.
 
 The shortcut opens the **whole associated app**. Timer opens Timer; media can
 open Pebble’s Music controls. It does not select a specific timer, notification

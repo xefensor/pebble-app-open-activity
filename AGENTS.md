@@ -17,8 +17,10 @@ later documentation commits on `main` do not rewrite a tested release snapshot.
   Tap Up/Down, Hold Back+Up and Hold Up+Down. Preserve gesture as well as button
   identity with OA_GESTURE (2007). Accept only their exact action/button pairs;
   a combination must never use the representative button's hold mapping.
-- Native validates launch reason, gesture and button. Ordinary menu launches and
-  unsupported gestures close. Native owns the four-second UI deadline and Back.
+- Native validates launch reason, gesture and button. Ordinary user/menu, phone
+  and system launches show a static setup screen and stay open for phone settings
+  until ordinary Back. Unsupported launch reasons/gestures close. Quick Launch
+  alone owns the four-second opening deadline and attempt Back handler.
 - Dynamic's exact navigation source returns recent displayed destinations.
   Validate provider, schema, bounded metadata, original expiry and selected role.
   Never independently rank activities or substitute Primary for absent Secondary.
@@ -40,6 +42,8 @@ phone attempt; `navigation.js` validates the read-only routing record.
 `config.html` and `src/plugin/index.js` provide the primary phone settings page
 independently of native lifetime. The config-only plugin is bundled in this same
 PBW, exposes no sources/actions and uses the same UUID-scoped settings store.
+The phone's configuration entry can require the watchapp to be running; ordinary
+setup mode makes that route usable without changing Quick Launch's auto-close.
 
 `src/pkjs/settings-page.js` owns the shared bundled/legacy settings template.
 The build generates `config.html` with `scripts/generate-config.cjs`; do not
@@ -75,3 +79,21 @@ functions are serialized with toString. Keep source maps/original SDK scripts
 in the separate versioned debug ZIP; recompute code/map identity in the artifact
 check. Published app/debug/source bytes need a new version. Generate the source
 archive last with package-source.py, then its --check mode after committing.
+
+Version 0.1.6 adds setup mode for APP_LAUNCH_USER/PHONE/SYSTEM. Leave Back to the
+normal OS window stack there; show the standard status-bar clock and static
+instructions. Do not create an OA session/nonce, timeout, native AppMessage
+channel or connection subscription in setup. PKJS can still send its one ready
+bootstrap request, but no native HELLO means no navigation read or app launch.
+Keep the Quick Launch gesture checks, init/nonce, budget and handshake unchanged.
+
+Settings Save uses current Pebble.targets(): active PKJS owns the write so its
+Android DOM snapshot and native storage agree. The closed config plugin remains
+available where the phone UI permits it. Both handlers acknowledge exact saved
+version2 choices. Reads preserve version1 bytes/routing until explicit Save.
+After plugin ACK, recheck for newly started PKJS and synchronize the same choices.
+On live PKJS transport failure, only confirmed target disappearance permits
+plugin fallback. Unknown/still-live targets or wrong ACKs stay unconfirmed and
+retain the draft. Bound handoffs to three writes. Keep separate native/DOM-store
+regressions and archived browser reload/teardown coverage; a shared Map masks
+the Android overwrite. Configuration handlers must never restart the launcher.

@@ -1,5 +1,20 @@
 # Open Activity validation
 
+## 0.1.6 local candidate — 5 November 2026
+
+Ordinary menu/user, phone and system launches now stay open on a static setup
+screen, allowing the usual phone settings route to work. Quick Launch keeps its
+gesture validation, native nonce, four-second budget and automatic transition.
+Setup has no native opening attempt, message channel or connection subscription.
+The standard status-bar clock remains visible, and normal Back exits.
+
+Settings use a live-PKJS writer while running and the config plugin when closed,
+with current-target checks, bounded handoffs and exact saved-choice receipts.
+Separate Android DOM/native-store regressions cover teardown; reads never migrate
+version1 routing until explicit Save. Source and archived minified-bundle/browser
+checks remain separate from native-only QEMU and physical phone/watch behavior.
+See [the local verification record](qa/0.1.6).
+
 ## Publication — 3 November 2026
 
 The [0.1.5 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)

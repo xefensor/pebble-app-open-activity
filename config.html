@@ -28,7 +28,7 @@ footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(saf
 <p>Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>
 <p>A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.</p>
 <p>These choices apply when the shortcut is assigned to Open Activity. Other Quick Launch assignments stay as you set them.</p>
-<p>The app-list entry closes immediately. Configure it here, then use the assigned shortcuts.</p>
+<p>Open Activity from the watch’s app list stays open for setup. Open its settings in the Pebble phone app, then press Back on the watch when finished. Assigned Quick Launch shortcuts still open activities automatically.</p>
 <p>Back cancels while Opening… is shown. A launch already sent to the phone may still finish.</p>
 </details></main><footer id="actions"><div class="footer-inner"><p id="status" class="status" role="status" aria-live="polite">Loading settings…</p><div class="actions">
 <button id="retry" type="button" hidden>Retry loading</button><button id="discard" type="button" disabled>Discard</button><button id="save" type="submit" form="settings" disabled>Save</button>
@@ -42,7 +42,7 @@ function behavior(initial) {
   var actions = document.getElementById('actions'), conflict = document.getElementById('shortcut-error');
   var assignment = document.getElementById('assignment-help');
   var loaded = false, repairing = false, migrating = false, uncertain = false, saved = '', phase = 'loading';
-  var operation = 0, timer = null, bridgeReady = false;
+  var operation = 0, timer = null, bridgeReady = false, pkjsReady = false;
   var layoutPending = false, lastFlow = null, lastHeight = null;
   var legacy = initial.mode === 'legacy';
   function shortcut(value) {
@@ -135,7 +135,7 @@ function behavior(initial) {
     loaded = false; phase = 'load-error'; controls();
     message('Could not load settings. Retry, or reopen this page from Pebble.', true);
   }
-  function request(payload, complete, failed) {
+  function request(payload, complete, failed, target) {
     var current = ++operation; stopTimer();
     timer = setTimeout(function() { if (current === operation) { operation++; timer = null; failed(); } }, 6000);
     function finish(callback, response) {
@@ -143,7 +143,7 @@ function behavior(initial) {
       operation++; stopTimer(); callback(response);
     }
     try {
-      var pending = Pebble.sendMessage('plugin', payload);
+      var pending = Pebble.sendMessage(target || 'plugin', payload);
       if (!pending || typeof pending.then !== 'function') { finish(failed); return; }
       pending.then(function(response) { finish(complete, response); }, function() { finish(failed); });
     } catch (error) { finish(failed); }
@@ -172,6 +172,17 @@ function behavior(initial) {
     uncertain = true; phase = 'ready'; controls();
     message('Save not confirmed. Reload saved choices or save again.', true);
   }
+  function settingsTarget(complete, failed) {
+    if (typeof Pebble.targets !== 'function') { complete(pkjsReady ? 'pkjs' : 'plugin'); return; }
+    var settled = false, lookupTimer = setTimeout(function() { finish(failed); }, 6000);
+    function finish(callback, target) { if (settled) return; settled = true; clearTimeout(lookupTimer); callback(target); }
+    try {
+      Promise.resolve(Pebble.targets()).then(function(targets) {
+        if (!Array.isArray(targets)) { finish(failed); return; }
+        finish(complete, targets.some(function(target) { return target && target.id === 'pkjs'; }) ? 'pkjs' : 'plugin');
+      }, function() { finish(failed); });
+    } catch (error) { finish(failed); }
+  }
   form.onsubmit = function(event) {
     if (event) event.preventDefault();
     if (save.disabled) return;
@@ -179,10 +190,23 @@ function behavior(initial) {
     if (!selected) { saveFailed(); return; }
     if (legacy) { location.href = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(selected)); return; }
     phase = 'saving'; controls(); message('Saving settings…');
-    request({type: 'saveSettings', settings: selected}, function(response) {
-      if (!response || response.ok !== true) { saveFailed(); return; }
-      saved = JSON.stringify(selected); repairing = false; migrating = false; uncertain = false; phase = 'ready'; controls(); message('Settings saved.');
-    }, saveFailed);
+    var attempts = 0;
+    function confirmed(settings) { apply(settings, false, false); message('Settings saved.'); }
+    function write(target) {
+      if (++attempts > 3) { saveFailed(); return; }
+      request({type: 'saveSettings', settings: selected}, function(response) {
+        var accepted = response && response.ok === true && normalize(response.settings);
+        if (!accepted || JSON.stringify(accepted) !== JSON.stringify(selected)) { saveFailed(); return; }
+        // Android PKJS owns a restored DOM snapshot. Keep it synchronized before
+        // shutdown can persist that snapshot over the config plugin's store.
+        if (target === 'plugin') settingsTarget(function(current) { if (current === 'pkjs') write(current); else confirmed(accepted); }, saveFailed);
+        else confirmed(accepted);
+      }, function() {
+        if (target !== 'pkjs') { saveFailed(); return; }
+        settingsTarget(function(current) { if (current === 'plugin') write(current); else saveFailed(); }, saveFailed);
+      }, target);
+    }
+    settingsTarget(write, saveFailed);
   };
   save.onclick = function(event) { if (event) event.preventDefault(); form.onsubmit(); };
   if (typeof window !== 'undefined') {
@@ -194,6 +218,7 @@ function behavior(initial) {
   else {
     if (typeof Pebble !== 'undefined' && typeof Pebble.addEventListener === 'function') {
       Pebble.addEventListener('ready', function(event) {
+        if (event && event.target === 'pkjs') { pkjsReady = true; return; }
         if (event && event.target && event.target !== 'plugin') return;
         if (bridgeReady) return;
         bridgeReady = true; load();

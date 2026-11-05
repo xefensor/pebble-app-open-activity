@@ -12,18 +12,27 @@ static ButtonId button;
 static bool connected;
 static uint32_t clock_ms;
 static int created, pushed, popped, loops, sent;
+static int gesture_reads, button_reads, message_opens, message_handlers, outbox_begins;
+static int connection_subscribes, connection_unsubscribes, connection_peeks, message_deregisters;
+static int timer_registers, click_providers, default_backs;
+static int text_creates, text_destroys, window_destroys, status_creates, status_destroys;
+static int fail_text_at;
+static bool fail_window, fail_status;
 static AppMessageResult opening_result;
 static DictionaryIterator outgoing;
 static AppTimer timer;
 static Window window;
-static TextLayer label;
+static TextLayer labels[3];
+static const char *label_text[3];
+static bool label_destroyed[3];
+static StatusBarLayer status_bar;
 static Layer layer;
 static void (*loop_script)(void);
 static void (*back_click)(ClickRecognizerRef,void *);
 
 AppLaunchReason launch_reason(void) {return reason;}
-AppQuickLaunchAction launch_get_quick_launch_action(void) {return gesture;}
-ButtonId launch_button(void) {return button;}
+AppQuickLaunchAction launch_get_quick_launch_action(void) {gesture_reads++;return gesture;}
+ButtonId launch_button(void) {button_reads++;return button;}
 uint16_t time_ms(time_t *seconds,uint16_t *milliseconds) {*seconds=clock_ms/1000;*milliseconds=clock_ms%1000;return *milliseconds;}
 Tuple *dict_find(DictionaryIterator *dict,uint32_t key) {
   for (size_t i=0;i<dict->count;++i) if(dict->tuples[i].key==key)return &dict->tuples[i];
@@ -37,25 +46,30 @@ static Tuple *add(DictionaryIterator *dict,uint32_t key,uint8_t type,uint16_t le
 void dict_write_uint8(DictionaryIterator *dict,uint32_t key,uint8_t value) {add(dict,key,TUPLE_UINT,1)->value->uint8=value;}
 void dict_write_uint32(DictionaryIterator *dict,uint32_t key,uint32_t value) {add(dict,key,TUPLE_UINT,4)->value->uint32=value;}
 void dict_write_cstring(DictionaryIterator *dict,uint32_t key,const char *value) {strcpy(add(dict,key,TUPLE_CSTRING,(uint16_t)(strlen(value)+1))->value->cstring,value);}
-AppMessageResult app_message_outbox_begin(DictionaryIterator **value) {outgoing.count=0;*value=&outgoing;return APP_MSG_OK;}
+AppMessageResult app_message_outbox_begin(DictionaryIterator **value) {outbox_begins++;outgoing.count=0;*value=&outgoing;return APP_MSG_OK;}
 AppMessageResult app_message_outbox_send(void) {sent++;return APP_MSG_OK;}
-AppMessageResult app_message_open(uint32_t in,uint32_t out) {assert(in==192&&out==192);return opening_result;}
-void app_message_register_inbox_received(void (*fn)(DictionaryIterator *,void *)) {(void)fn;}
-void app_message_register_outbox_sent(void (*fn)(DictionaryIterator *,void *)) {(void)fn;}
-void app_message_register_outbox_failed(void (*fn)(DictionaryIterator *,AppMessageResult,void *)) {(void)fn;}
-void app_message_deregister_callbacks(void) {}
-AppTimer *app_timer_register(uint32_t delay,void (*callback)(void *),void *ctx) {(void)ctx;timer=(AppTimer){true,delay,callback};return &timer;}
+AppMessageResult app_message_open(uint32_t in,uint32_t out) {message_opens++;assert(in==192&&out==192);return opening_result;}
+void app_message_register_inbox_received(void (*fn)(DictionaryIterator *,void *)) {assert(fn);message_handlers++;}
+void app_message_register_outbox_sent(void (*fn)(DictionaryIterator *,void *)) {assert(fn);message_handlers++;}
+void app_message_register_outbox_failed(void (*fn)(DictionaryIterator *,AppMessageResult,void *)) {assert(fn);message_handlers++;}
+void app_message_deregister_callbacks(void) {message_deregisters++;}
+AppTimer *app_timer_register(uint32_t delay,void (*callback)(void *),void *ctx) {(void)ctx;timer_registers++;timer=(AppTimer){true,delay,callback};return &timer;}
 void app_timer_cancel(AppTimer *value) {value->active=false;}
 void window_stack_pop_all(bool animated) {assert(!animated);popped++;}
-void window_stack_push(Window *value,bool animated) {(void)value;assert(!animated);pushed++;}
+static void default_back(ClickRecognizerRef recognizer,void *context) {(void)recognizer;(void)context;default_backs++;window_stack_pop_all(false);}
+void window_stack_push(Window *value,bool animated) {(void)value;assert(!animated);pushed++;if(!back_click)back_click=default_back;}
 void window_single_click_subscribe(ButtonId value,void (*fn)(ClickRecognizerRef,void *)) {assert(value==BUTTON_ID_BACK);back_click=fn;}
-Window *window_create(void) {created++;return &window;}
+Window *window_create(void) {created++;return fail_window?NULL:&window;}
 void window_set_background_color(Window *value,GColor color) {(void)value;(void)color;}
-void window_set_click_config_provider(Window *value,void (*fn)(void *)) {(void)value;fn(NULL);}
+void window_set_click_config_provider(Window *value,void (*fn)(void *)) {(void)value;click_providers++;fn(NULL);}
 Layer *window_get_root_layer(Window *value) {(void)value;return &layer;}
 GRect layer_get_bounds(Layer *value) {(void)value;return GRect(0,0,200,228);}
-TextLayer *text_layer_create(GRect rect) {assert(rect.origin.x>=0&&rect.size.w<=200&&rect.origin.y>=0&&rect.origin.y+rect.size.h<=228);return &label;}
-void text_layer_set_text(TextLayer *value,const char *text) {(void)value;assert(strcmp(text,"Opening...")==0);}
+TextLayer *text_layer_create(GRect rect) {
+  assert(rect.origin.x>=0&&rect.origin.x+rect.size.w<=200&&rect.origin.y>=0&&rect.origin.y+rect.size.h<=228);
+  assert(text_creates<3);int at=text_creates++;
+  return fail_text_at==at+1?NULL:&labels[at];
+}
+void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+3);label_text[value-labels]=text;}
 void text_layer_set_font(TextLayer *value,GFont font) {(void)value;(void)font;}
 void text_layer_set_text_alignment(TextLayer *value,int alignment) {(void)value;(void)alignment;}
 void text_layer_set_text_color(TextLayer *value,GColor color) {(void)value;(void)color;}
@@ -63,18 +77,32 @@ void text_layer_set_background_color(TextLayer *value,GColor color) {(void)value
 GFont fonts_get_system_font(const char *key) {return key;}
 Layer *text_layer_get_layer(TextLayer *value) {(void)value;return &layer;}
 void layer_add_child(Layer *parent,Layer *child) {(void)parent;(void)child;}
-void text_layer_destroy(TextLayer *value) {(void)value;}
-void window_destroy(Window *value) {(void)value;}
-void connection_service_subscribe(ConnectionHandlers handlers) {(void)handlers;}
-void connection_service_unsubscribe(void) {}
-bool connection_service_peek_pebble_app_connection(void) {return connected;}
+void text_layer_destroy(TextLayer *value) {
+  assert(value>=labels&&value<labels+3);size_t at=(size_t)(value-labels);
+  assert(!label_destroyed[at]);label_destroyed[at]=true;text_destroys++;
+}
+StatusBarLayer *status_bar_layer_create(void) {status_creates++;return fail_status?NULL:&status_bar;}
+void status_bar_layer_set_colors(StatusBarLayer *value,GColor background,GColor foreground) {assert(value==&status_bar&&background==GColorWhite&&foreground==GColorBlack);}
+Layer *status_bar_layer_get_layer(StatusBarLayer *value) {assert(value==&status_bar);return &layer;}
+void status_bar_layer_destroy(StatusBarLayer *value) {assert(value==&status_bar);status_destroys++;assert(status_destroys==1);}
+void window_destroy(Window *value) {assert(value==&window);window_destroys++;assert(window_destroys==1);}
+void connection_service_subscribe(ConnectionHandlers handlers) {assert(handlers.pebble_app_connection_handler);connection_subscribes++;}
+void connection_service_unsubscribe(void) {connection_unsubscribes++;}
+bool connection_service_peek_pebble_app_connection(void) {connection_peeks++;return connected;}
 void app_event_loop(void) {loops++;if(loop_script)loop_script();}
 
 static void reset(void) {
   reason=APP_LAUNCH_QUICK_LAUNCH;gesture=APP_QUICK_LAUNCH_ACTION_HOLD;
   button=BUTTON_ID_DOWN;connected=true;clock_ms=1000;
   created=pushed=popped=loops=sent=0;opening_result=APP_MSG_OK;
+  gesture_reads=button_reads=message_opens=message_handlers=outbox_begins=0;
+  connection_subscribes=connection_unsubscribes=connection_peeks=message_deregisters=0;
+  timer_registers=click_providers=default_backs=0;
+  text_creates=text_destroys=window_destroys=status_creates=status_destroys=0;
+  fail_text_at=0;fail_window=fail_status=false;
+  memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
+  s_setup_body=NULL;s_setup_hint=NULL;s_status_bar=NULL;s_setup_mode=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
 }
@@ -120,9 +148,43 @@ static void slot_script(void) {
   outbox_sent(NULL,NULL);prepare(s_attempt.session,false);assert(sent==2);
   back_script();
 }
+static void no_setup_work(void) {
+  assert(gesture_reads==0&&button_reads==0);
+  assert(message_opens==0&&message_handlers==0&&message_deregisters==0&&outbox_begins==0&&sent==0);
+  assert(connection_subscribes==0&&connection_unsubscribes==0&&connection_peeks==0);
+  assert(timer_registers==0&&!timer.active&&s_timeout==NULL);
+  assert(s_attempt.phase==OA_CLOSED&&s_attempt.session==0&&s_attempt.started_ms==0&&s_attempt.ticket==0&&!s_attempt.destination[0]);
+}
+static void setup_script(void) {
+  assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
+  assert(status_creates==1&&text_creates==3);
+  assert(!strcmp(label_text[0],"Open Activity"));
+  assert(!strcmp(label_text[1],"Open settings in the Pebble phone app."));
+  assert(!strcmp(label_text[2],"Quick Launch opens your activities."));
+  no_setup_work();
+  clock_ms+=10000;assert(popped==0); // No four-second attempt budget in setup.
+  request();prepare(123,false); // Even forced protocol callbacks cannot acquire an attempt.
+  no_setup_work();assert(popped==0);
+  back_click(NULL,NULL);assert(popped==1&&default_backs==1);
+  no_setup_work();
+}
 int main(void) {
-  reset();reason=APP_LAUNCH_USER;helper_app_main();assert(created==0&&loops==0);
-  reset();reason=APP_LAUNCH_PHONE;helper_app_main();assert(created==0&&loops==0);
+  const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};
+  for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
+    reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
+    helper_app_main();assert(created==1&&loops==1&&popped==1);
+    assert(text_destroys==3&&status_destroys==1&&window_destroys==1);no_setup_work();
+  }
+  reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
+  reset();reason=APP_LAUNCH_USER;fail_status=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==1&&status_destroys==0);no_setup_work();
+  for(int fail=1;fail<=3;++fail){
+    reset();reason=APP_LAUNCH_USER;fail_text_at=fail;helper_app_main();
+    assert(loops==0&&pushed==0&&text_destroys==fail-1&&status_destroys==1&&window_destroys==1);no_setup_work();
+  }
+  const AppLaunchReason unsupported_reasons[]={APP_LAUNCH_WAKEUP,APP_LAUNCH_WORKER,APP_LAUNCH_TIMELINE_ACTION,APP_LAUNCH_SMARTSTRAP,(AppLaunchReason)99};
+  for(size_t i=0;i<sizeof(unsupported_reasons)/sizeof(unsupported_reasons[0]);++i){
+    reset();reason=unsupported_reasons[i];helper_app_main();assert(created==0&&loops==0&&gesture_reads==0&&button_reads==0);
+  }
   reset();gesture=APP_QUICK_LAUNCH_ACTION_NONE;helper_app_main();assert(created==0&&loops==0);
   reset();gesture=APP_QUICK_LAUNCH_ACTION_COMBO;button=BUTTON_ID_SELECT;helper_app_main();assert(created==0&&loops==0);
   reset();gesture=APP_QUICK_LAUNCH_ACTION_COMBO;button=BUTTON_ID_DOWN;helper_app_main();assert(created==0&&loops==0);
@@ -146,6 +208,6 @@ int main(void) {
     reset();button=candidate;gesture=APP_QUICK_LAUNCH_ACTION_COMBO;
     loop_script=slot_script;helper_app_main();assert(loops==1&&popped==1);
   }
-  puts("native SDK adapter: eight slots and gesture wire, unsupported gestures, handshake, malformed wire, timeout, Back and disconnected closure passed");
+  puts("native SDK adapter: three setup launch reasons online/offline, no attempt or native messaging, ordinary Back after ten seconds, allocation cleanup, eight slots and gesture wire, unsupported reasons/gestures, handshake, malformed wire, timeout and disconnected closure passed");
   return 0;
 }

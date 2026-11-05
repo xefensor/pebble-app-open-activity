@@ -4,6 +4,10 @@
 
 static Window *s_window;
 static TextLayer *s_label;
+static TextLayer *s_setup_body;
+static TextLayer *s_setup_hint;
+static StatusBarLayer *s_status_bar;
+static bool s_setup_mode;
 static AppTimer *s_timeout;
 static OaAttempt s_attempt;
 static ButtonId s_button;
@@ -166,18 +170,65 @@ static void init(uint32_t started) {
   if (!connection_service_peek_pebble_app_connection()) close_helper(false);
 }
 
+static bool init_setup(void) {
+  s_setup_mode = true;
+  // An ordinary launch is a settings surface, never an opening attempt.
+  oa_attempt_close(&s_attempt);
+  s_window = window_create();
+  if (!s_window) return false;
+  window_set_background_color(s_window, GColorWhite);
+  Layer *layer = window_get_root_layer(s_window);
+  GRect bounds = layer_get_bounds(layer);
+  s_status_bar = status_bar_layer_create();
+  if (!s_status_bar) return false;
+  status_bar_layer_set_colors(s_status_bar, GColorWhite, GColorBlack);
+  layer_add_child(layer, status_bar_layer_get_layer(s_status_bar));
+  s_label = text_layer_create(GRect(10, 26, bounds.size.w - 20, 36));
+  if (!s_label) return false;
+  s_setup_body = text_layer_create(GRect(12, 76, bounds.size.w - 24, 84));
+  if (!s_setup_body) return false;
+  s_setup_hint = text_layer_create(GRect(12, bounds.size.h - 56, bounds.size.w - 24, 46));
+  if (!s_setup_hint) return false;
+  TextLayer *labels[] = {s_label, s_setup_body, s_setup_hint};
+  const char *texts[] = {"Open Activity", "Open settings in the Pebble phone app.",
+                         "Quick Launch opens your activities."};
+  const char *fonts[] = {FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_24_BOLD, FONT_KEY_GOTHIC_18};
+  for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
+    text_layer_set_text(labels[i], texts[i]);
+    text_layer_set_font(labels[i], fonts_get_system_font(fonts[i]));
+    text_layer_set_text_alignment(labels[i], GTextAlignmentCenter);
+    text_layer_set_text_color(labels[i], GColorBlack);
+    text_layer_set_background_color(labels[i], GColorClear);
+    layer_add_child(layer, text_layer_get_layer(labels[i]));
+  }
+  // Leave Back to the normal window-stack handler. There is no attempt to cancel.
+  window_stack_push(s_window, false);
+  return true;
+}
+
 static void deinit(void) {
   if (s_timeout) app_timer_cancel(s_timeout);
   oa_attempt_close(&s_attempt);
-  connection_service_unsubscribe();
-  app_message_deregister_callbacks();
+  if (!s_setup_mode) {
+    connection_service_unsubscribe();
+    app_message_deregister_callbacks();
+  }
+  if (s_setup_hint) text_layer_destroy(s_setup_hint);
+  if (s_setup_body) text_layer_destroy(s_setup_body);
   if (s_label) text_layer_destroy(s_label);
+  if (s_status_bar) status_bar_layer_destroy(s_status_bar);
   if (s_window) window_destroy(s_window);
 }
 
 int main(void) {
   uint32_t started = now_ms();
-  if (launch_reason() != APP_LAUNCH_QUICK_LAUNCH) return 0;
+  AppLaunchReason reason = launch_reason();
+  if (reason == APP_LAUNCH_USER || reason == APP_LAUNCH_PHONE || reason == APP_LAUNCH_SYSTEM) {
+    if (init_setup()) app_event_loop();
+    deinit();
+    return 0;
+  }
+  if (reason != APP_LAUNCH_QUICK_LAUNCH) return 0;
   s_gesture = launch_get_quick_launch_action();
   s_button = launch_button();
   if ((unsigned)s_button >= NUM_BUTTONS) return 0;
