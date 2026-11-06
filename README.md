@@ -8,6 +8,15 @@ Part of **XOCE — Xef's Open Computing Ecosystem**. Its Dynamic activity source
 is maintained in
 [xefensor/pebble-watchface-dynamic](https://github.com/xefensor/pebble-watchface-dynamic).
 
+**Local candidate 0.2.0 implements the shared XOCE UI.** The native setup uses
+Roboto Condensed, a title-left/time-right header and saved light/dark appearance
+with a violet accent. The phone page has English/Czech copy, two shortcut pickers
+plus a separate Watch appearance choice, and persistent **✓ Saved** feedback
+while remaining open on the bundled settings route. The local build is
+`dist/Open-Activity-0.2.0.pbw`; [validation](docs/qa/0.2.0) distinguishes native
+emulator and packaged-browser evidence from real-device checks. This candidate
+has not been pushed or published.
+
 **Open Activity 0.1.6 is published** as a development prerelease fixing
 settings access and save persistence. The PBW is also available locally as
 `dist/Open-Activity-0.1.6.pbw`; [validation](docs/qa/0.1.6) records its checks.
@@ -56,7 +65,7 @@ plugin can serve settings independently when the phone UI allows closed-app
 configuration; no extra watchapp or Activities service is required.
 
 The page explains Primary as the large activity and Secondary as the smaller
-row. The page has two shortcut dropdowns. **Setup & help** contains
+row. The page has two shortcut dropdowns and one separate Light/Dark watch-appearance choice. **Setup & help** contains
 the permission and Quick Launch steps. Phone light/dark appearance follows the
 phone independently of the watch.
 
@@ -71,7 +80,11 @@ page also retains its Cancel return URL.
 While the helper is running, saves pass through its phone runtime so Android's
 cached settings cannot replace the new choices when the app closes. When it is
 closed, the config plugin saves them directly. A save is confirmed only when the
-backend returns the exact selected choices. Opening settings moves no focus and
+backend returns the exact selected choices and appearance. The small ✓ Saved
+indicator remains until another edit. It confirms phone persistence, not watch
+application. Appearance is sent again on the next app startup if the native
+helper was closed. The legacy return-URL route still closes on Save, and its
+help explains that limitation. Opening settings moves no focus and
 never starts an activity-opening attempt.
 
 The assignment instruction names the selected shortcuts. A conflict is explained

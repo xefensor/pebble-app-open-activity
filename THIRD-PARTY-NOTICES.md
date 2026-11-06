@@ -8,9 +8,12 @@ The Pebble SDK injects `_pkjs_shared_additions.js` into the phone JavaScript.
 Its original Copyright 2024 Google LLC and Apache License 2.0 notice remain in
 the bundle. The full Apache license is included in `licenses/Apache-2.0.txt`.
 
-The app uses Pebble's built-in system fonts. It bundles no external font, image,
-audio asset, Activities runtime, native background worker or third-party npm
-runtime package.
+The native interface bundles Roboto Condensed Bold from the reviewed Dynamic/
+Dashboard font source under the SIL Open Font License 1.1. Its complete notice
+is included in `licenses/OFL-RobotoCondensed.txt`; the original font source is
+`resources/fonts/RobotoCondensed-Bold.ttf`. System fonts remain a resource-load
+fallback. It bundles no third-party image, audio asset, Activities runtime,
+native background worker or third-party npm runtime package.
 
 Release builds use the pinned, development-only Terser 5.46.0 tool under its
 BSD-2-Clause licence. Its implementation and npm dependencies are not included

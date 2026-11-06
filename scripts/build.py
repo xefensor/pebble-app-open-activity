@@ -45,7 +45,7 @@ appinfo['configPage'] = package['pebble']['configPage']
 appinfo['plugin'] = package['pebble']['plugin']
 entries['appinfo.json'] = json.dumps(appinfo, indent=2).encode()
 entries['config.html'] = (root / 'config.html').read_bytes()
-for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt'):
+for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt', 'licenses/OFL-RobotoCondensed.txt'):
     entries[name] = (root / name).read_bytes()
 destination = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
 destination.parent.mkdir(exist_ok=True)

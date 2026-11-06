@@ -18,13 +18,17 @@ static int timer_registers, click_providers, default_backs;
 static int text_creates, text_destroys, window_destroys, status_creates, status_destroys;
 static int fail_text_at;
 static bool fail_window, fail_status;
+static int32_t stored_theme;
+static int theme_writes,clock_subscribes,clock_unsubscribes,font_loads,font_unloads;
+static bool theme_write_fails;
+static GColor window_background;
 static AppMessageResult opening_result;
 static DictionaryIterator outgoing;
 static AppTimer timer;
 static Window window;
-static TextLayer labels[3];
-static const char *label_text[3];
-static bool label_destroyed[3];
+static TextLayer labels[4];
+static const char *label_text[4];
+static bool label_destroyed[4];
 static StatusBarLayer status_bar;
 static Layer layer;
 static void (*loop_script)(void);
@@ -60,25 +64,34 @@ static void default_back(ClickRecognizerRef recognizer,void *context) {(void)rec
 void window_stack_push(Window *value,bool animated) {(void)value;assert(!animated);pushed++;if(!back_click)back_click=default_back;}
 void window_single_click_subscribe(ButtonId value,void (*fn)(ClickRecognizerRef,void *)) {assert(value==BUTTON_ID_BACK);back_click=fn;}
 Window *window_create(void) {created++;return fail_window?NULL:&window;}
-void window_set_background_color(Window *value,GColor color) {(void)value;(void)color;}
+void window_set_background_color(Window *value,GColor color) {(void)value;window_background=color;}
 void window_set_click_config_provider(Window *value,void (*fn)(void *)) {(void)value;click_providers++;fn(NULL);}
 Layer *window_get_root_layer(Window *value) {(void)value;return &layer;}
 GRect layer_get_bounds(Layer *value) {(void)value;return GRect(0,0,200,228);}
 TextLayer *text_layer_create(GRect rect) {
   assert(rect.origin.x>=0&&rect.origin.x+rect.size.w<=200&&rect.origin.y>=0&&rect.origin.y+rect.size.h<=228);
-  assert(text_creates<3);int at=text_creates++;
+  assert(text_creates<4);int at=text_creates++;
   return fail_text_at==at+1?NULL:&labels[at];
 }
-void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+3);label_text[value-labels]=text;}
+void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+4);label_text[value-labels]=text;}
 void text_layer_set_font(TextLayer *value,GFont font) {(void)value;(void)font;}
 void text_layer_set_text_alignment(TextLayer *value,int alignment) {(void)value;(void)alignment;}
 void text_layer_set_text_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 void text_layer_set_background_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 GFont fonts_get_system_font(const char *key) {return key;}
+GFont fonts_load_custom_font(unsigned handle) {font_loads++;return (GFont)(uintptr_t)handle;}
+void fonts_unload_custom_font(GFont font) {assert(font);font_unloads++;}
+unsigned resource_get_handle(unsigned handle) {return handle;}
+bool persist_exists(unsigned key) {assert(key==OA_THEME_STORAGE_KEY);return stored_theme>=0;}
+int32_t persist_read_int(unsigned key) {assert(key==OA_THEME_STORAGE_KEY);return stored_theme;}
+int persist_write_int(unsigned key,int32_t value) {assert(key==OA_THEME_STORAGE_KEY);theme_writes++;if(theme_write_fails)return -1;stored_theme=value;return sizeof(int32_t);}
+bool clock_is_24h_style(void) {return true;}
+void tick_timer_service_subscribe(TimeUnits units,void (*handler)(struct tm *,TimeUnits)) {assert(units==MINUTE_UNIT&&handler);clock_subscribes++;}
+void tick_timer_service_unsubscribe(void) {clock_unsubscribes++;}
 Layer *text_layer_get_layer(TextLayer *value) {(void)value;return &layer;}
 void layer_add_child(Layer *parent,Layer *child) {(void)parent;(void)child;}
 void text_layer_destroy(TextLayer *value) {
-  assert(value>=labels&&value<labels+3);size_t at=(size_t)(value-labels);
+  assert(value>=labels&&value<labels+4);size_t at=(size_t)(value-labels);
   assert(!label_destroyed[at]);label_destroyed[at]=true;text_destroys++;
 }
 StatusBarLayer *status_bar_layer_create(void) {status_creates++;return fail_status?NULL:&status_bar;}
@@ -100,9 +113,11 @@ static void reset(void) {
   timer_registers=click_providers=default_backs=0;
   text_creates=text_destroys=window_destroys=status_creates=status_destroys=0;
   fail_text_at=0;fail_window=fail_status=false;
+  stored_theme=-1;theme_writes=clock_subscribes=clock_unsubscribes=font_loads=font_unloads=0;theme_write_fails=false;window_background=GColorClear;
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
-  s_setup_body=NULL;s_setup_hint=NULL;s_status_bar=NULL;s_setup_mode=false;
+  s_setup_body=NULL;s_setup_hint=NULL;s_clock=NULL;s_setup_mode=false;
+  s_font_body=NULL;s_font_title=NULL;s_dark=false;s_message_opened=false;s_clock_subscribed=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
 }
@@ -150,17 +165,17 @@ static void slot_script(void) {
 }
 static void no_setup_work(void) {
   assert(gesture_reads==0&&button_reads==0);
-  assert(message_opens==0&&message_handlers==0&&message_deregisters==0&&outbox_begins==0&&sent==0);
+  assert(message_opens<=1&&message_handlers<=1&&outbox_begins==0&&sent==0);
   assert(connection_subscribes==0&&connection_unsubscribes==0&&connection_peeks==0);
   assert(timer_registers==0&&!timer.active&&s_timeout==NULL);
   assert(s_attempt.phase==OA_CLOSED&&s_attempt.session==0&&s_attempt.started_ms==0&&s_attempt.ticket==0&&!s_attempt.destination[0]);
 }
 static void setup_script(void) {
   assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
-  assert(status_creates==1&&text_creates==3);
+  assert(status_creates==0&&text_creates==4&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
   assert(!strcmp(label_text[0],"Open Activity"));
-  assert(!strcmp(label_text[1],"Open settings in the Pebble phone app."));
-  assert(!strcmp(label_text[2],"Quick Launch opens your activities."));
+  assert(!strcmp(label_text[2],"Open settings in the Pebble phone app."));
+  assert(!strcmp(label_text[3],"Quick Launch opens your activities."));
   no_setup_work();
   clock_ms+=10000;assert(popped==0); // No four-second attempt budget in setup.
   request();prepare(123,false); // Even forced protocol callbacks cannot acquire an attempt.
@@ -168,18 +183,30 @@ static void setup_script(void) {
   back_click(NULL,NULL);assert(popped==1&&default_backs==1);
   no_setup_work();
 }
+static void appearance_script(void) {
+  assert(s_setup_mode && s_dark && window_background==GColorBlack && theme_writes==0);
+  DictionaryIterator input={0};dict_write_uint8(&input,OA_KEY_OPERATION,OA_SETTINGS);
+  dict_write_uint8(&input,OA_KEY_THEME,0);inbox_received(&input,NULL);
+  assert(!s_dark&&window_background==GColorWhite&&stored_theme==0&&theme_writes==1);
+  inbox_received(&input,NULL);assert(theme_writes==1);
+  dict_find(&input,OA_KEY_THEME)->value->uint8=2;inbox_received(&input,NULL);assert(theme_writes==1);
+  dict_find(&input,OA_KEY_THEME)->value->uint8=1;theme_write_fails=true;inbox_received(&input,NULL);
+  assert(!s_dark&&window_background==GColorWhite&&stored_theme==0&&theme_writes==2);
+  no_setup_work();
+}
 int main(void) {
+  reset();reason=APP_LAUNCH_USER;stored_theme=1;loop_script=appearance_script;helper_app_main();
+  assert(stored_theme==0&&font_unloads==2);
   const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};
   for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
     reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
     helper_app_main();assert(created==1&&loops==1&&popped==1);
-    assert(text_destroys==3&&status_destroys==1&&window_destroys==1);no_setup_work();
+    assert(text_destroys==4&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_unloads==2);no_setup_work();
   }
   reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
-  reset();reason=APP_LAUNCH_USER;fail_status=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==1&&status_destroys==0);no_setup_work();
-  for(int fail=1;fail<=3;++fail){
+    for(int fail=1;fail<=4;++fail){
     reset();reason=APP_LAUNCH_USER;fail_text_at=fail;helper_app_main();
-    assert(loops==0&&pushed==0&&text_destroys==fail-1&&status_destroys==1&&window_destroys==1);no_setup_work();
+    assert(loops==0&&pushed==0&&text_destroys==fail-1&&status_destroys==0&&window_destroys==1);no_setup_work();
   }
   const AppLaunchReason unsupported_reasons[]={APP_LAUNCH_WAKEUP,APP_LAUNCH_WORKER,APP_LAUNCH_TIMELINE_ACTION,APP_LAUNCH_SMARTSTRAP,(AppLaunchReason)99};
   for(size_t i=0;i<sizeof(unsupported_reasons)/sizeof(unsupported_reasons[0]);++i){
@@ -208,6 +235,6 @@ int main(void) {
     reset();button=candidate;gesture=APP_QUICK_LAUNCH_ACTION_COMBO;
     loop_script=slot_script;helper_app_main();assert(loops==1&&popped==1);
   }
-  puts("native SDK adapter: three setup launch reasons online/offline, no attempt or native messaging, ordinary Back after ten seconds, allocation cleanup, eight slots and gesture wire, unsupported reasons/gestures, handshake, malformed wire, timeout and disconnected closure passed");
+  puts("native SDK adapter: three setup launch reasons online/offline, no attempt or native activity handshake, settings-only theme receive/cache/failed-write checks, ordinary Back after ten seconds, allocation cleanup, eight slots and gesture wire, unsupported reasons/gestures, handshake, malformed wire, timeout and disconnected closure passed");
   return 0;
 }

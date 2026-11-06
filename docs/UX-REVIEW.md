@@ -44,3 +44,18 @@ navigation to Save. The 160×400 CSS viewport models reflow at 200% zoom on a
 320×800 display; injected 32px/48px text is recorded separately. These are not
 physical-phone keyboard or WebView results. Device launch latency and battery
 remain separate checks. See [validation](VALIDATION.md) for exact artifacts.
+
+
+## 0.2.0 shared UI candidate
+
+The setup screen uses Roboto Condensed, a short violet title, local time on the
+right, a readable instruction block and quiet context below. A cached light/dark
+palette is restored before phone data. The public appearance-only inbox does not
+create a navigation session or handshake; normal setup outlives four seconds.
+
+Phone settings use the shared 512px neutral shell and violet accent with English
+and Czech copy. The bundled route remains open with inline ✓ Saved until edited.
+Watch appearance is independent of shortcut routing and the phone page theme.
+Explicit rejection, unknown outcomes and readback are distinct. Packaged tests
+exercise separate Android stores through teardown/reopen; the legacy return-URL
+path remains save-and-close with visible help.

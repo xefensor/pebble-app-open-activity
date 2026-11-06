@@ -55,6 +55,7 @@ function simulatedSdk(seed, faults, pluginCode, pkjsCode, persistenceKey) {
       state.requests.push(Object.assign({target},copy(message)));
       return new Promise((resolve,reject)=>{
         if(message.type==='getSettings'&&state.faults.load){state.faults.load--;reject(Error('load'));return;}
+        if(message.type==='saveSettings'&&state.faults.reject){state.faults.reject--;resolve({ok:false,rejected:true});return;}
         if(message.type==='saveSettings'&&state.faults.save){state.faults.save--;resolve({ok:false});return;}
         if(message.type==='saveSettings'&&target==='pkjs'&&state.faults.pkjsReject){
           state.faults.pkjsReject--;if(state.faults.goneOnFailure)state.teardownPkjs();
@@ -113,6 +114,7 @@ async function run() {
     return {file: name, sha256: sha(bytes)};
   };
   await send('Page.enable'); await send('Runtime.enable');
+  const englishLocale=await send('Page.addScriptToEvaluateOnNewDocument',{source:'Object.defineProperty(navigator,"language",{configurable:true,get:()=>"en-US"});'});
   const captures = [], layouts = [], checks = [];
   let layoutWork;
   const key = require('../src/pkjs/settings').key;
@@ -124,7 +126,7 @@ async function run() {
     await wait('!document.getElementById("primary").disabled');
     assert.equal(await evaluate('document.getElementById("save").disabled'),true);
     assert.deepEqual(await evaluate('Object.keys(__qa.store)'),[],'reading defaults never writes them');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['primary','secondary']);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['primary','secondary','watch-theme']);
     for (const id of ['primary','secondary']) {
       const offered = await evaluate('Array.from(document.getElementById(' + JSON.stringify(id) + ').options).map(o=>o.value).filter(Boolean).sort()');
       assert.deepEqual(offered,[...ids,'none'].sort());
@@ -133,12 +135,12 @@ async function run() {
       await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
       captures.push(await capture('settings-' + width + '-' + theme + '.png'));
       const layout=await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,selects:document.querySelectorAll("select").length,targets:Array.from(document.querySelectorAll("button,select,summary")).filter(e=>e.getClientRects().length).map(e=>({id:e.id||e.textContent,height:e.getBoundingClientRect().height})),labelled:Array.from(document.querySelectorAll("select")).every(e=>document.querySelector("label[for="+e.id+"]")&&e.getAttribute("aria-describedby").split(/\\s+/).every(id=>document.getElementById(id))),background:getComputedStyle(document.body).backgroundColor})');
-      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,2);
+      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,3);
       assert.ok(layout.targets.every(target=>target.height>=44)); assert.equal(layout.labelled,true);
       layouts.push({width,theme,...layout});
     }
   }
-  checks.push('exactly two role selectors, all eight choices and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load');
+  checks.push('exactly two role selectors plus separate appearance, all eight shortcuts and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load');
   await send('Emulation.setDeviceMetricsOverride',{width:320,height:800,deviceScaleFactor:1,mobile:true});
   await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
   await change('primary','hold-up');
@@ -158,7 +160,7 @@ async function run() {
   assert.equal(await evaluate('document.getElementById("primary").disabled'),true);
   await evaluate('document.getElementById("save").click()');
   assert.equal(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").length'),1);
-  await wait('document.getElementById("status").textContent==="Settings saved."');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
   const stored=await evaluate('__qa.store');
   assert.deepEqual(JSON.parse(stored[key]),pair('hold-up','hold-down'));
   await send('Page.navigate',{url:fixture(stored)}); await wait('!document.getElementById("primary").disabled');
@@ -193,7 +195,7 @@ async function run() {
       await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair('none','none'))})});
       await wait('!document.getElementById("primary").disabled');
       await change(role,id); await evaluate('document.getElementById("save").click()');
-      await wait('document.getElementById("status").textContent==="Settings saved."');
+      await wait('document.getElementById("status").textContent==="✓ Saved"');
       const seed=await evaluate('__qa.store'), expected=pair('none','none'); expected[role+'Shortcut']=id;
       assert.deepEqual(JSON.parse(seed[key]),expected);
       await send('Page.navigate',{url:fixture(seed)}); await wait('!document.getElementById("primary").disabled');
@@ -212,7 +214,7 @@ async function run() {
   assert.equal(await evaluate('document.getElementById("status").textContent'),'Save to use these two shortcuts.');
   assert.equal(await evaluate('document.getElementById("save").disabled'),false);
   captures.push(await capture('migration-320.png'));
-  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="Settings saved."');
+  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="✓ Saved"');
   assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
   checks.push('old mappings remain byte-identical on load; schema2 conversion uses explicit Save and keeps projected Primary/Secondary choices');
   await send('Page.navigate',{url:fixture(stored,{load:1})});
@@ -228,7 +230,7 @@ async function run() {
   assert.equal(await evaluate('document.getElementById("discard").textContent'),'Reload saved');
   assert.deepEqual(await evaluate('__qa.store'),stored);
   captures.push(await capture('save-error-320.png'));
-  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="Settings saved."');
+  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="✓ Saved"');
   checks.push('failed loading shows unknown choices and Retry; failed Save keeps both role choices and retries explicitly');
   await change('primary','hold-select'); await evaluate('__qa.faults.ackLost=1;document.getElementById("save").click()');
   await wait('document.getElementById("status").textContent.indexOf("not confirmed")>=0');
@@ -241,11 +243,11 @@ async function run() {
   await send('Page.navigate',{url:fixture({[key]:'{broken'})}); await wait('!document.getElementById("primary").disabled');
   assert.equal(await evaluate('__qa.store['+JSON.stringify(key)+']'),'{broken');
   assert.equal(await evaluate('document.getElementById("save").disabled'),false);
-  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="Settings saved."');
+  await evaluate('document.getElementById("save").click()'); await wait('document.getElementById("status").textContent==="✓ Saved"');
   assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
   await evaluate('document.querySelector(".help").open=true;document.querySelector(".help").scrollIntoView({block:"start"})');
   captures.push(await capture('setup-help-320.png'));
-  checks.push('unreadable preferences require explicit repair Save; two selectors remain the entire configuration with setup disclosed separately');
+  checks.push('unreadable preferences require explicit repair Save; two shortcut selectors plus separate watch appearance; setup stays disclosed');
 
   const storageCases=[];
   const assertNoLaunchWork=async()=>assert.deepEqual(await evaluate('__qa.forbidden'),{appMessages:0,subscriptions:0,actions:0});
@@ -257,7 +259,7 @@ async function run() {
     assert.deepEqual(await focusState(),{tag:'BODY',id:''},'loading must not choose focus');
     await change('primary',chosen.primaryShortcut);await change('secondary',chosen.secondaryShortcut);
     await evaluate('document.getElementById("save").click()');
-    await wait('document.getElementById("status").textContent==="Settings saved."');
+    await wait('document.getElementById("status").textContent==="✓ Saved"');
     const requests=await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")');
     assert.deepEqual(requests.map(request=>request.target),[route]);
     assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),chosen);
@@ -293,7 +295,7 @@ async function run() {
   assert.equal(await evaluate('document.getElementById("primary").value'),'hold-select');
   assert.equal(await evaluate('document.getElementById("save").disabled'),false);
   await evaluate('document.getElementById("save").click()');
-  await wait('document.getElementById("status").textContent==="Settings saved."');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
   assert.deepEqual(JSON.parse(await evaluate('__qa.dom['+JSON.stringify(key)+']')),pair('hold-select'));
   await assertNoLaunchWork();
   checks.push('still-live PKJS transport failure rechecks targets, never writes through the plugin, retains the draft and supports an explicit successful retry');
@@ -301,7 +303,7 @@ async function run() {
   await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active:true,pkjsReject:1,goneOnFailure:true})});
   await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
   await evaluate('document.getElementById("save").click()');
-  await wait('document.getElementById("status").textContent==="Settings saved."');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
   assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),['pkjs','plugin']);
   assert.equal(await evaluate('__qa.active'),false);
   assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair('hold-select'));
@@ -332,7 +334,7 @@ async function run() {
   await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{appearAfterPluginSave:1})});
   await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');
   await evaluate('document.getElementById("save").click()');
-  await wait('document.getElementById("status").textContent==="Settings saved."');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
   assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings").map(m=>m.target)'),['plugin','pkjs']);
   assert.deepEqual(JSON.parse(await evaluate('__qa.dom['+JSON.stringify(key)+']')),pair('hold-select'));
   await evaluate('__qa.teardownPkjs()');
@@ -356,7 +358,7 @@ async function run() {
     captures.push(await capture('focus-' + viewport.name + '.png'));
     await change('primary','combo-back-up');
     await evaluate('document.getElementById("primary").focus()');
-    for (let index=0; index<4; index++) {
+    for (let index=0; index<5; index++) {
       await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
       await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
     }
@@ -383,6 +385,48 @@ async function run() {
   captures.push(await capture('oversized-text-flow-320.png'));
   accessibility.push({oversizedText});
   checks.push('large text moves an oversized action area into document flow; selected shortcut names drive setup copy and disabled roles show no assignment');
+  // New appearance is independent of shortcut routing, and actual packaged
+  // handlers must persist it through close/reopen and active Android teardown.
+  await send('Emulation.setDeviceMetricsOverride',{width:360,height:800,deviceScaleFactor:1,mobile:true});
+  await send('Page.navigate',{url:fixture()}); await wait('!document.getElementById("watch-theme").disabled');
+  const initialFocus=await evaluate('document.activeElement.id');
+  await change('watch-theme','dark'); await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
+  assert.equal(await evaluate('document.activeElement.id'),initialFocus);
+  assert.equal(await evaluate('document.getElementById("save").disabled'),true);
+  assert.equal(await evaluate('document.getElementById("watch-theme").value'),'dark');
+  await change('primary','tap-down'); await evaluate('__qa.faults.reject=1;document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="Couldn’t save. Try again."');
+  assert.equal(await evaluate('document.getElementById("primary").value'),'tap-down');
+  assert.equal(await evaluate('document.getElementById("discard").textContent'),'Discard');
+  await evaluate('document.getElementById("save").click()');await wait('document.getElementById("status").textContent==="✓ Saved"');
+  const appearanceStore=await evaluate('__qa.store');
+  assert.equal(JSON.parse(appearanceStore['open-activity-ui-v1']).theme,'dark');
+  captures.push(await capture('appearance-saved-360.png'));
+  await send('Page.navigate',{url:fixture(appearanceStore,{active:true})});
+  await wait('!document.getElementById("watch-theme").disabled');
+  assert.equal(await evaluate('document.getElementById("watch-theme").value'),'dark');
+  await change('watch-theme','light'); await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="✓ Saved"');
+  await evaluate('__qa.teardownPkjs()');
+  assert.equal(JSON.parse(await evaluate('__qa.store["open-activity-ui-v1"]')).theme,'light');
+  await assertNoLaunchWork();
+  checks.push('separate appearance persists through confirmed stay-open Save, cold reopen and active-writer Android teardown without moving focus');
+
+  await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:englishLocale.identifier});
+  const localeScript=await send('Page.addScriptToEvaluateOnNewDocument',{source:'Object.defineProperty(navigator,"language",{get:()=>"cs-CZ"});'});
+  await send('Page.navigate',{url:fixture()});await wait('!document.getElementById("primary").disabled');
+  assert.equal(await evaluate('document.documentElement.lang'),'cs');
+  assert.equal(await evaluate('document.getElementById("shortcuts-heading").textContent'),'Zkratky aktivit');
+  assert.equal(await evaluate('document.querySelector("label[for=primary]").textContent'),'Hlavní aktivita');
+  await change('watch-theme','dark');await evaluate('document.getElementById("save").click()');
+  await wait('document.getElementById("status").textContent==="✓ Uloženo"');
+  assert.ok((await evaluate('document.getElementById("assignment-help").textContent')).startsWith('V nastavení'));
+  captures.push(await capture('settings-cs-360-light.png'));
+  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'dark'}]});
+  captures.push(await capture('settings-cs-360-dark.png'));
+  await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:localeScript.identifier});
+  checks.push('English and Czech actual phone interface labels, help, shortcut descriptions and persistent Save feedback render in light/dark');
   assert.deepEqual(errors, []);
   const report = {version, result: 'PASS', pbw: {file: path.basename(artifact), sha256: sha(fs.readFileSync(artifact))},
     executedPackagedFiles: Object.fromEntries(Object.entries(files).map(([name, value]) => [name, sha(value)])),

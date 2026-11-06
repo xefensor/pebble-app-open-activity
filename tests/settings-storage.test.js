@@ -149,3 +149,36 @@ test('settings remain available after cancellation without replaying a terminal 
   context.events.appmessage({payload: protocol.message(protocol.operation.CONFIRM, {OA_SESSION: 9})});
   assert.equal(context.launcher.state(), 'closed'); inert(context);
 });
+
+test('appearance uses a separate versioned store and survives active-writer teardown without changing legacy routing on reads', () => {
+  const ui = require('../src/pkjs/ui-settings');
+  const old = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary'}};
+  for (const kind of ['plugin', 'pkjs']) {
+    const data = stores(old), original = data.plugin.getItem(settings.key), context = pkjsContext(data.pkjs);
+    const receive = kind === 'pkjs' ? context.receive : pluginContext(data.plugin);
+    const initial = receive({type: 'getSettings', uiVersion: 1});
+    assert.deepEqual(initial.appearance, {version: 1, theme: 'light'});
+    assert.equal(data.plugin.getItem(settings.key), original);
+    assert.equal(data.plugin.getItem(ui.key), null, 'default appearance read does not write');
+    const selected = pair('tap-down', 'hold-back'), appearance = {version: 1, theme: 'dark'};
+    const response = receive({type: 'saveSettings', uiVersion: 1, settings: selected, appearance});
+    assert.equal(response.ok, true); assert.deepEqual(response.settings, selected); assert.deepEqual(response.appearance, appearance);
+    if (kind === 'pkjs') data.teardown();
+    assert.deepEqual(pluginContext(data.plugin)({type: 'getSettings', uiVersion: 1}).appearance, appearance);
+    assert.deepEqual(settings.load(data.plugin), selected); inert(context);
+    assert.deepEqual(new Set(data.native.keys()), new Set([settings.key, ui.key]));
+  }
+});
+
+test('invalid appearance is rejected before either stored setting changes', () => {
+  for (const kind of ['plugin', 'pkjs']) {
+    const data = stores(), context = pkjsContext(data.pkjs);
+    const receive = kind === 'pkjs' ? context.receive : pluginContext(data.plugin);
+    for (const appearance of [undefined, {}, {version: 1, theme: 'auto'}, {version: 2, theme: 'dark'}, {version: 1, theme: 'dark', private: 'text'}]) {
+      const before = [...data.native];
+      assert.deepEqual(receive({type: 'saveSettings', uiVersion: 1, settings: pair(), appearance}), {ok: false, rejected: true});
+      assert.deepEqual([...data.native], before);
+    }
+    inert(context);
+  }
+});

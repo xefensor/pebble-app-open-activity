@@ -6,7 +6,14 @@ static Window *s_window;
 static TextLayer *s_label;
 static TextLayer *s_setup_body;
 static TextLayer *s_setup_hint;
-static StatusBarLayer *s_status_bar;
+static TextLayer *s_clock;
+static GFont s_font_body;
+static GFont s_font_title;
+static bool s_dark;
+static bool s_message_opened;
+static bool s_clock_subscribed;
+static char s_clock_text[12];
+#define OA_THEME_STORAGE_KEY 1
 static bool s_setup_mode;
 static AppTimer *s_timeout;
 static OaAttempt s_attempt;
@@ -24,6 +31,33 @@ static uint32_t now_ms(void) {
 
 static void close_helper(bool notify);
 
+static GColor background(void) { return s_dark ? GColorBlack : GColorWhite; }
+static GColor foreground(void) { return s_dark ? GColorWhite : GColorBlack; }
+static GColor accent(void) { return s_dark ? GColorRichBrilliantLavender : GColorPurple; }
+static GColor secondary(void) { return s_dark ? GColorLightGray : GColorDarkGray; }
+static void apply_palette(void) {
+  if (s_window) window_set_background_color(s_window, background());
+  if (s_label) text_layer_set_text_color(s_label, s_setup_mode ? accent() : foreground());
+  if (s_clock) text_layer_set_text_color(s_clock, foreground());
+  if (s_setup_body) text_layer_set_text_color(s_setup_body, foreground());
+  if (s_setup_hint) text_layer_set_text_color(s_setup_hint, secondary());
+}
+static void load_ui(void) {
+  s_dark = persist_exists(OA_THEME_STORAGE_KEY) && persist_read_int(OA_THEME_STORAGE_KEY) == 1;
+  s_font_body = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_18));
+  s_font_title = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_23));
+}
+static GFont body_font(void) { return s_font_body ? s_font_body : fonts_get_system_font(FONT_KEY_GOTHIC_18); }
+static GFont title_font(void) { return s_font_title ? s_font_title : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
+static void clock_tick(struct tm *tick_time, TimeUnits units) {
+  (void)units;
+  strftime(s_clock_text, sizeof(s_clock_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
+  if (!clock_is_24h_style() && s_clock_text[0] == '0') memmove(s_clock_text, s_clock_text + 1, strlen(s_clock_text));
+  if (s_clock) text_layer_set_text(s_clock, s_clock_text);
+}
+static void receive_theme(DictionaryIterator *message);
+
+
 static bool read_uint(DictionaryIterator *message, uint32_t key, uint32_t *value) {
   Tuple *tuple = dict_find(message, key);
   if (!tuple || (tuple->type != TUPLE_UINT && tuple->type != TUPLE_INT)) return false;
@@ -38,6 +72,16 @@ static bool read_uint(DictionaryIterator *message, uint32_t key, uint32_t *value
     *value = tuple->value->uint32;
   } else return false;
   return true;
+}
+
+static void receive_theme(DictionaryIterator *message) {
+  uint32_t theme;
+  if (!read_uint(message, OA_KEY_THEME, &theme) || theme > 1 || (bool)theme == s_dark) return;
+  // Only confirmed native preference storage changes the cached first frame.
+  if (persist_write_int(OA_THEME_STORAGE_KEY, (int32_t)theme) != (int)sizeof(int32_t) ||
+      persist_read_int(OA_THEME_STORAGE_KEY) != (int32_t)theme) return;
+  s_dark = theme != 0;
+  apply_palette();
 }
 
 static void send_operation(uint8_t operation) {
@@ -101,8 +145,14 @@ static void inbox_received(DictionaryIterator *message, void *context) {
   (void)context;
   uint32_t operation, session;
   if (!read_uint(message, OA_KEY_OPERATION, &operation)) return;
+  if (s_setup_mode) {
+    if (operation == OA_REQUEST || operation == OA_SETTINGS) receive_theme(message);
+    return; // Setup never acquires a launch session or navigation capability.
+  }
+  if (operation == OA_SETTINGS) return;
   if (!oa_attempt_current(&s_attempt, s_attempt.session, now_ms())) { close_helper(true); return; }
   if (operation == OA_REQUEST) {
+    receive_theme(message);
     if (s_attempt.phase == OA_WAITING) send_operation(OA_HELLO);
     return;
   }
@@ -145,16 +195,16 @@ static void init(uint32_t started) {
   oa_attempt_init(&s_attempt, session, started);
   s_window = window_create();
   if (!s_window) { oa_attempt_close(&s_attempt); return; }
-  window_set_background_color(s_window, GColorWhite);
+  window_set_background_color(s_window, background());
   window_set_click_config_provider(s_window, click_config);
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
   s_label = text_layer_create(GRect(10, (bounds.size.h - 36) / 2, bounds.size.w - 20, 36));
   if (!s_label) { oa_attempt_close(&s_attempt); return; }
   text_layer_set_text(s_label, "Opening...");
-  text_layer_set_font(s_label, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(s_label, title_font());
   text_layer_set_text_alignment(s_label, GTextAlignmentCenter);
-  text_layer_set_text_color(s_label, GColorBlack);
+  text_layer_set_text_color(s_label, foreground());
   text_layer_set_background_color(s_label, GColorClear);
   layer_add_child(layer, text_layer_get_layer(s_label));
   window_stack_push(s_window, false);
@@ -166,6 +216,7 @@ static void init(uint32_t started) {
   app_message_register_outbox_sent(outbox_sent);
   app_message_register_outbox_failed(outbox_failed);
   if (app_message_open(192, 192) != APP_MSG_OK) { close_helper(false); return; }
+  s_message_opened = true;
   connection_service_subscribe((ConnectionHandlers){.pebble_app_connection_handler = connection_changed});
   if (!connection_service_peek_pebble_app_connection()) close_helper(false);
 }
@@ -176,31 +227,36 @@ static bool init_setup(void) {
   oa_attempt_close(&s_attempt);
   s_window = window_create();
   if (!s_window) return false;
-  window_set_background_color(s_window, GColorWhite);
+  window_set_background_color(s_window, background());
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
-  s_status_bar = status_bar_layer_create();
-  if (!s_status_bar) return false;
-  status_bar_layer_set_colors(s_status_bar, GColorWhite, GColorBlack);
-  layer_add_child(layer, status_bar_layer_get_layer(s_status_bar));
-  s_label = text_layer_create(GRect(10, 26, bounds.size.w - 20, 36));
+  s_label = text_layer_create(GRect(8, 4, 122, 27));
   if (!s_label) return false;
-  s_setup_body = text_layer_create(GRect(12, 76, bounds.size.w - 24, 84));
+  s_clock = text_layer_create(GRect(bounds.size.w - 65, 4, 57, 27));
+  if (!s_clock) return false;
+  s_setup_body = text_layer_create(GRect(16, 70, bounds.size.w - 32, 82));
   if (!s_setup_body) return false;
-  s_setup_hint = text_layer_create(GRect(12, bounds.size.h - 56, bounds.size.w - 24, 46));
+  s_setup_hint = text_layer_create(GRect(16, bounds.size.h - 57, bounds.size.w - 32, 48));
   if (!s_setup_hint) return false;
-  TextLayer *labels[] = {s_label, s_setup_body, s_setup_hint};
-  const char *texts[] = {"Open Activity", "Open settings in the Pebble phone app.",
+  TextLayer *labels[] = {s_label, s_clock, s_setup_body, s_setup_hint};
+  const char *texts[] = {"Open Activity", s_clock_text, "Open settings in the Pebble phone app.",
                          "Quick Launch opens your activities."};
-  const char *fonts[] = {FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_24_BOLD, FONT_KEY_GOTHIC_18};
   for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
     text_layer_set_text(labels[i], texts[i]);
-    text_layer_set_font(labels[i], fonts_get_system_font(fonts[i]));
-    text_layer_set_text_alignment(labels[i], GTextAlignmentCenter);
-    text_layer_set_text_color(labels[i], GColorBlack);
+    text_layer_set_font(labels[i], i == 2 ? title_font() : body_font());
+    text_layer_set_text_alignment(labels[i], i == 1 ? GTextAlignmentRight : GTextAlignmentLeft);
     text_layer_set_background_color(labels[i], GColorClear);
     layer_add_child(layer, text_layer_get_layer(labels[i]));
   }
+  apply_palette();
+  time_t now = time(NULL);
+  clock_tick(localtime(&now), MINUTE_UNIT);
+  tick_timer_service_subscribe(MINUTE_UNIT, clock_tick);
+  s_clock_subscribed = true;
+  // This channel only receives public appearance preferences. No setup HELLO,
+  // attempt timeout, session or source subscription is created.
+  app_message_register_inbox_received(inbox_received);
+  if (app_message_open(192, 192) == APP_MSG_OK) s_message_opened = true;
   // Leave Back to the normal window-stack handler. There is no attempt to cancel.
   window_stack_push(s_window, false);
   return true;
@@ -216,7 +272,11 @@ static void deinit(void) {
   if (s_setup_hint) text_layer_destroy(s_setup_hint);
   if (s_setup_body) text_layer_destroy(s_setup_body);
   if (s_label) text_layer_destroy(s_label);
-  if (s_status_bar) status_bar_layer_destroy(s_status_bar);
+  if (s_clock) text_layer_destroy(s_clock);
+  if (s_clock_subscribed) tick_timer_service_unsubscribe();
+  if (s_setup_mode && s_message_opened) app_message_deregister_callbacks();
+  if (s_font_body) fonts_unload_custom_font(s_font_body);
+  if (s_font_title) fonts_unload_custom_font(s_font_title);
   if (s_window) window_destroy(s_window);
 }
 
@@ -224,6 +284,7 @@ int main(void) {
   uint32_t started = now_ms();
   AppLaunchReason reason = launch_reason();
   if (reason == APP_LAUNCH_USER || reason == APP_LAUNCH_PHONE || reason == APP_LAUNCH_SYSTEM) {
+    load_ui();
     if (init_setup()) app_event_loop();
     deinit();
     return 0;
@@ -238,6 +299,7 @@ int main(void) {
     (s_gesture == APP_QUICK_LAUNCH_ACTION_COMBO &&
      (s_button == BUTTON_ID_BACK || s_button == BUTTON_ID_UP));
   if (!supported) return 0;
+  load_ui();
   init(started);
   if (s_attempt.phase != OA_CLOSED) app_event_loop();
   deinit();

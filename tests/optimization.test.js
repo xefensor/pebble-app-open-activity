@@ -44,13 +44,14 @@ test('Quick Launch startup does not execute the legacy settings page module', ()
     require(name) {
       imports.push(name);
       if (name === './launcher') return () => ({ready() {}, message() {}});
+      if (name === './ui-settings') return {load: () => ({version: 1, theme: 'light'})};
       if (name === './settings') return {load: () => ({}), defaults: () => ({})};
       assert.equal(name, './settings-page'); return () => '<html>settings</html>';
     }
   });
   handlers.ready(); handlers.appmessage({payload: {}});
-  assert.deepEqual(imports, ['./launcher', './settings']);
+  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings']);
   handlers.showConfiguration();
-  assert.deepEqual(imports, ['./launcher', './settings', './settings-page']);
+  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings', './settings-page']);
   assert.match(urls[0], /^data:text\/html;charset=utf-8,/);
 });

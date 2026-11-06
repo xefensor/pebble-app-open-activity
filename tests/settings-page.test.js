@@ -12,7 +12,7 @@ const legacy = () => ({version: 1, defaultRole: 'primary', holdOverrides: {up: '
 test('page has only Primary and Secondary choices, each offering all eight shortcuts and None', async () => {
   const html = page.config();
   assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), html);
-  assert.equal((html.match(/<select\b/g) || []).length, 2);
+  assert.equal((html.match(/<select\b/g) || []).length, 3);
   assert.match(html, /Primary activity/); assert.match(html, /Secondary activity/);
   const ui = mount(html, () => Promise.resolve(loaded()));
   ui.ready('pkjs'); assert.equal(ui.requests.length, 0);
@@ -115,7 +115,7 @@ test('failed Save retains choices, retry confirms, and ordinary Discard never wr
   assert.equal(ui.elements.discard.textContent, 'Reload saved'); assert.match(ui.elements.status.textContent, /not confirmed/);
   assert.equal(stored.primaryShortcut, 'hold-down');
   fail = false; ui.elements.save.onclick(); await ui.tick();
-  assert.equal(ui.elements.status.textContent, 'Settings saved.'); assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.elements.status.textContent, '✓ Saved'); assert.equal(ui.elements.save.disabled, true);
   ui.change('secondary', 'tap-up'); ui.elements.discard.onclick(); await ui.tick();
   assert.equal(ui.elements.secondary.value, 'hold-up'); assert.equal(ui.elements.save.disabled, true);
   assert.equal(ui.requests.filter(message => message.type === 'getSettings').length, 1);
@@ -149,5 +149,25 @@ test('repair and legacy migration need explicit Save; Cancel writes nothing', ()
   cancel.elements.discard.onclick(); assert.equal(cancel.location.href, 'pebblejs://close#');
   const save = mount(page(legacy(), false), () => {throw Error('legacy cannot use plugin');});
   save.change('primary', 'tap-down'); save.change('secondary', 'combo-up-down'); save.elements.save.onclick();
-  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])), pair('tap-down', 'combo-up-down'));
+  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])).settings, pair('tap-down', 'combo-up-down'));
+});
+
+test('appearance changes save in the same draft and confirmed Save stays open until a new edit', async () => {
+  let stored = pair(), appearance = {version: 1, theme: 'light'};
+  const reply = message => {
+    if (message.type === 'saveSettings') {
+      stored = JSON.parse(JSON.stringify(message.settings)); appearance = JSON.parse(JSON.stringify(message.appearance));
+    }
+    return Promise.resolve({ok: true, settings: stored, appearance});
+  };
+  const ui = mount(page.config(), reply); ui.ready(); await ui.tick();
+  assert.equal(ui.elements['watch-theme'].value, 'light'); assert.equal(ui.elements['watch-theme'].disabled, false);
+  ui.change('watch-theme', 'dark'); assert.equal(ui.elements.status.textContent, 'Unsaved changes.');
+  ui.elements.save.onclick(); await ui.tick();
+  assert.equal(ui.location.href, '', 'confirmed Save does not navigate or close');
+  assert.equal(ui.elements.status.textContent, '✓ Saved'); assert.equal(ui.elements.save.disabled, true);
+  assert.deepEqual(appearance, {version: 1, theme: 'dark'});
+  const reopened = mount(page.config(), reply); reopened.ready(); await reopened.tick();
+  assert.equal(reopened.elements['watch-theme'].value, 'dark'); assert.equal(reopened.elements.save.disabled, true);
+  ui.change('primary', 'tap-down'); assert.equal(ui.elements.status.textContent, 'Unsaved changes.');
 });

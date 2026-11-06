@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "status": "local candidate; not published",
+  "pbwSha256": "473646c64c0929da91781327a115003b0fc41f534f7fa98407df194124e6a0f3",
+  "automatedJavaScriptChecks": 62,
+  "nativeLoadedBytes": 4072,
+  "nativeVirtualBytes": 4180,
+  "nativeResourceBytes": 20110,
+  "phoneLocales": [
+    "en",
+    "cs"
+  ],
+  "phoneBrowserReport": "settings/report.json",
+  "nativeEmulatorReport": "emulator/report.json",
+  "physicalWatch": false,
+  "realPhoneWebView": false,
+  "fonts": {
+    "resources/fonts/RobotoCondensed-Bold.ttf": "6e949e8aa3f6e0b4db88aacafccf0c0e55e708c4564c8f3d145792adbbf80ef6",
+    "licenses/OFL-RobotoCondensed.txt": "0e4cc6ece88573545be2ed25835363662a6182ba4a4c1b5c8feda52add30e8a6"
+  }
+}

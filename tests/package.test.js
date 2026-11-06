@@ -103,7 +103,7 @@ test('packaged old settings are projected without a write and convert only on an
 });
 
 test('actual packaged HTML has two role selectors and saves without a native session', {skip: !built}, async () => {
-  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 2);
+  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 3);
   const store = storage(), invoke = coldConfig(store);
   const ui = mountSettings(bundle['config.html'], message => Promise.resolve(invoke(message)));
   ui.ready(); await ui.tick();
@@ -111,7 +111,7 @@ test('actual packaged HTML has two role selectors and saves without a native ses
   assert.equal(ui.elements.save.disabled, true);
   ui.change('primary', 'combo-back-up'); ui.change('secondary', 'tap-down');
   ui.elements.save.onclick(); await ui.tick();
-  assert.equal(ui.elements.status.textContent, 'Settings saved.'); assert.equal(ui.requests.length, 2);
+  assert.equal(ui.elements.status.textContent, '✓ Saved'); assert.equal(ui.requests.length, 2);
   assert.deepEqual(coldConfig(store)({type: 'getSettings'}).settings, pair('combo-back-up', 'tap-down'));
   assert.doesNotMatch(bundle['config.html'], /https?:\/\//);
   assert.deepEqual(JSON.parse(bundle['appinfo.json']).plugin.sources, []);
@@ -128,7 +128,7 @@ test('packaged legacy configuration shares two fields and retains Cancel and Sav
   }, {timeout: 2000});
   handlers.showConfiguration();
   const html = decodeURIComponent(urls[0].replace(/^data:text\/html;charset=utf-8,/, ''));
-  assert.equal((html.match(/<select\b/g) || []).length, 2);
+  assert.equal((html.match(/<select\b/g) || []).length, 3);
   const ui = mountSettings(html, () => {throw Error('legacy config cannot use plugin bridge');});
   const projected = settings.choices(chosen);
   assert.equal(ui.elements.discard.textContent, 'Cancel'); assert.equal(ui.elements.save.disabled, false);
@@ -137,7 +137,7 @@ test('packaged legacy configuration shares two fields and retains Cancel and Sav
   assert.equal(ui.location.href, 'pebblejs://close#'); assert.deepEqual(settings.load(store), chosen);
   const save = mountSettings(html, () => {throw Error('legacy config cannot use plugin bridge');});
   save.change('primary', 'combo-back-up'); save.change('secondary', 'tap-down'); save.elements.save.onclick();
-  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])), pair('combo-back-up', 'tap-down'));
+  assert.deepEqual(JSON.parse(decodeURIComponent(save.location.href.split('#')[1])).settings, pair('combo-back-up', 'tap-down'));
 });
 
 test('packaged PKJS opens either role from any chosen shortcut once and closes unassigned shortcuts', {skip: !built}, () => {

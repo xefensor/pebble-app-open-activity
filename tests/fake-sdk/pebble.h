@@ -24,7 +24,20 @@ typedef struct {bool active; uint32_t delay; void (*callback)(void *);} AppTimer
 typedef void *ClickRecognizerRef;
 typedef int GColor;
 typedef const void *GFont;
-enum {GColorWhite,GColorBlack,GColorClear,GTextAlignmentCenter};
+enum {GColorWhite,GColorBlack,GColorClear,GColorDarkGray,GColorLightGray,GColorPurple,GColorRichBrilliantLavender,GTextAlignmentCenter,GTextAlignmentLeft,GTextAlignmentRight};
+typedef unsigned TimeUnits;
+#define MINUTE_UNIT 2
+#define RESOURCE_ID_FONT_BODY_18 1
+#define RESOURCE_ID_FONT_BODY_23 2
+GFont fonts_load_custom_font(unsigned);
+void fonts_unload_custom_font(GFont);
+unsigned resource_get_handle(unsigned);
+bool persist_exists(unsigned);
+int32_t persist_read_int(unsigned);
+int persist_write_int(unsigned,int32_t);
+bool clock_is_24h_style(void);
+void tick_timer_service_subscribe(TimeUnits,void (*)(struct tm *,TimeUnits));
+void tick_timer_service_unsubscribe(void);
 #define FONT_KEY_GOTHIC_28_BOLD "GOTHIC_28_BOLD"
 #define FONT_KEY_GOTHIC_24_BOLD "GOTHIC_24_BOLD"
 #define FONT_KEY_GOTHIC_18 "GOTHIC_18"

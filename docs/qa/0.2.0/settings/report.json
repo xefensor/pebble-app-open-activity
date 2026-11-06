@@ -1,0 +1,365 @@
+{
+  "version": "0.2.0",
+  "result": "PASS",
+  "pbw": {
+    "file": "Open-Activity-0.2.0.pbw",
+    "sha256": "473646c64c0929da91781327a115003b0fc41f534f7fa98407df194124e6a0f3"
+  },
+  "executedPackagedFiles": {
+    "config.html": "ee06627b73d796082b06b6f0271fbc0ec948116e6f54a7734f29e2ea35af8cf3",
+    "plugin.js": "45d0b5e601512761f291487a9cf78548cff153367060a46775e321eddbe6ccf6",
+    "pebble-js-app.js": "efb8a00bbdc02bd91a12a0346acaa3f13ac3defc892a163a0a2159cb0ed1e5a9"
+  },
+  "captures": [
+    {
+      "file": "settings-320-light.png",
+      "sha256": "f88a38ad89f0226e65787cb60efdb591e919a520962394549645073fddd9dc68"
+    },
+    {
+      "file": "settings-320-dark.png",
+      "sha256": "3b737d91fd1306bb957077750ea91ad989f1175127723e98b1511967d244774e"
+    },
+    {
+      "file": "settings-360-light.png",
+      "sha256": "a24b5a7dc09cd64c89a85fe88a6255e2cc646f5092c68fe23e4577880efb239f"
+    },
+    {
+      "file": "settings-360-dark.png",
+      "sha256": "546dad686821f7dd7ccc19bbbf1fc30a0331767045ea816980a5138c019264fd"
+    },
+    {
+      "file": "collision-320.png",
+      "sha256": "a2f1dbac5615615da8e06b2a0a4c02cdeed60f9d405592451b14fd0fe89364a6"
+    },
+    {
+      "file": "migration-320.png",
+      "sha256": "5574e263a6cab210d46d1557b2b122c264ef6201da7199541c6334b2e5c5467b"
+    },
+    {
+      "file": "load-error-320.png",
+      "sha256": "7f9ef67cf00a8474cdb7e51bf78aa676bfd5327ef98d0dadebe1b34d39e16db7"
+    },
+    {
+      "file": "save-error-320.png",
+      "sha256": "3c335e7736a6e8e4bad8acf60b501831aeb14f39e6311bdae49f6fbc94592e3e"
+    },
+    {
+      "file": "setup-help-320.png",
+      "sha256": "dfa0668cb0c6f219fac92233a24d41c385bc244488b9bc1887b5c17044dd528f"
+    },
+    {
+      "file": "settings-live-save-reopened-320.png",
+      "sha256": "9cbe78639c7b3d45670bf3f757c41594a2ab876f7fed91eb73924b779d7e33b1"
+    },
+    {
+      "file": "focus-short.png",
+      "sha256": "222917301a0429629225518642d12293509f21a426503386a047cdef4f4c8d70"
+    },
+    {
+      "file": "actions-short.png",
+      "sha256": "f3e4ae4bf8a0c3cbb6623dba64043fc4befeab71d9f634b47f7763514d9f6b42"
+    },
+    {
+      "file": "focus-zoom-200-equivalent.png",
+      "sha256": "b1c9217ce2310407ed7dc799e8263babcd6035dfb68275959f0d1803b7fee489"
+    },
+    {
+      "file": "actions-zoom-200-equivalent.png",
+      "sha256": "e4492cddf59a8053dc33261e7f81177779e1225f447f83557b376f24a24ec93a"
+    },
+    {
+      "file": "large-text-focus-320.png",
+      "sha256": "c79652a2577fa377dec71d6d6363d8a7e44df54820d3c3e7cc9014765b4b65e9"
+    },
+    {
+      "file": "oversized-text-flow-320.png",
+      "sha256": "abb7bcd3ad00e14f5611e28b741aa1eabd99f57d0c2062517ffeabeee4b66e58"
+    },
+    {
+      "file": "appearance-saved-360.png",
+      "sha256": "37f65ae4cdb61cfd5171b10b44bd683ca00aae8d1948ea8e19a829f7e51f741b"
+    },
+    {
+      "file": "settings-cs-360-light.png",
+      "sha256": "c25cc8dd7649f8af76b61687ec7b5919495360e65a9850b027c5d2df945f9efa"
+    },
+    {
+      "file": "settings-cs-360-dark.png",
+      "sha256": "31cdd5678311840cef27fb561f6409ac12442fc899fa2ac3a8f65f47ee1c4f9f"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "selects": 3,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "watch-theme",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 48
+        },
+        {
+          "id": "save",
+          "height": 48
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "selects": 3,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "watch-theme",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 48
+        },
+        {
+          "id": "save",
+          "height": 48
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(17, 21, 27)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "scrollWidth": 360,
+      "selects": 3,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "watch-theme",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 48
+        },
+        {
+          "id": "save",
+          "height": 48
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(244, 245, 247)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "scrollWidth": 360,
+      "selects": 3,
+      "targets": [
+        {
+          "id": "primary",
+          "height": 44
+        },
+        {
+          "id": "secondary",
+          "height": 44
+        },
+        {
+          "id": "watch-theme",
+          "height": 44
+        },
+        {
+          "id": "Setup & help",
+          "height": 44
+        },
+        {
+          "id": "discard",
+          "height": 48
+        },
+        {
+          "id": "save",
+          "height": 48
+        }
+      ],
+      "labelled": true,
+      "background": "rgb(17, 21, 27)"
+    }
+  ],
+  "accessibility": [
+    {
+      "viewport": {
+        "name": "short",
+        "width": 320,
+        "height": 360
+      },
+      "focusedSecondary": {
+        "active": "secondary",
+        "field": {
+          "top": 150.453125,
+          "bottom": 194.453125
+        },
+        "footer": {
+          "top": 651.9375,
+          "height": 159.296875,
+          "position": "static"
+        },
+        "viewport": 360,
+        "scrollWidth": 320,
+        "fieldCovered": false
+      },
+      "keyboardSave": {
+        "active": "save",
+        "top": 295.53125,
+        "bottom": 343.53125
+      }
+    },
+    {
+      "viewport": {
+        "name": "zoom-200-equivalent",
+        "width": 160,
+        "height": 400
+      },
+      "focusedSecondary": {
+        "active": "secondary",
+        "field": {
+          "top": 169.90625,
+          "bottom": 213.90625
+        },
+        "footer": {
+          "top": 868.046875,
+          "height": 159.296875,
+          "position": "static"
+        },
+        "viewport": 400,
+        "scrollWidth": 160,
+        "fieldCovered": false
+      },
+      "keyboardSave": {
+        "active": "save",
+        "top": 336.34375,
+        "bottom": 384.34375
+      }
+    },
+    {
+      "largeText": {
+        "flow": "false",
+        "height": 153.78125,
+        "scrollWidth": 320,
+        "fieldTop": 541.84375,
+        "fieldBottom": 603.84375,
+        "covered": false
+      }
+    },
+    {
+      "oversizedText": {
+        "flow": "true",
+        "height": 369.375,
+        "scrollWidth": 320,
+        "fieldTop": 352.046875,
+        "fieldBottom": 431.046875,
+        "covered": false
+      }
+    }
+  ],
+  "layoutWork": {
+    "resizeEvents": 40,
+    "readsBeforeFrame": 0,
+    "reads": 1,
+    "writes": 0
+  },
+  "storageCases": [
+    {
+      "route": "plugin",
+      "fullPageReload": true,
+      "androidSeparateStores": true,
+      "pkjsTeardown": false,
+      "settings": {
+        "version": 2,
+        "primaryShortcut": "tap-up",
+        "secondaryShortcut": "combo-up-down"
+      },
+      "focus": {
+        "tag": "BODY",
+        "id": ""
+      }
+    },
+    {
+      "route": "pkjs",
+      "fullPageReload": true,
+      "androidSeparateStores": true,
+      "pkjsTeardown": true,
+      "settings": {
+        "version": 2,
+        "primaryShortcut": "tap-up",
+        "secondaryShortcut": "combo-up-down"
+      },
+      "focus": {
+        "tag": "BODY",
+        "id": ""
+      }
+    }
+  ],
+  "checks": [
+    "exactly two role selectors plus separate appearance, all eight shortcuts and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load",
+    "same-shortcut collision blocks Save without clearing either role; swaps save; one pending save; cold reopen and local Discard retain confirmed choices",
+    "40 synchronous viewport resize notifications cause one deferred footer geometry read and no unchanged layout writes",
+    "all eight shortcut choices save and cold-reopen independently for both roles; None disables the other role without a fallback",
+    "old mappings remain byte-identical on load; schema2 conversion uses explicit Save and keeps projected Primary/Secondary choices",
+    "failed loading shows unknown choices and Retry; failed Save keeps both role choices and retries explicitly",
+    "a write with lost acknowledgement stays uncertain; explicit Reload saved reads the stored result without writing",
+    "unreadable preferences require explicit repair Save; two shortcut selectors plus separate watch appearance; setup stays disclosed",
+    "closed plugin and active packaged PKJS save the exact two choices; separate Android DOM/native stores survive SDK teardown and full Page.reload with no autofocus or launch work",
+    "still-live PKJS transport failure rechecks targets, never writes through the plugin, retains the draft and supports an explicit successful retry",
+    "plugin fallback occurs only after fresh target discovery confirms PKJS has exited and its old DOM has been persisted",
+    "an ok acknowledgement containing different choices is unconfirmed on both routes and never triggers an alternate write",
+    "failed current-target discovery preserves the draft without dispatching a save to an assumed destination",
+    "PKJS appearing during a plugin save receives the exact confirmed choices before success, so its later teardown preserves them",
+    "short320x360 and200%-zoom-equivalent160x400: focused Secondary and keyboard-reached Save are visible; action area returns to document flow; no horizontal overflow",
+    "large text moves an oversized action area into document flow; selected shortcut names drive setup copy and disabled roles show no assignment",
+    "separate appearance persists through confirmed stay-open Save, cold reopen and active-writer Android teardown without moving focus",
+    "English and Czech actual phone interface labels, help, shortcut descriptions and persistent Save feedback render in light/dark"
+  ],
+  "errors": [],
+  "scope": "Actual packaged offline config HTML, config plugin and PKJS configmessage handler in installed Chromium. Mock SDK bridge, separate modeled Android DOM/native preference stores and simulated SDK teardown; no PKJS ready/appmessage dispatch, native lifetime, live phone WebView or physical-watch Quick Launch claim."
+}

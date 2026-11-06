@@ -52,7 +52,7 @@ with zipfile.ZipFile(pbw) as archive:
     assert 'sourceMappingURL=' not in plugin
     assert 'registerConfigHandler' in plugin
     assert 'subscribeToSource' not in plugin and 'invokeAction' not in plugin
-    for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt'):
+    for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt', 'licenses/OFL-RobotoCondensed.txt'):
         assert archive.read(name) == (root / name).read_bytes()
 debug = pbw.with_name('Open-Activity-' + package['version'] + '-debug.zip')
 with zipfile.ZipFile(debug) as archive, zipfile.ZipFile(root / 'build' / (root.name + '.pbw')) as sdk:

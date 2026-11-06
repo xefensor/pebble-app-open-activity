@@ -34,7 +34,7 @@ from pebble_tool.commands.install import ToolAppInstaller
 from libpebble2.protocol.apps import AppRunState, AppRunStateStart, AppRunStateStop, AppRunStateRequest
 from libpebble2.communication.transports.qemu.protocol import QemuButton, QemuBluetoothConnection
 from pebble_tool.commands.emucontrol import send_data_to_qemu
-from libpebble2.services.appmessage import AppMessageService
+from libpebble2.services.appmessage import AppMessageService, Uint8
 from libpebble2.services.screenshot import Screenshot
 from PIL import Image
 
@@ -87,6 +87,16 @@ capture('setup-phone-launch')
 time.sleep(5.2)
 assert foreground() == target, 'Normal setup must outlive the Quick Launch budget'
 capture('setup-still-open-after-budget')
+appmessages.send_message(target,{2000:Uint8(7),2008:Uint8(1)})
+time.sleep(.3)
+capture('setup-dark')
+back()
+connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
+await_foreground(True)
+capture('setup-dark-restored-before-phone')
+appmessages.send_message(target,{2000:Uint8(7),2008:Uint8(2)})
+time.sleep(.2)
+capture('setup-invalid-theme-keeps-dark')
 back()
 capture('setup-back-returned')
 send_data_to_qemu(connection.transport, QemuBluetoothConnection(connected=False))
@@ -101,13 +111,14 @@ with zipfile.ZipFile(pbw) as archive:
     binary = archive.read('emery/pebble-app.bin')
 report = {
     'version': package['version'],
-    'scope': 'Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.',
+    'scope': 'Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.',
     'phoneRuntime': False, 'physicalWatch': False, 'quickLaunchHoldSimulated': False,
     'pbwSha256': hashlib.sha256(pbw.read_bytes()).hexdigest(),
     'nativeSha256': hashlib.sha256(binary).hexdigest(),
     'events': events[start:],
     'checks': {'ordinarySetupStaysOpen': True, 'outlivesQuickLaunchBudget': True,
-               'offlineSetupStaysOpen': True, 'backReturns': True, 'noNativeHandshake': True},
+               'offlineSetupStaysOpen': True, 'backReturns': True, 'noNativeHandshake': True,
+               'themeUpdatesInPassiveSetup': True, 'darkRestoredBeforePhone': True, 'invalidThemeIgnored': True},
     'captures': captures
 }
 (args.output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')

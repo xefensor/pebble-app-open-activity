@@ -1,6 +1,6 @@
 {
   "name": "pebble-app-open-activity",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -36,7 +36,20 @@
       "actions": []
     },
     "resources": {
-      "media": []
+      "media": [
+        {
+          "type": "font",
+          "name": "FONT_BODY_18",
+          "file": "fonts/RobotoCondensed-Bold.ttf",
+          "characterRegex": "[\\u0020-\\u017F\\u2019\\u2026]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_BODY_23",
+          "file": "fonts/RobotoCondensed-Bold.ttf",
+          "characterRegex": "[\\u0020-\\u017F\\u2019\\u2026]"
+        }
+      ]
     },
     "messageKeys": {
       "OA_OPERATION": 2000,
@@ -46,7 +59,8 @@
       "OA_DESTINATION": 2004,
       "OA_ELAPSED_MS": 2005,
       "OA_TICKET": 2006,
-      "OA_GESTURE": 2007
+      "OA_GESTURE": 2007,
+      "OA_THEME": 2008
     }
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-# Open Activity UI/UX alignment handoff
+# Open Activity UI/UX alignment — local 0.2.0 candidate
 
 Reviewed baseline: Open Activity 0.1.6; repository HEAD
 `1702a46487b5d666744f54763f0ef6ab8c49e399` on 2026-11-06.
@@ -10,13 +10,15 @@ The agreed standard is maintained in the local `xoce` website checkout at
 running, read [the unified Pebble UI/UX standard](http://127.0.0.1:4321/docs/design/pebble-ui-system/).
 The website has no public repository or deployment yet; this is a local reference.
 
-This handoff records **approved design targets, with implementation pending**.
+The agreed changes are **implemented in the local 0.2.0 candidate**, verified by
+automated, packaged-browser and native-emulator checks. Real-phone WebView and
+physical-watch timing remain unverified.
 It does not claim that a released app follows the complete standard. Shared
 visual roles use neutral light/dark surfaces and a restrained accent per app.
 Exact accent colours and final pixel metrics still need reviewed native and
 phone previews. Website colours and web fonts are a separate identity.
 
-## Current implementation
+## Previous 0.1.6 baseline
 
 - Ordinary app-list/phone/system launch shows a static setup screen that
   remains open. It uses the stock status-bar clock, centred Gothic text and a
@@ -33,7 +35,7 @@ phone previews. Website colours and web fonts are a separate identity.
 See [UX review](UX-REVIEW.md), `src/c/main.c`,
 `src/pkjs/settings-page.js`, and `src/pkjs/settings.js`.
 
-## Pending work
+## Alignment requirements
 
 - Align the setup typography, neutral light/dark presentation and meaningful
   app accent with the common watch language. Give its passive setup screen
@@ -77,3 +79,15 @@ See [UX review](UX-REVIEW.md), `src/c/main.c`,
 - Use packaged settings/runtime/native checks for changed code and keep
   browser/emulator evidence distinct from real-phone switching and physical
   watch timing. Preserve existing identities, releases and artifact bytes.
+
+## Local implementation and evidence
+
+The candidate implements neutral phone tokens, violet accents, English/Czech
+labels/help, persistent stay-open Save feedback, the separate Watch appearance
+choice, and native Roboto Condensed/title/time/light/dark presentation. Routing
+schema and existing shortcut choices remain unchanged. The native settings-only
+inbox applies appearance without a launch session or handshake. Setup still stays
+open past four seconds and uses ordinary Back.
+
+The legacy return-URL route still closes on Save and identifies that limitation.
+See [0.2.0 validation](qa/0.2.0/VALIDATION.md) for exact packaged and native evidence.

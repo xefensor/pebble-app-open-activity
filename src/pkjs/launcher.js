@@ -3,6 +3,7 @@
 var protocol = require('./protocol');
 var navigation = require('./navigation');
 var settings = require('./settings');
+var uiSettings = require('./ui-settings');
 var createQueue = require('./queue');
 var operation = protocol.operation;
 var WATCH_STATE = '00000000-0000-0000-0001-000000000007';
@@ -117,13 +118,20 @@ module.exports = function (options) {
     ready: function () {
       if (ready || phase === 'closed') return;
       ready = true;
-      queue.send(protocol.message(operation.REQUEST), null, function () { close(false); });
+      var appearance = uiSettings.load(options.storage);
+      queue.send(protocol.message(operation.REQUEST, appearance ? {OA_THEME: appearance.theme === 'dark' ? 1 : 0} : {}), null, function () { close(false); });
     },
     message: function (message) {
       var kind = protocol.get(message, 'OA_OPERATION');
       if (kind === operation.HELLO) start(message);
       else if (kind === operation.CONFIRM) confirm(message);
       else if (kind === operation.CANCEL && attempt && protocol.get(message, 'OA_SESSION') === attempt.session) close(false);
+    },
+    appearanceChanged: function (complete) {
+      var appearance = uiSettings.load(options.storage);
+      if (!ready || phase !== 'idle' || !appearance) { if (complete) complete(false); return false; }
+      return queue.send(protocol.message(operation.SETTINGS, {OA_THEME: appearance.theme === 'dark' ? 1 : 0}),
+        function () { if (complete) complete(true); }, function () { if (complete) complete(false); });
     },
     cancel: function () { close(true); },
     state: function () { return phase; }

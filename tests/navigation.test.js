@@ -194,7 +194,7 @@ test('settings storage is read-back checked and contains only configuration', ()
 test('offline settings explain separate assignment and preserve selected roles', () => {
   const html = page(settings.defaults(), false);
   assert.match(html, /Quick Launch/);
-  assert.ok(html.includes(JSON.stringify({mode: 'legacy', settings: settings.defaults(), needsRepair: false, needsMigration: false})));
+  assert.ok(html.includes(JSON.stringify({mode: 'legacy', settings: settings.defaults(), needsRepair: false, needsMigration: false}).slice(0,-1)));
   assert.match(html, /pebblejs:\/\/close#/);
   assert.doesNotMatch(html, /https?:\/\//);
 });

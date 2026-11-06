@@ -98,12 +98,29 @@ retain the draft. Bound handoffs to three writes. Keep separate native/DOM-store
 regressions and archived browser reload/teardown coverage; a shared Map masks
 the Android overwrite. Configuration handlers must never restart the launcher.
 
-## Approved UI/UX alignment (implementation pending)
+## Shared UI/UX alignment in local candidate 0.2.0
 
-Read [the UI/UX alignment handoff](docs/UX-ALIGNMENT.md) before the next
-interface implementation. It links the canonical local XOCE design standard
-and records this app's remaining work, including applicable stay-open phone
-settings with confirmed inline Save feedback. This is an approved future target,
-not a claim that the released app already implements it. Current lifecycle,
-storage, privacy, native ownership and release rules above still apply. The
-documentation update does not change runtime code or frozen release artifacts.
+Read [the UI/UX alignment handoff](docs/UX-ALIGNMENT.md) and
+[0.2.0 validation](docs/qa/0.2.0/VALIDATION.md) before interface changes. The native
+setup uses Roboto Condensed, a title/time header and saved light/dark/violet roles.
+Existing routing v1/v2 bytes and app identity remain independent of UI preferences
+in `open-activity-ui-v1`; old records remain untouched until explicit Save.
+
+OA_THEME (2008) is appended and OA_SETTINGS (7) is appearance-only. Initial phone
+startup piggybacks theme on the existing REQUEST. Unlike the historical 0.1.6
+setup, 0.2.0 opens a settings-only inbox; it must never emit HELLO, create an
+attempt nonce/timeout, subscribe to navigation or launch an app. Its clock uses
+minute ticks. Verified changed appearance updates persist before repainting;
+unchanged updates never write flash. Keep the original four-second Quick Launch
+budget measured before font loading and theme application.
+
+The bundled page stays open after confirmed Save and keeps ✓ Saved until edited.
+English/Czech copy follows browser locale. Preserve exact writer/storage receipts,
+separate Android DOM/native-store tests and uncertainty/readback distinctions.
+Only explicit rejected-before-write responses show Couldn’t save. Try again.;
+timeouts and unknown outcomes stay Save not confirmed. The legacy return-URL
+path still closes and explains that limitation. Persist public appearance only;
+never cache activity content, routing records or invocation arguments.
+
+This candidate is local, not a published release or a physical-device claim.
+Preserve older published artifacts and tags.
