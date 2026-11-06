@@ -8,10 +8,10 @@ Part of **XOCE — Xef's Open Computing Ecosystem**. Its Dynamic activity source
 is maintained in
 [xefensor/pebble-watchface-dynamic](https://github.com/xefensor/pebble-watchface-dynamic).
 
-**0.1.6 is prepared for publication** as a development prerelease fixing
-settings access and save persistence. Use `dist/Open-Activity-0.1.6.pbw` locally;
-[validation](docs/qa/0.1.6) records its checks. The published 0.1.5 downloads
-remain unchanged until the new release is available.
+**Open Activity 0.1.6 is published** as a development prerelease fixing
+settings access and save persistence. The PBW is also available locally as
+`dist/Open-Activity-0.1.6.pbw`; [validation](docs/qa/0.1.6) records its checks.
+Earlier releases retain their original files.
 
 Choose one shortcut for each activity in Open Activity's phone settings:
 
@@ -34,13 +34,15 @@ assigned to Open Activity close without opening an activity.
 ## Installation and settings
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
-older Dynamic versions do not provide the required handoff. Once the prepared
-[0.1.6 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
-is published, download
+older Dynamic versions do not provide the required handoff. Download
 [`Open-Activity-0.1.6.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6.pbw)
+from the [0.1.6 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
 and install it through the Pebble app. The previous
 [0.1.5 prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
-remains available. Enable the current plugin
+remains available. Version 0.1.6 is frozen at tested source
+[`82c47fa`](https://github.com/xefensor/pebble-app-open-activity/tree/82c47fa92e103a965a15ab9de55b84853a9e07bd);
+later documentation on `main` does not replace its source archive or tag.
+Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
 Open **Open Activity from the watch's app list**. It stays on a setup screen
