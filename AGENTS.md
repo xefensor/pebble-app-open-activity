@@ -97,3 +97,13 @@ plugin fallback. Unknown/still-live targets or wrong ACKs stay unconfirmed and
 retain the draft. Bound handoffs to three writes. Keep separate native/DOM-store
 regressions and archived browser reload/teardown coverage; a shared Map masks
 the Android overwrite. Configuration handlers must never restart the launcher.
+
+## Approved UI/UX alignment (implementation pending)
+
+Read [the UI/UX alignment handoff](docs/UX-ALIGNMENT.md) before the next
+interface implementation. It links the canonical local XOCE design standard
+and records this app's remaining work, including applicable stay-open phone
+settings with confirmed inline Save feedback. This is an approved future target,
+not a claim that the released app already implements it. Current lifecycle,
+storage, privacy, native ownership and release rules above still apply. The
+documentation update does not change runtime code or frozen release artifacts.
