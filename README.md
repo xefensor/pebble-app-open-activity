@@ -4,9 +4,14 @@ One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
 and the official phone app. No phone-app or firmware fork is required.
 
-**0.1.6 is a local candidate** fixing settings access and save persistence. Use
-`dist/Open-Activity-0.1.6.pbw`; [validation](docs/qa/0.1.6) records its checks.
-The published 0.1.5 downloads below remain unchanged.
+Part of **XOCE — Xef's Open Computing Ecosystem**. Its Dynamic activity source
+is maintained in
+[xefensor/pebble-watchface-dynamic](https://github.com/xefensor/pebble-watchface-dynamic).
+
+**0.1.6 is prepared for publication** as a development prerelease fixing
+settings access and save persistence. Use `dist/Open-Activity-0.1.6.pbw` locally;
+[validation](docs/qa/0.1.6) records its checks. The published 0.1.5 downloads
+remain unchanged until the new release is available.
 
 Choose one shortcut for each activity in Open Activity's phone settings:
 
@@ -29,10 +34,13 @@ assigned to Open Activity close without opening an activity.
 ## Installation and settings
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
-older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.5.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5.pbw)
-from the [GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
-and install it through the Pebble app. Enable the current plugin
+older Dynamic versions do not provide the required handoff. Once the prepared
+[0.1.6 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
+is published, download
+[`Open-Activity-0.1.6.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6.pbw)
+and install it through the Pebble app. The previous
+[0.1.5 prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
+remains available. Enable the current plugin
 SDK support and allow **Launch apps** for Open Activity in the phone app.
 
 Open **Open Activity from the watch's app list**. It stays on a setup screen
@@ -142,13 +150,17 @@ system settings depends on the installed phone/firmware version.
 
 ## Development and validation
 
-The [0.1.5 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
-provides the [PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5.pbw),
-[buildable source](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5-source.zip),
-[debugging files](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/Open-Activity-0.1.5-debug.zip) and
-[checksums](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.5/SHA256SUMS.txt).
+The prepared [0.1.6 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
+has links for the [PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6.pbw),
+[buildable source](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6-source.zip),
+[debugging files](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6-debug.zip) and
+[checksums](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/SHA256SUMS.txt).
+These links become available when it is published. Its setup screen and settings
+save/reopen checks are recorded in [docs/qa/0.1.6](docs/qa/0.1.6).
+
+Published [0.1.5 downloads](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5) remain unchanged.
 Published [0.1.4 downloads](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.4) remain unchanged.
-It defers legacy settings initialization during Quick Launch, combines footer
+Version 0.1.5 defers legacy settings initialization during Quick Launch, combines footer
 layout work into one animation frame, and reduces release JavaScript size.
 The [optimization evidence](docs/qa/0.1.5/optimization.json) records exact sizes;
 real-phone launch latency and battery have not been measured.
