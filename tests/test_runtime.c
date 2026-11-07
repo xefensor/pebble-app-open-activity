@@ -16,8 +16,9 @@ static int gesture_reads, button_reads, message_opens, message_handlers, outbox_
 static int connection_subscribes, connection_unsubscribes, connection_peeks, message_deregisters;
 static int timer_registers, click_providers, default_backs;
 static int text_creates, text_destroys, window_destroys, status_creates, status_destroys;
+static int layer_creates,layer_destroys,header_draws,header_strings;
 static int fail_text_at;
-static bool fail_window, fail_status;
+static bool fail_window, fail_status, fail_header;
 static int32_t stored_theme;
 static int theme_writes,clock_subscribes,clock_unsubscribes,font_loads,font_unloads;
 static int fail_font_at;
@@ -33,6 +34,9 @@ static const char *label_text[6];
 static bool label_destroyed[6];
 static StatusBarLayer status_bar;
 static Layer layer;
+static Layer header_layer;
+static GRect header_bounds;
+static void (*header_update)(Layer *,GContext *);
 static void (*loop_script)(void);
 static void (*back_click)(ClickRecognizerRef,void *);
 
@@ -69,7 +73,33 @@ Window *window_create(void) {created++;return fail_window?NULL:&window;}
 void window_set_background_color(Window *value,GColor color) {(void)value;window_background=color;}
 void window_set_click_config_provider(Window *value,void (*fn)(void *)) {(void)value;click_providers++;fn(NULL);}
 Layer *window_get_root_layer(Window *value) {(void)value;return &layer;}
-GRect layer_get_bounds(Layer *value) {(void)value;return GRect(0,0,200,228);}
+Layer *layer_create(GRect bounds) {layer_creates++;header_bounds=bounds;return fail_header?NULL:&header_layer;}
+void layer_destroy(Layer *value) {assert(value==&header_layer);layer_destroys++;assert(layer_destroys==1);}
+void layer_set_update_proc(Layer *value,void (*update)(Layer *,GContext *)) {assert(value==&header_layer);header_update=update;}
+void layer_mark_dirty(Layer *value) {assert(value==&header_layer);}
+GRect layer_get_bounds(Layer *value) {return value==&header_layer?header_bounds:GRect(0,0,200,228);}
+GSize graphics_text_layout_get_content_size(const char *text,GFont font,GRect bounds,GTextOverflowMode overflow,GTextAlignment alignment) {
+  (void)font;(void)bounds;(void)overflow;(void)alignment;
+  return (GSize){(int16_t)(strlen(text)*10),26};
+}
+void graphics_context_set_text_color(GContext *ctx,GColor color) {(void)ctx;(void)color;}
+void graphics_draw_text(GContext *ctx,const char *text,GFont font,GRect bounds,GTextOverflowMode overflow,GTextAlignment alignment,void *attributes) {
+  (void)ctx;(void)font;(void)overflow;(void)alignment;(void)attributes;
+  assert(!strcmp(text,"Activity")||strchr(text,':'));
+  const OaGlyphInk ink=oa_header_ink(text,s_fonts[FONT_CLOCK]!=NULL);
+  const int top=bounds.origin.y+ink.top,bottom=bounds.origin.y+ink.bottom;
+  assert(top>=0&&bottom<XOCE_UI_HEADER_HEIGHT-1);
+  // Optical centering differs by at most one pixel for odd ink heights.
+  assert(top-(XOCE_UI_HEADER_HEIGHT-1-bottom)>=-1);
+  assert(top-(XOCE_UI_HEADER_HEIGHT-1-bottom)<=1);
+  header_strings++;
+}
+void graphics_context_set_stroke_color(GContext *ctx,GColor color) {(void)ctx;(void)color;}
+void graphics_context_set_stroke_width(GContext *ctx,uint8_t width) {(void)ctx;(void)width;}
+void graphics_draw_line(GContext *ctx,GPoint start,GPoint end) {(void)ctx;assert(start.y==31&&end.y==31);}
+void graphics_context_set_fill_color(GContext *ctx,GColor color) {(void)ctx;(void)color;}
+void graphics_fill_rect(GContext *ctx,GRect bounds,uint16_t radius,int corners) {(void)ctx;(void)bounds;(void)radius;(void)corners;assert(false);}
+void xoce_ui_draw_icon(GContext *ctx,XoceUiIcon icon,GPoint center,int size,GColor ink) {(void)ctx;(void)icon;(void)center;(void)size;(void)ink;assert(false);}
 TextLayer *text_layer_create(GRect rect) {
   assert(rect.origin.x>=0&&rect.origin.x+rect.size.w<=200&&rect.origin.y>=0&&rect.origin.y+rect.size.h<=228);
   assert(text_creates<6);int at=text_creates++;
@@ -114,12 +144,13 @@ static void reset(void) {
   connection_subscribes=connection_unsubscribes=connection_peeks=message_deregisters=0;
   timer_registers=click_providers=default_backs=0;
   text_creates=text_destroys=window_destroys=status_creates=status_destroys=0;
-  fail_text_at=0;fail_window=fail_status=false;
+  layer_creates=layer_destroys=header_draws=header_strings=0;header_update=NULL;
+  fail_text_at=0;fail_window=fail_status=fail_header=false;
   fail_font_at=0;font_load_delay=0;memset(s_fonts,0,sizeof(s_fonts));
   stored_theme=-1;theme_writes=clock_subscribes=clock_unsubscribes=font_loads=font_unloads=0;theme_write_fails=false;window_background=GColorClear;
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
-  memset(s_setup_body,0,sizeof(s_setup_body));memset(s_setup_hint,0,sizeof(s_setup_hint));s_clock=NULL;s_setup_mode=false;
+  memset(s_setup_body,0,sizeof(s_setup_body));memset(s_setup_hint,0,sizeof(s_setup_hint));s_header=NULL;s_setup_mode=false;
   s_dark=false;s_message_opened=false;s_clock_subscribed=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
@@ -175,12 +206,14 @@ static void no_setup_work(void) {
 }
 static void setup_script(void) {
   assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
-  assert(status_creates==0&&text_creates==6&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
-  assert(!strcmp(label_text[0],"Open Activity"));
-  assert(!strcmp(label_text[2],"Open settings in"));
-  assert(!strcmp(label_text[3],"the Pebble app."));
-  assert(!strcmp(label_text[4],"Quick Launch"));
-  assert(!strcmp(label_text[5],"opens activities."));
+  assert(status_creates==0&&text_creates==4&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
+  assert(layer_creates==1&&header_update);
+  assert(!strcmp(label_text[0],"Open settings in"));
+  assert(!strcmp(label_text[1],"the Pebble app."));
+  assert(!strcmp(label_text[2],"Quick Launch"));
+  assert(!strcmp(label_text[3],"opens activities."));
+  GContext ctx;header_update(&header_layer,&ctx);header_draws++;
+  assert(header_strings==2);
   no_setup_work();
   clock_ms+=10000;assert(popped==0); // No four-second attempt budget in setup.
   request();prepare(123,false); // Even forced protocol callbacks cannot acquire an attempt.
@@ -206,7 +239,7 @@ int main(void) {
   for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
     reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
     helper_app_main();assert(created==1&&loops==1&&popped==1);
-    assert(text_destroys==6&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==3&&font_unloads==3);no_setup_work();
+    assert(text_destroys==4&&layer_destroys==1&&header_draws==1&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==3&&font_unloads==3);no_setup_work();
   }
   for(int fail=1;fail<=3;++fail){
     reset();reason=APP_LAUNCH_USER;fail_font_at=fail;loop_script=setup_script;
@@ -215,9 +248,11 @@ int main(void) {
   reset();font_load_delay=OA_BUDGET_MS+1;helper_app_main();
   assert(font_loads==1&&font_unloads==1&&message_opens==0&&sent==0&&timer_registers==0&&loops==0&&s_attempt.phase==OA_CLOSED);
   reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
-    for(int fail=1;fail<=6;++fail){
+  reset();reason=APP_LAUNCH_USER;fail_header=true;helper_app_main();
+  assert(loops==0&&pushed==0&&text_destroys==0&&layer_destroys==0&&window_destroys==1);no_setup_work();
+  for(int fail=1;fail<=4;++fail){
     reset();reason=APP_LAUNCH_USER;fail_text_at=fail;helper_app_main();
-    assert(loops==0&&pushed==0&&text_destroys==fail-1&&status_destroys==0&&window_destroys==1);no_setup_work();
+    assert(loops==0&&pushed==0&&text_destroys==fail-1&&layer_destroys==1&&status_destroys==0&&window_destroys==1);no_setup_work();
   }
   const AppLaunchReason unsupported_reasons[]={APP_LAUNCH_WAKEUP,APP_LAUNCH_WORKER,APP_LAUNCH_TIMELINE_ACTION,APP_LAUNCH_SMARTSTRAP,(AppLaunchReason)99};
   for(size_t i=0;i<sizeof(unsupported_reasons)/sizeof(unsupported_reasons[0]);++i){

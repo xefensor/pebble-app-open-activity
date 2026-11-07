@@ -1,12 +1,14 @@
 #include <pebble.h>
+#include <pebble-xoce-ui/pebble-xoce-ui.h>
 
 #include "attempt.h"
+#include "header_ink.h"
 
 static Window *s_window;
 static TextLayer *s_label;
 static TextLayer *s_setup_body[2];
 static TextLayer *s_setup_hint[2];
-static TextLayer *s_clock;
+static Layer *s_header;
 enum { FONT_SECONDARY, FONT_MAIN, FONT_CLOCK, FONT_COUNT };
 static GFont s_fonts[FONT_COUNT];
 static bool s_dark;
@@ -38,7 +40,7 @@ static GColor secondary(void) { return s_dark ? GColorLightGray : GColorDarkGray
 static void apply_palette(void) {
   if (s_window) window_set_background_color(s_window, background());
   if (s_label) text_layer_set_text_color(s_label, s_setup_mode ? accent() : foreground());
-  if (s_clock) text_layer_set_text_color(s_clock, foreground());
+  if (s_header) layer_mark_dirty(s_header);
   for (unsigned i = 0; i < 2; ++i) {
     if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], foreground());
     if (s_setup_hint[i]) text_layer_set_text_color(s_setup_hint[i], secondary());
@@ -54,13 +56,38 @@ static void load_ui(bool setup) {
 }
 static GFont body_font(void) { return s_fonts[FONT_SECONDARY] ? s_fonts[FONT_SECONDARY] : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
 static GFont title_font(void) { return s_fonts[FONT_MAIN] ? s_fonts[FONT_MAIN] : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
-static GFont header_font(void) { return body_font(); }
 static GFont clock_font(void) { return s_fonts[FONT_CLOCK] ? s_fonts[FONT_CLOCK] : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD); }
+static int header_width(const char *text) {
+  return graphics_text_layout_get_content_size(text,clock_font(),GRect(0,0,2048,64),
+      GTextOverflowModeFill,GTextAlignmentLeft).w;
+}
+static void header_text(GContext *ctx,const char *text,int point,GRect bounds,
+    GColor color,GTextAlignment align,void *context) {
+  (void)point;(void)context;
+  char fitted[48];
+  snprintf(fitted,sizeof(fitted),"%s",text);
+  if(header_width(fitted)>bounds.size.w) {
+    // Header input is fixed English plus a numeric clock, so ASCII prefix
+    // removal cannot split a character. Keep the shared font size unchanged.
+    size_t length=strlen(fitted);
+    do {fitted[--length]='\0';strcpy(fitted+length,"…");}
+    while(length&&header_width(fitted)>bounds.size.w);
+  }
+  const OaGlyphInk ink=oa_header_ink(fitted,s_fonts[FONT_CLOCK]!=NULL);
+  const int y=xoce_ui_text_origin_y(bounds,ink.top,ink.bottom);
+  graphics_context_set_text_color(ctx,color);
+  graphics_draw_text(ctx,fitted,clock_font(),GRect(bounds.origin.x,y,bounds.size.w,48),
+      GTextOverflowModeFill,align,NULL);
+}
+static void draw_header(Layer *layer,GContext *ctx) {
+  xoce_ui_draw_header(ctx,layer_get_bounds(layer).size.w,"Activity",s_clock_text,
+      foreground(),secondary(),header_text,NULL);
+}
 static void clock_tick(struct tm *tick_time, TimeUnits units) {
   (void)units;
   strftime(s_clock_text, sizeof(s_clock_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
   if (!clock_is_24h_style() && s_clock_text[0] == '0') memmove(s_clock_text, s_clock_text + 1, strlen(s_clock_text));
-  if (s_clock) text_layer_set_text(s_clock, s_clock_text);
+  if (s_header) layer_mark_dirty(s_header);
 }
 static void receive_theme(DictionaryIterator *message);
 
@@ -237,12 +264,12 @@ static bool init_setup(void) {
   window_set_background_color(s_window, background());
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
-  s_label = text_layer_create(GRect(8, 3, 124, 34));
-  if (!s_label) return false;
-  // All utility roles share one family; the clock is only slightly larger
-  // than the instruction, with a separate readable secondary role.
-  s_clock = text_layer_create(GRect(bounds.size.w - 72, 3, 64, 34));
-  if (!s_clock) return false;
+  // The shared header reserves clock space before fitting the title. The
+  // concise heading keeps the same readable26px role as every other app.
+  s_header = layer_create(GRect(0,0,bounds.size.w,XOCE_UI_HEADER_HEIGHT));
+  if (!s_header) return false;
+  layer_set_update_proc(s_header,draw_header);
+  layer_add_child(layer,s_header);
   // Explicit lines keep readable leading even when the font's descenders
   // exceed its nominal line height. These are the fixed English setup strings.
   s_setup_body[0] = text_layer_create(GRect(16, 72, bounds.size.w - 32, 36));
@@ -253,14 +280,14 @@ static bool init_setup(void) {
   if (!s_setup_hint[0]) return false;
   s_setup_hint[1] = text_layer_create(GRect(16, 189, bounds.size.w - 32, 32));
   if (!s_setup_hint[1]) return false;
-  TextLayer *labels[] = {s_label, s_clock, s_setup_body[0], s_setup_body[1], s_setup_hint[0], s_setup_hint[1]};
-  const char *texts[] = {"Open Activity", s_clock_text, "Open settings in", "the Pebble app.",
+  TextLayer *labels[] = {s_setup_body[0], s_setup_body[1], s_setup_hint[0], s_setup_hint[1]};
+  const char *texts[] = {"Open settings in", "the Pebble app.",
                          "Quick Launch", "opens activities."};
-  GFont fonts[] = {header_font(), clock_font(), title_font(), title_font(), body_font(), body_font()};
+  GFont fonts[] = {title_font(), title_font(), body_font(), body_font()};
   for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
     text_layer_set_text(labels[i], texts[i]);
     text_layer_set_font(labels[i], fonts[i]);
-    text_layer_set_text_alignment(labels[i], i == 1 ? GTextAlignmentRight : GTextAlignmentLeft);
+    text_layer_set_text_alignment(labels[i], GTextAlignmentLeft);
     text_layer_set_background_color(labels[i], GColorClear);
     layer_add_child(layer, text_layer_get_layer(labels[i]));
   }
@@ -290,7 +317,7 @@ static void deinit(void) {
     if (s_setup_body[i]) text_layer_destroy(s_setup_body[i]);
   }
   if (s_label) text_layer_destroy(s_label);
-  if (s_clock) text_layer_destroy(s_clock);
+  if (s_header) layer_destroy(s_header);
   if (s_clock_subscribed) tick_timer_service_unsubscribe();
   if (s_setup_mode && s_message_opened) app_message_deregister_callbacks();
   for (unsigned i = 0; i < FONT_COUNT; ++i) {

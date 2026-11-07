@@ -11,7 +11,7 @@ root = Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory(prefix='open-activity-test-') as scratch:
     executable = Path(scratch) / 'attempt'
     subprocess.run([
-        os.environ.get('CC', 'cc'), '-std=c99', '-Wall', '-Wextra', '-Werror', '-pedantic',
+        os.environ.get('CC', 'cc'), '-std=c99', '-I', str(root / 'node_modules'), '-Wall', '-Wextra', '-Werror', '-pedantic',
         str(root / 'src/c/attempt.c'), str(root / 'tests/test_attempt.c'), '-o', str(executable)
     ], check=True)
     subprocess.run([str(executable)], check=True)
@@ -19,8 +19,12 @@ with tempfile.TemporaryDirectory(prefix='open-activity-test-') as scratch:
 with tempfile.TemporaryDirectory(prefix='open-activity-runtime-') as scratch:
     executable = Path(scratch) / 'runtime'
     subprocess.run([
-        os.environ.get('CC', 'cc'), '-std=c99', '-Wall', '-Wextra', '-Werror', '-pedantic',
-        '-I', str(root / 'tests/fake-sdk'), str(root / 'src/c/attempt.c'),
+        os.environ.get('CC', 'cc'), '-std=c99', '-I', str(root / 'node_modules'), '-Wall', '-Wextra', '-Werror', '-pedantic',
+        '-I', str(root / 'tests/fake-sdk'),
+        '-I', str(root / 'node_modules/pebble-xoce-ui/include'),
+        str(root / 'src/c/attempt.c'),
+        str(root / 'node_modules/pebble-xoce-ui/src/c/layout.c'),
+        str(root / 'node_modules/pebble-xoce-ui/src/c/header.c'),
         str(root / 'tests/test_runtime.c'), '-o', str(executable)
     ], check=True)
     subprocess.run([str(executable)], check=True)

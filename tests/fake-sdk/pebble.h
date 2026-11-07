@@ -14,17 +14,24 @@ enum { TUPLE_BYTE_ARRAY, TUPLE_CSTRING, TUPLE_UINT, TUPLE_INT };
 typedef union { int8_t int8; uint8_t uint8; int16_t int16; uint16_t uint16; int32_t int32; uint32_t uint32; char cstring[64]; } TupleValue;
 typedef struct { uint32_t key; uint8_t type; uint16_t length; TupleValue *value; } Tuple;
 typedef struct { size_t count; Tuple tuples[8]; TupleValue values[8]; } DictionaryIterator;
-typedef struct { struct {int16_t x,y;} origin; struct {int16_t w,h;} size; } GRect;
+typedef struct {int16_t x,y;} GPoint;
+#define GPoint(x,y) ((GPoint){x,y})
+typedef struct {int16_t w,h;} GSize;
+typedef struct { GPoint origin; GSize size; } GRect;
 #define GRect(x,y,w,h) ((GRect){{x,y},{w,h}})
 typedef struct {int unused;} Window;
 typedef struct {int unused;} Layer;
 typedef struct {int unused;} TextLayer;
 typedef struct {int unused;} StatusBarLayer;
+typedef struct {int unused;} GContext;
 typedef struct {bool active; uint32_t delay; void (*callback)(void *);} AppTimer;
 typedef void *ClickRecognizerRef;
 typedef int GColor;
 typedef const void *GFont;
-enum {GColorWhite,GColorBlack,GColorClear,GColorDarkGray,GColorLightGray,GColorPurple,GColorRichBrilliantLavender,GTextAlignmentCenter,GTextAlignmentLeft,GTextAlignmentRight};
+enum {GColorWhite,GColorBlack,GColorClear,GColorDarkGray,GColorLightGray,GColorPurple,GColorRichBrilliantLavender};
+typedef enum {GTextAlignmentCenter,GTextAlignmentLeft,GTextAlignmentRight} GTextAlignment;
+typedef enum {GTextOverflowModeFill} GTextOverflowMode;
+enum {GCornerNone};
 typedef unsigned TimeUnits;
 #define MINUTE_UNIT 2
 #define RESOURCE_ID_FONT_BODY_18 1
@@ -71,7 +78,19 @@ Window *window_create(void);
 void window_set_background_color(Window *,GColor);
 void window_set_click_config_provider(Window *,void (*)(void *));
 Layer *window_get_root_layer(Window *);
+Layer *layer_create(GRect);
+void layer_destroy(Layer *);
+void layer_set_update_proc(Layer *,void (*)(Layer *,GContext *));
+void layer_mark_dirty(Layer *);
 GRect layer_get_bounds(Layer *);
+GSize graphics_text_layout_get_content_size(const char *,GFont,GRect,GTextOverflowMode,GTextAlignment);
+void graphics_context_set_text_color(GContext *,GColor);
+void graphics_draw_text(GContext *,const char *,GFont,GRect,GTextOverflowMode,GTextAlignment,void *);
+void graphics_context_set_stroke_color(GContext *,GColor);
+void graphics_context_set_stroke_width(GContext *,uint8_t);
+void graphics_draw_line(GContext *,GPoint,GPoint);
+void graphics_context_set_fill_color(GContext *,GColor);
+void graphics_fill_rect(GContext *,GRect,uint16_t,int);
 TextLayer *text_layer_create(GRect);
 void text_layer_set_text(TextLayer *,const char *);
 void text_layer_set_font(TextLayer *,GFont);

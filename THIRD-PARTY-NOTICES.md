@@ -19,3 +19,10 @@ Release builds use the pinned, development-only Terser 5.46.0 tool under its
 BSD-2-Clause licence. Its implementation and npm dependencies are not included
 in the installed app. `licenses/Terser-BSD-2-Clause.txt` preserves the build-tool
 licence; the lockfile pins its dependency integrity.
+
+## XOCE shared UI
+
+The locally pinned `pebble-xoce-ui` 0.1.0 library supplies shared native drawing
+and phone-settings styles. It is authored by Xef and uses the same PolyForm
+Noncommercial license as this application. Its sources and license are included
+in the committed vendor archive; it is not a separately installed service.
