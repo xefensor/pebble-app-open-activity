@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Check standalone package identity, native limits and license payloads."""
 from pathlib import Path
+import argparse
+from repo_workflow import candidate, check_build
 import hashlib
 import json
 import struct
@@ -10,8 +12,12 @@ import zipfile
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / 'package.json').read_text())
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--pbw',type=Path,default=candidate(root, 'Open-Activity'))
+args=parser.parse_args()
+check_build(root,args.pbw)
 subprocess.run(['node', str(root / 'scripts/generate-config.cjs'), '--check'], cwd=root, check=True)
-pbw = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
+pbw = args.pbw
 with zipfile.ZipFile(pbw) as archive:
     appinfo = json.loads(archive.read('appinfo.json'))
     assert appinfo['uuid'] == package['pebble']['uuid']
@@ -80,11 +86,11 @@ with zipfile.ZipFile(debug) as archive, zipfile.ZipFile(root / 'build' / (root.n
             assert target.read_bytes() == runtime
             assert target_map.read_bytes() == archive.read('runtime/' + name + '.map')
 checksum = hashlib.sha256(pbw.read_bytes()).hexdigest()
-checksums = dict(line.split('  ', 1)[::-1] for line in (root / 'dist/SHA256SUMS.txt').read_text().splitlines())
+checksums = dict(line.split('  ', 1)[::-1] for line in (pbw.parent / 'SHA256SUMS.txt').read_text().splitlines())
 allowed = {pbw.name, debug.name, 'Open-Activity-' + package['version'] + '-source.zip'}
 assert {pbw.name, debug.name}.issubset(checksums) and set(checksums).issubset(allowed)
 for name, digest in checksums.items():
-    assert digest == hashlib.sha256((root / 'dist' / name).read_bytes()).hexdigest()
+    assert digest == hashlib.sha256((pbw.parent / name).read_bytes()).hexdigest()
 print(json.dumps({'pbw': str(pbw), 'sha256': checksum, 'nativeFileBytes': len(binary),
                   'nativeLoadedBytes': loaded_bytes, 'nativeVirtualBytes': virtual_bytes,
                   'phoneBundleBytes': len(js.encode()), 'debugArchiveBytes': debug.stat().st_size,

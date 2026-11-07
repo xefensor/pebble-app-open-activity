@@ -5,6 +5,7 @@ Uses an installed headless Chromium; no packages or network pages are fetched.
 This proves browser layout, not the real Pebble phone WebView integration.
 """
 from pathlib import Path
+from repo_workflow import candidate as candidate_pbw, qa_output
 import argparse
 import hashlib
 import json
@@ -16,7 +17,7 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--browser', default=shutil.which('chromium'))
 version = json.loads((root / 'package.json').read_text())['version']
-parser.add_argument('--output', type=Path, default=root / 'docs/qa' / version / 'settings-layout')
+parser.add_argument('--output', type=Path, default=qa_output(root, '') / 'settings-layout')
 args = parser.parse_args()
 if not args.browser:
     raise SystemExit('An installed Chromium is required; specify --browser.')

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the whole native type scale, line spacing and compiled font coverage."""
 from pathlib import Path
+from repo_workflow import candidate as candidate_pbw, qa_output
 import hashlib
 import json
 import struct
@@ -9,9 +10,9 @@ from PIL import Image
 
 root = Path(__file__).resolve().parents[1]
 version = json.loads((root / 'package.json').read_text())['version']
-qa = root / 'docs/qa' / version
+qa = qa_output(root, '')
 font_report = {}
-with zipfile.ZipFile(root / 'dist' / ('Open-Activity-' + version + '.pbw')) as archive:
+with zipfile.ZipFile(candidate_pbw(root, 'Open-Activity')) as archive:
     packed = archive.read('emery/app_resources.pbpack')
     assert struct.unpack_from('<I', packed)[0] == 3
     for index in range(3):

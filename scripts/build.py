@@ -7,6 +7,8 @@ import subprocess
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
+from repo_workflow import build_output
+output_directory = build_output(root, 'Open-Activity')
 package = json.loads((root / 'package.json').read_text())
 subprocess.run(['node', str(root / 'scripts/generate-config.cjs')], cwd=root, check=True)
 subprocess.run(['pebble', 'clean'], cwd=root, check=True)
@@ -47,8 +49,8 @@ entries['appinfo.json'] = json.dumps(appinfo, indent=2).encode()
 entries['config.html'] = (root / 'config.html').read_bytes()
 for name in ('LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses/Apache-2.0.txt', 'licenses/OFL-RobotoCondensed.txt'):
     entries[name] = (root / name).read_bytes()
-destination = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
-destination.parent.mkdir(exist_ok=True)
+destination = output_directory / ('Open-Activity-' + package['version'] + '.pbw')
+destination.parent.mkdir(parents=True, exist_ok=True)
 debug = destination.with_name('Open-Activity-' + package['version'] + '-debug.zip')
 debug_entries['manifest.json'] = json.dumps({
     'version': package['version'], 'tool': 'terser', 'toolVersion': '5.46.0',
@@ -67,6 +69,8 @@ for artifact, contents in ((destination, entries), (debug, debug_entries)):
 (destination.parent / 'SHA256SUMS.txt').write_text(''.join(
     hashlib.sha256(artifact.read_bytes()).hexdigest() + '  ' + artifact.name + '\n'
     for artifact in (destination, debug)))
-subprocess.run(['python3', str(root / 'scripts/check-artifact.py')], cwd=root, check=True)
-subprocess.run(['node', '--test', str(root / 'tests/package.test.js')], cwd=root, check=True)
+from repo_workflow import record_build
+record_build(root, destination, debug)
+subprocess.run(['python3', str(root / 'scripts/check-artifact.py'), '--pbw', str(destination)], cwd=root, check=True)
+subprocess.run(['node', '--test', str(root / 'tests/package.test.js')], env={**__import__('os').environ, 'PEBBLE_PBW': str(destination)}, cwd=root, check=True)
 print(destination)

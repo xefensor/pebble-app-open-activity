@@ -1,8 +1,12 @@
 # Open Activity
 
-This checkout is on `design/pebble-native-redesign`: local **0.3.2** is a visual
-alternative for review. See [the changes, previews and checks](docs/REDESIGN.md).
-The released downloads below remain the baseline; this alternative is unpublished.
+Main contains the current implementation. [Development](CONTRIBUTING.md),
+[current maintenance contracts](docs/MAINTENANCE.md) and [release policy](docs/RELEASING.md)
+are the active contributor references. Public downloads and frozen evidence keep
+their original versions; a merge to main is not publication.
+
+Main includes the accepted local **0.3.2** UI. See [the changes, previews and checks](docs/REDESIGN.md).
+The released downloads below remain the baseline; the merged implementation is unpublished.
 
 One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
@@ -12,11 +16,11 @@ Part of **XOCE — Xef's Open Computing Ecosystem**. Its Dynamic activity source
 is maintained in
 [xefensor/pebble-watchface-dynamic](https://github.com/xefensor/pebble-watchface-dynamic).
 
-**Local candidate 0.2.0 implements the shared XOCE UI.** The native setup uses
+**Historical 0.2.0 UI milestone.** The native setup uses
 Roboto Condensed, a title-left/time-right header and saved light/dark appearance
 with a violet accent. The phone page has English/Czech copy, two shortcut pickers
 plus a separate Watch appearance choice, and persistent **✓ Saved** feedback
-while remaining open on the bundled settings route. The local build is
+while remaining open on the bundled settings route. The frozen build is
 `dist/Open-Activity-0.2.0.pbw`; [validation](docs/qa/0.2.0) distinguishes native
 emulator and packaged-browser evidence from real-device checks. This candidate
 has not been pushed or published.
@@ -169,64 +173,5 @@ system settings depends on the installed phone/firmware version.
 
 ## Development and validation
 
-The prepared [0.1.6 development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
-has links for the [PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6.pbw),
-[buildable source](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6-source.zip),
-[debugging files](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6-debug.zip) and
-[checksums](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/SHA256SUMS.txt).
-These links become available when it is published. Its setup screen and settings
-save/reopen checks are recorded in [docs/qa/0.1.6](docs/qa/0.1.6).
-
-Published [0.1.5 downloads](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5) remain unchanged.
-Published [0.1.4 downloads](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.4) remain unchanged.
-Version 0.1.5 defers legacy settings initialization during Quick Launch, combines footer
-layout work into one animation frame, and reduces release JavaScript size.
-The [optimization evidence](docs/qa/0.1.5/optimization.json) records exact sizes;
-real-phone launch latency and battery have not been measured.
-
-With the Pebble SDK installed:
-
-```sh
-npm ci --ignore-scripts
-npm test
-npm run build
-npm run check:artifact
-python3 scripts/package-source.py
-python3 scripts/package-source.py --check
-```
-
-Edit `src/pkjs/settings-page.js` for both configuration paths. The build generates
-`config.html` from that shared template; `node scripts/generate-config.cjs --check`
-detects drift. The primary page uses Pebble's
-[bundled settings bridge](https://developer.repebble.com/guides/plugins/preview/#settings-pages);
-the legacy path keeps its `pebblejs://close#` return contract. Both paths use the
-same two-choice model and leave system Quick Launch assignments to the user.
-
-For browser checks, start local Chromium with debugging on port 9229, then run
-`node scripts/check-settings.cjs`. It executes the actual packaged HTML and
-config plugin with isolated settings and a mock SDK bridge, checking read/save,
-errors, retry, discard and 320/360px light/dark layouts.
-
-There are no external runtime npm dependencies. The locked development-only
-Terser 5.46.0 tool removes whitespace and mangles local names for distribution;
-compression and property mangling are disabled, and function names and licence
-comments remain. SDK development output stays unminified. Distribution packaging adds
-`manifestVersion: 2`, `LaunchApps`, the offline page, the config-only plugin and
-license notices. Use the PBW under `dist/`; the plain SDK development PBW lacks
-the extra configuration packaging.
-
-Release source maps and the original SDK/plugin JavaScript are in the matching
-`Open-Activity-VERSION-debug.zip`, alongside the exact runtime scripts and their
-chained maps. The PBW has no map URL pointing to an absent file. Artifact checks
-recompute the transformation and compare every runtime script/map with that
-archive. Attach the debug ZIP separately when distributing a build; it is not
-installed on the watch. `package-source.py` writes a buildable source ZIP after
-the final documentation changes and updates all three artifact checksums.
-
-The [validation record](docs/VALIDATION.md) distinguishes portable fault tests,
-actual packaged-bundle checks and native-only QEMU evidence from the pending
-real-phone and physical-watch checks. Source history and downloadable development
-prereleases are available in
-[`xefensor/pebble-app-open-activity`](https://github.com/xefensor/pebble-app-open-activity).
-Published tags and artifacts retain their tested bytes; later documentation on
-`main` does not change the released source snapshot.
+Use [CONTRIBUTING](CONTRIBUTING.md) for current setup, safe candidate builds and
+verification. Release preparation is a separate [explicit workflow](docs/RELEASING.md).

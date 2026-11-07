@@ -5,6 +5,7 @@ This does not run the plugin phone runtime or simulate a Quick Launch hold.
 The portable SDK adapter tests cover the hold/prepare/confirmation path.
 """
 from pathlib import Path
+from repo_workflow import candidate as candidate_pbw, qa_output
 import argparse
 import hashlib
 import importlib.util
@@ -21,7 +22,7 @@ package = json.loads((root / 'package.json').read_text())
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--pipe-helper', type=Path,
                     default=root.parent / 'recovery-validation/pipe_emulator.py')
-parser.add_argument('--output', type=Path, default=root / 'docs/qa' / package['version'] / 'emulator')
+parser.add_argument('--output', type=Path, default=qa_output(root, '') / 'emulator')
 parser.add_argument('--expected-sha256', help='Require the exact candidate PBW bytes')
 parser.add_argument('--composition-only', action='store_true', help='Capture light/dark composition without claiming full workflow QA')
 args = parser.parse_args()
@@ -41,7 +42,7 @@ from libpebble2.services.appmessage import AppMessageService, Uint8
 from libpebble2.services.screenshot import Screenshot
 from PIL import Image
 
-pbw = root / 'dist' / ('Open-Activity-' + package['version'] + '.pbw')
+pbw = candidate_pbw(root, 'Open-Activity')
 if args.expected_sha256 and hashlib.sha256(pbw.read_bytes()).hexdigest() != args.expected_sha256:
     raise AssertionError('Candidate PBW bytes changed before native setup QA')
 target = uuid.UUID(package['pebble']['uuid'])

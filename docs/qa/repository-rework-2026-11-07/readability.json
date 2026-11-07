@@ -1,0 +1,224 @@
+{
+  "result": "PASS",
+  "scope": "Whole composition: unmodified native pixels plus actual compiled PFO glyphs. All roles, primary/secondary leading, header balance and bottom clearance; all 1,440 clock strings fit, extended Latin coverage verified.",
+  "compiledFonts": {
+    "22": {
+      "capInkHeight": 16,
+      "glyphCount": 322,
+      "sha256": "68e5d05cb780a1d66502bfa30b417db6785b377ebbb1d486c1eef94c64319f91",
+      "maxCheckedAdvance": 148,
+      "stringsChecked": 3,
+      "czechAndPunctuationCovered": true
+    },
+    "24": {
+      "capInkHeight": 17,
+      "glyphCount": 322,
+      "sha256": "84f4250046b88a6018b0e91853c82e20c53f625e60f1c823101f78821e969595",
+      "maxCheckedAdvance": 156,
+      "stringsChecked": 2,
+      "czechAndPunctuationCovered": true
+    },
+    "26": {
+      "capInkHeight": 19,
+      "glyphCount": 322,
+      "sha256": "7f636f3801c547aa87baa84b930a4553947b55cb137d4e5bfab59a5882679da5",
+      "maxCheckedAdvance": 59,
+      "stringsChecked": 1440,
+      "czechAndPunctuationCovered": true
+    }
+  },
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "3b2cd3998182a85aaf56133fb521889edfc6b67b5da9289668414fd7b4c9e47d",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        135,
+        10,
+        188,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    },
+    {
+      "file": "setup-dark.png",
+      "sha256": "3ff2200b8e669b8756547929133cb7b1e61e472832cd239bca73a2367bb812b8",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        135,
+        10,
+        188,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    },
+    {
+      "file": "setup-clock-00-00.png",
+      "sha256": "64d62214ddfaa9328888c507d0d6ffe4dfb265c4003a36e5cd7a19c8c9f8e69e",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        134,
+        10,
+        191,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    },
+    {
+      "file": "setup-clock-11-11.png",
+      "sha256": "c67e3b1156f191dce6bb2930e21bf93156448a08b4b518d74784fcd0ce4fb1cd",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        135,
+        10,
+        188,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    },
+    {
+      "file": "setup-clock-22-58.png",
+      "sha256": "b00a5ca1c8388d20ec4ba5b4108fe6e7ce04a25010d44636d4938df6f682f9fa",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        134,
+        10,
+        191,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    },
+    {
+      "file": "setup-offline.png",
+      "sha256": "b00a5ca1c8388d20ec4ba5b4108fe6e7ce04a25010d44636d4938df6f682f9fa",
+      "titleInk": [
+        9,
+        9,
+        127,
+        29
+      ],
+      "clockInk": [
+        134,
+        10,
+        191,
+        29
+      ],
+      "headerInkCenterDelta": 0.5,
+      "instructionInk": [
+        16,
+        78,
+        171,
+        129
+      ],
+      "mainLineGap": 5,
+      "hintLineGap": 7,
+      "hintInk": [
+        17,
+        168,
+        163,
+        215
+      ],
+      "bottomClearance": 13
+    }
+  ]
+}

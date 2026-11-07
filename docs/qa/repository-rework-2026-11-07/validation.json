@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-07",
+  "scope": "Repository maintenance; preserve features, accepted UI, public API, dependency pins and frozen releases.",
+  "portableChecks": "PASS",
+  "checksRun": [
+    "npm test",
+    "npm run check:docs",
+    "npm run build",
+    "npm run test:workflow",
+    "npm run check:artifact"
+  ],
+  "preservation": {
+    "baseline": "99b433bde7c693484ed346d03c7ef5461957ca95",
+    "protectedFilesChecked": 257,
+    "result": "PASS",
+    "packageMetadataUnchangedExceptScripts": true
+  },
+  "sdkBuild": "PASS",
+  "nativeEvidence": [
+    {
+      "report": "emulator-report.json",
+      "source": "pebble-app-open-activity/build/qa/emulator/report.json",
+      "sha256": "3ad51bc7f6481dcf05ae5218e77a111cb43449007a519beb6bc890f14db712dc"
+    },
+    {
+      "report": "readability.json",
+      "source": "pebble-app-open-activity/build/qa/readability.json",
+      "sha256": "bfb502d09112798b303901e42406b769a032edef4e70da83609e2feec21163f0"
+    }
+  ],
+  "evidencePolicy": "New development PBWs, captures and package tarballs are disposable under build/. These reports record this run; original versioned evidence and artifacts were not overwritten.",
+  "browserVerification": "No fresh browser execution in this maintenance pass. Existing browser evidence remains historical.",
+  "physicalDeviceVerification": false,
+  "pushed": false,
+  "published": false,
+  "nativeCommands": [
+    "python3 scripts/emulator-smoke.py",
+    "python3 scripts/check-readability.py"
+  ]
+}

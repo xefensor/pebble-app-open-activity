@@ -5,8 +5,8 @@ const fs = require('node:fs'), path = require('node:path'), os = require('node:o
 const crypto = require('node:crypto'), assert = require('node:assert/strict');
 const {execFileSync} = require('node:child_process');
 const root = path.resolve(__dirname, '..'), version = require('../package.json').version;
-const artifact = path.join(root, 'dist/Open-Activity-' + version + '.pbw');
-const output = path.resolve(process.argv[2] || path.join(root, 'docs/qa', version, 'settings'));
+const artifact = path.resolve(process.env.PEBBLE_PBW || path.join(root, 'build/candidate/Open-Activity-' + version + '.pbw'));
+const output = path.resolve(process.argv[2] || path.join(process.env.PEBBLE_QA_OUTPUT_ROOT || path.join(root, 'build/qa'), 'settings'));
 const endpoint = process.env.OPEN_ACTIVITY_CHROMIUM_ENDPOINT || 'http://127.0.0.1:9229';
 const files = JSON.parse(execFileSync('python3', ['-c',
   'import json,sys,zipfile\nwith zipfile.ZipFile(sys.argv[1]) as z: print(json.dumps({n:z.read(n).decode() for n in ["config.html","plugin.js","pebble-js-app.js"]}))', artifact], {encoding: 'utf8'}));
