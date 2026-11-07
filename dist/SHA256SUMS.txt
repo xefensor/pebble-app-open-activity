@@ -1,3 +1,3 @@
-ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a  Open-Activity-0.3.2.pbw
-26e054d703770fe4b339c46b8accb1c5adb2cae4d75b287edd7a8a9dadbab731  Open-Activity-0.3.2-debug.zip
-d3c00bfe7d03364628f6d2ef76290c34bb6106953a280244279331e9f1c7be0a  Open-Activity-0.3.2-source.zip
+c5d1d7a4461e4b7fb2f233f97c74fee2be070b759b2037300357e32eeb063d73  Open-Activity-0.3.3.pbw
+9ed8acde0e50b7c8984f9803d0494d68463220547d0e59518ec4f277620fec1d  Open-Activity-0.3.3-debug.zip
+3ce9ea25164f1bf79131cccd19986e25da4f62dfe7f2232d262aa03f65d348c0  Open-Activity-0.3.3-source.zip

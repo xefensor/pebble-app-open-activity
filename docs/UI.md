@@ -1,7 +1,7 @@
 # Open Activity: current UI
 
-The accepted UI is merged into main; implementation version 0.3.2 remains
-unpublished. Published downloads retain their original versions and interfaces.
+The current release is 0.3.3. Earlier downloads and frozen evidence retain
+their original versions and interfaces.
 
 The phone has exactly Primary and Secondary shortcut pickers plus separate appearance; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup uses22/24/26 Roboto Condensed with measured leading, full clock and saved appearance. Quick Launch loads only its main font; setup loads three, all allocations have cleanup/fallback paths. The helper has no action rail and never remaps global OS Quick Launch assignments.
 

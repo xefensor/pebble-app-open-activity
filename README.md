@@ -5,8 +5,25 @@ Main contains the current implementation. [Development](CONTRIBUTING.md),
 are the active contributor references. Public downloads and frozen evidence keep
 their original versions; a merge to main is not publication.
 
-Main includes the accepted local **0.3.2** UI. See [the changes, previews and checks](docs/REDESIGN.md).
-The released downloads below remain the baseline; the merged implementation is unpublished.
+## Version 0.3.3
+
+- Use the shared full-width Activity header with measured title/time alignment and readable setup instructions.
+- Bundle UI 0.1.1 and shared phone settings styling with Primary/Secondary shortcut choices and confirmed saves.
+- Preserve app identity, all shortcut mappings, passive setup launches and the original Quick Launch timeout.
+
+GitHub development prerelease for Pebble Time 2 / Emery with SDK 4.33.1.
+Validation covers portable tests, packaged runtimes and isolated native emulator
+checks. Physical phone/watch and fresh browser testing remain unverified.
+
+[Release validation](docs/qa/0.3.3/validation.json) records the exact package and native payload.
+
+Download the [PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3.pbw),
+[source](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3-source.zip),
+[debug files](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3-debug.zip), and
+[checksums](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/SHA256SUMS.txt).
+
+Version **0.3.3** includes the shared watch and phone UI.
+See [the changes, previews and checks](docs/REDESIGN.md).
 
 One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
@@ -25,7 +42,7 @@ while remaining open on the bundled settings route. The frozen build is
 emulator and packaged-browser evidence from real-device checks. This candidate
 has not been pushed or published.
 
-**Open Activity 0.1.6 is published** as a development prerelease fixing
+**The previous Open Activity 0.1.6 remains available** as a development prerelease fixing
 settings access and save persistence. The PBW is also available locally as
 `dist/Open-Activity-0.1.6.pbw`; [validation](docs/qa/0.1.6) records its checks.
 Earlier releases retain their original files.
@@ -52,8 +69,8 @@ assigned to Open Activity close without opening an activity.
 
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.1.6.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.1.6/Open-Activity-0.1.6.pbw)
-from the [0.1.6 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.6)
+[`Open-Activity-0.3.3.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3.pbw)
+from the [0.3.3 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.3.3)
 and install it through the Pebble app. The previous
 [0.1.5 prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
 remains available. Version 0.1.6 is frozen at tested source

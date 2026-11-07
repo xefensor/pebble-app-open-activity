@@ -1,0 +1,41 @@
+{
+  "version": "0.3.3",
+  "sdk": "4.33.1",
+  "platform": "emery",
+  "result": "PASS",
+  "pbwSha256": "c5d1d7a4461e4b7fb2f233f97c74fee2be070b759b2037300357e32eeb063d73",
+  "nativePayloadSha256": {
+    "emery/app_resources.pbpack": "5e693142a8537851976c02a6a4b411168425cc8979875083100ca6182236e139",
+    "emery/manifest.json": "1c95efe607100bac96a10b9c998f9a1a926b2fdaa627736eca85a1b233089fa3",
+    "emery/pebble-app.bin": "0835b9bcdc8825108d4f513089411cd8dedcbb36a143d83e581f605d47bc4ad2"
+  },
+  "portableTests": "PASS",
+  "packagedIdentityAndRuntimeChecks": "PASS",
+  "nativeScope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.",
+  "nativeChecks": {
+    "ordinarySetupStaysOpen": true,
+    "outlivesQuickLaunchBudget": true,
+    "offlineSetupStaysOpen": true,
+    "backReturns": true,
+    "noNativeHandshake": true,
+    "themeUpdatesInPassiveSetup": true,
+    "darkRestoredBeforePhone": true,
+    "invalidThemeIgnored": true
+  },
+  "visualReview": {
+    "reviewedExamples": [
+      {
+        "file": "setup-phone-launch.png",
+        "sha256": "477f31ea0a957795ff63ce7955f3b1a13f570a18f70a733631d1e0eb1e39b3cd"
+      },
+      {
+        "file": "setup-dark-restored-before-phone.png",
+        "sha256": "64a78394488c471b2a2603c998bfe3d4f71f2634cefd896acf060c02243dd5d5"
+      }
+    ],
+    "scope": "Inspected actual captures with sample data in isolated Emery QEMU"
+  },
+  "physicalPhone": "not run",
+  "physicalWatch": "not run",
+  "freshBrowser": "not run"
+}
