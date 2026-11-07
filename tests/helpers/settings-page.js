@@ -1,7 +1,7 @@
 'use strict';
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-module.exports = function mount(html, reply, viewport) {
+module.exports = function mount(html, reply, viewport, locale = 'en') {
   const elements = {};
   for (const id of ['primary', 'secondary', 'watchface', 'settings', 'save', 'discard', 'retry', 'status', 'actions', 'shortcut-error', 'assignment-help', 'primary-help', 'secondary-help', 'watch-theme', 'watch-theme-help', 'watch-delivery']) {
     const select = html.match(new RegExp('<select[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)<\\/select>'));
@@ -28,6 +28,7 @@ module.exports = function mount(html, reply, viewport) {
   let ready, next = 1;
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   vm.runInNewContext(script, Object.assign({
+    navigator: {language: locale},
     document: {getElementById(id) {assert.ok(elements[id], id); return elements[id];},
       documentElement: {style: {setProperty() {geometry.styleWrites++;}}}}, location,
     setTimeout(callback) {const id = next++; timers.set(id, callback); return id;},

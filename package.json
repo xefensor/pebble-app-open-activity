@@ -6,7 +6,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "description": "One Quick Launch app for Dynamic or Halftone's recently displayed primary or secondary activity.",
   "scripts": {
-    "test": "node --test tests/*.test.js && python3 scripts/test-native.py && npm run test:workflow && npm run check:docs && npm run test:release",
+    "test": "node --test tests/*.test.js && python3 scripts/test-native.py && npm run test:workflow && npm run check:docs && npm run test:release && python3 scripts/test-localization.py",
     "build": "python3 scripts/build.py",
     "check:artifact": "python3 scripts/check-artifact.py",
     "build:release": "python3 scripts/build.py --release",
@@ -18,7 +18,8 @@
     "release:prepare": "python3 scripts/github-release.py prepare",
     "release:publish": "python3 scripts/github-release.py publish",
     "test:release": "python3 -m unittest discover -s tests -p \"test_*release*.py\"",
-    "check:setup": "python3 scripts/check-setup.py"
+    "check:setup": "python3 scripts/check-setup.py",
+    "check:localization": "python3 scripts/generate-localization.py --check"
   },
   "pebble": {
     "displayName": "Open Activity",
@@ -51,22 +52,27 @@
           "type": "font",
           "name": "FONT_BODY_22",
           "file": "fonts/RobotoCondensed-Bold.ttf",
-          "characterRegex": "[\\u0020-\\u017F\\u2019\\u2026]",
+          "characterRegex": "[\\u0020-\\u024F\\u2019\\u2026]",
           "extended": true
         },
         {
           "type": "font",
           "name": "FONT_BODY_24",
           "file": "fonts/RobotoCondensed-Bold.ttf",
-          "characterRegex": "[\\u0020-\\u017F\\u2019\\u2026]",
+          "characterRegex": "[\\u0020-\\u024F\\u2019\\u2026]",
           "extended": true
         },
         {
           "type": "font",
           "name": "FONT_BODY_26",
           "file": "fonts/RobotoCondensed-Bold.ttf",
-          "characterRegex": "[\\u0020-\\u017F\\u2019\\u2026]",
+          "characterRegex": "[\\u0020-\\u024F\\u2019\\u2026]",
           "extended": true
+        },
+        {
+          "type": "raw",
+          "name": "LOCALIZATION",
+          "file": "localization.bin"
         }
       ]
     },

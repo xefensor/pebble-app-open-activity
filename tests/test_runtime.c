@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <pebble.h>
 
+const char *app_text(const char *text) { return text; }
+
 #define main helper_app_main
 #include "../src/c/main.c"
 #undef main

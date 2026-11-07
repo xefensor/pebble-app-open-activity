@@ -2,6 +2,7 @@
 #include <pebble-xoce-ui/pebble-xoce-ui.h>
 
 #include "attempt.h"
+#include "localization.h"
 #include "header_ink.h"
 
 static Window *s_window;
@@ -80,10 +81,16 @@ static void header_text(GContext *ctx,const char *text,int point,GRect bounds,
       GTextOverflowModeFill,align,NULL);
 }
 static void draw_header(Layer *layer,GContext *ctx) {
-  xoce_ui_draw_header(ctx,layer_get_bounds(layer).size.w,"Activity",s_clock_text,
+  xoce_ui_draw_header(ctx,layer_get_bounds(layer).size.w,app_text("Activity"),s_clock_text,
       foreground(),secondary(),header_text,NULL);
 }
+static void refresh_setup_language(void) {
+  const char *source[]={"Open settings in","the Pebble app.","Quick Launch","opens activities."};
+  TextLayer *labels[]={s_setup_body[0],s_setup_body[1],s_setup_hint[0],s_setup_hint[1]};
+  for(unsigned i=0;i<4;++i)if(labels[i])text_layer_set_text(labels[i],app_text(source[i]));
+}
 static void clock_tick(struct tm *tick_time, TimeUnits units) {
+  refresh_setup_language();
   (void)units;
   strftime(s_clock_text, sizeof(s_clock_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
   if (!clock_is_24h_style() && s_clock_text[0] == '0') memmove(s_clock_text, s_clock_text + 1, strlen(s_clock_text));
@@ -235,7 +242,7 @@ static void init(uint32_t started) {
   GRect bounds = layer_get_bounds(layer);
   s_label = text_layer_create(GRect(10, (bounds.size.h - 36) / 2, bounds.size.w - 20, 36));
   if (!s_label) { oa_attempt_close(&s_attempt); return; }
-  text_layer_set_text(s_label, "Opening...");
+  text_layer_set_text(s_label, app_text("Opening..."));
   text_layer_set_font(s_label, title_font());
   text_layer_set_text_alignment(s_label, GTextAlignmentCenter);
   text_layer_set_text_color(s_label, foreground());
@@ -271,7 +278,7 @@ static bool init_setup(void) {
   layer_set_update_proc(s_header,draw_header);
   layer_add_child(layer,s_header);
   // Explicit lines keep readable leading even when the font's descenders
-  // exceed its nominal line height. These are the fixed English setup strings.
+  // exceed its nominal line height. Each locale retains the same four readable setup lines.
   s_setup_body[0] = text_layer_create(GRect(16, 72, bounds.size.w - 32, 36));
   if (!s_setup_body[0]) return false;
   s_setup_body[1] = text_layer_create(GRect(16, 100, bounds.size.w - 32, 36));
@@ -281,8 +288,8 @@ static bool init_setup(void) {
   s_setup_hint[1] = text_layer_create(GRect(16, 189, bounds.size.w - 32, 32));
   if (!s_setup_hint[1]) return false;
   TextLayer *labels[] = {s_setup_body[0], s_setup_body[1], s_setup_hint[0], s_setup_hint[1]};
-  const char *texts[] = {"Open settings in", "the Pebble app.",
-                         "Quick Launch", "opens activities."};
+  const char *texts[] = {app_text("Open settings in"), app_text("the Pebble app."),
+                         app_text("Quick Launch"), app_text("opens activities.")};
   GFont fonts[] = {title_font(), title_font(), body_font(), body_font()};
   for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
     text_layer_set_text(labels[i], texts[i]);

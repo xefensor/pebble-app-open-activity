@@ -13,7 +13,9 @@ function behavior(initial) {
   var watchface = document.getElementById('watchface');
   var theme = document.getElementById('watch-theme'), delivery = document.getElementById('watch-delivery');
   var appearanceSupported = false, appearanceRepair = false, savedAppearance = '';
-  var locale = typeof navigator !== 'undefined' && /^cs(?:[-_]|$)/i.test(navigator.language || '') ? 'cs' : 'en';
+  var locale = String(typeof navigator !== 'undefined' && navigator.language || 'en').toLowerCase().split(/[_.@-]/)[0];
+  if (locale === 'nb' || locale === 'nn') locale = 'no';
+  if (!initial.translations[locale]) locale = 'en';
   var dictionary = initial.translations && initial.translations[locale] || {};
   function tr(text) { return dictionary[text] || text; }
   if (document.documentElement) document.documentElement.lang = locale;

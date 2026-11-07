@@ -95,3 +95,6 @@ print(json.dumps({'pbw': str(pbw), 'sha256': checksum, 'nativeFileBytes': len(bi
                   'nativeLoadedBytes': loaded_bytes, 'nativeVirtualBytes': virtual_bytes,
                   'phoneBundleBytes': len(js.encode()), 'debugArchiveBytes': debug.stat().st_size,
                   'minificationIdentity': 'PASS', 'permissions': ['LaunchApps']}, indent=2))
+
+import subprocess
+subprocess.run(["python3",str(root / "scripts/check-localization-fonts.py"),"--pbw",str(pbw)],check=True)

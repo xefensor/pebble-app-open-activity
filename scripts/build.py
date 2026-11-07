@@ -12,6 +12,7 @@ from repo_workflow import build_output
 
 output_directory = build_output(root, "Open-Activity")
 package = json.loads((root / "package.json").read_text())
+subprocess.run(["python3", str(root / "scripts/generate-localization.py")], cwd=root, check=True)
 subprocess.run(["node", str(root / "scripts/generate-config.cjs")], cwd=root, check=True)
 subprocess.run(["pebble", "clean"], cwd=root, check=True)
 subprocess.run(

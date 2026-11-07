@@ -203,3 +203,11 @@ test('appearance changes save in the same draft and confirmed Save stays open un
   assert.equal(reopened.elements['watch-theme'].value, 'dark'); assert.equal(reopened.elements.save.disabled, true);
   ui.change('primary', 'tap-down'); assert.equal(ui.elements.status.textContent, 'Unsaved changes.');
 });
+
+for(const locale of require('../src/common/translations.json').languages) test('localized watchface and shortcuts save/reopen: '+locale,async()=>{
+ let stored=pair();const reply=message=>{if(message.type==='saveSettings')stored=JSON.parse(JSON.stringify(message.settings));return Promise.resolve({ok:true,settings:stored});};
+ const ui=mount(page.config(),reply,undefined,locale);ui.ready();await ui.tick();ui.change('watchface','halftone');ui.elements.save.onclick();await ui.tick();
+ assert.equal(ui.elements.status.textContent,require('../src/common/translations.json').words[locale]['✓ Saved']);
+ assert.deepEqual(stored,{...pair(),watchface:'halftone'});
+ const fresh=mount(page.config(),reply,undefined,locale);fresh.ready();await fresh.tick();assert.equal(fresh.elements.watchface.value,'halftone');assert.equal(fresh.elements.save.disabled,true);
+});

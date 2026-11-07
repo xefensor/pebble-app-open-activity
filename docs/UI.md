@@ -16,7 +16,7 @@ timer or change to the original Quick Launch budget.
 
 `scripts/generate-header-ink.py` regenerates the committed setup-header metrics
 from `build/emery/app_resources.pbpack`; `--check` compares them after an SDK
-build. Its small ASCII/ellipsis/wildcard fallback fixture records the original
+build. Custom-font metrics include every translated header glyph. Its small ASCII/ellipsis/wildcard fallback fixture records the original
 public SDK4.33.1 glyph measurement and source hash. Reusing that fixture is not
 fresh native or real-device verification.
 

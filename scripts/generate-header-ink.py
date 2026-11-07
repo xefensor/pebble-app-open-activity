@@ -58,7 +58,13 @@ def generate(pack):
         for start in range(0, len(codes), 12):
             rows.append('    ' + ','.join('{%d,%d}' % font[code] for code in codes[start:start + 12]) + ',')
         rows.append('  },')
-    rows += ['};', '']
+    rows += ['};']
+    catalogue=json.loads((ROOT/'src/common/translations.json').read_text())
+    extra=sorted({ord(char) for lang in catalogue['languages'] for char in catalogue['words'][lang]['Activity'] if ord(char)>126})
+    assert all(code in metrics for code in extra)
+    rows+=['typedef struct { uint16_t code; OaGlyphInk ink; } OaExtraInk;', 'static const OaExtraInk oa_header_extra[]={']
+    rows+=['  {%d,{%d,%d}},'%(code,*metrics[code]) for code in extra]
+    rows+=['};','']
     return '\n'.join(rows)
 
 
