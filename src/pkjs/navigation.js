@@ -1,6 +1,7 @@
 'use strict';
 
 var DYNAMIC = 'cc1281f1-3b4d-45b5-b235-6881b1fd8fbd';
+var HALFTONE = 'd4dd5046-53be-4624-99e8-46e0b377fe66';
 var HELPER = 'd2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9';
 var ZERO = '00000000-0000-0000-0000-000000000000';
 function object(value) { return !!value && typeof value === 'object' && !Array.isArray(value); }
@@ -32,7 +33,10 @@ function utf8Bytes(text) {
 function destination(value) {
   return value === null || (exact(value, ['watchAppUuid']) && uuid(value.watchAppUuid) && value.watchAppUuid !== HELPER);
 }
-function parseHint(text, now) {
+function supportedWatchface(value) { return value === DYNAMIC || value === HALFTONE; }
+function parseHint(text, now, watchfaceUuid) {
+  if (watchfaceUuid === undefined) watchfaceUuid = DYNAMIC;
+  if (!supportedWatchface(watchfaceUuid)) return null;
   // Every UTF-16 code unit needs at least one UTF-8 byte. Bound untrusted
   // input before walking it, while retaining exact UTF-8/surrogate validation.
   if (typeof text !== 'string' || text.length > 512 || utf8Bytes(text) > 512) return null;
@@ -40,7 +44,7 @@ function parseHint(text, now) {
   try { hint = JSON.parse(text); } catch (error) { return null; }
   if (!exact(hint, ['schema', 'watchfaceUuid', 'nativeSession', 'viewSequence',
       'presentationSequence', 'presentedAtMs', 'expiresAtMs', 'primary', 'secondary']) ||
-      hint.schema !== 1 || hint.watchfaceUuid !== DYNAMIC ||
+      hint.schema !== 1 || hint.watchfaceUuid !== watchfaceUuid ||
       !integer(hint.nativeSession, 1, 4294967295) ||
       !integer(hint.viewSequence, 1, 4294967295) ||
       !integer(hint.presentationSequence, 1, 4294967295) ||
@@ -52,15 +56,17 @@ function parseHint(text, now) {
       !destination(hint.primary) || !destination(hint.secondary)) return null;
   return hint;
 }
-function resolve(envelope, role, now) {
+function resolve(envelope, role, now, watchfaceUuid) {
+  if (watchfaceUuid === undefined) watchfaceUuid = DYNAMIC;
+  if (!supportedWatchface(watchfaceUuid)) return null;
   if ((role !== 'primary' && role !== 'secondary') || !object(envelope) ||
-      envelope.pluginUuid !== DYNAMIC || !integer(envelope.validUntilMs, 1, 9007199254740991) ||
+      envelope.pluginUuid !== watchfaceUuid || !integer(envelope.validUntilMs, 1, 9007199254740991) ||
       envelope.validUntilMs <= now || !Array.isArray(envelope.instances) || envelope.instances.length !== 1) return null;
   var instance = envelope.instances[0];
   if (!object(instance) || instance.instanceId !== 'current' || !object(instance.properties) ||
       !object(instance.properties.hint) || !object(instance.properties.hint.longText)) return null;
-  var hint = parseHint(instance.properties.hint.longText.text, now);
+  var hint = parseHint(instance.properties.hint.longText.text, now, watchfaceUuid);
   if (!hint || envelope.validUntilMs > hint.expiresAtMs || !hint[role]) return null;
   return {watchAppUuid: hint[role].watchAppUuid, expiresAtMs: Math.min(hint.expiresAtMs, envelope.validUntilMs)};
 }
-module.exports = {dynamicUuid: DYNAMIC, helperUuid: HELPER, uuid: uuid, utf8Bytes: utf8Bytes, parseHint: parseHint, resolve: resolve};
+module.exports = {dynamicUuid: DYNAMIC, halftoneUuid: HALFTONE, supportedWatchface: supportedWatchface, helperUuid: HELPER, uuid: uuid, utf8Bytes: utf8Bytes, parseHint: parseHint, resolve: resolve};

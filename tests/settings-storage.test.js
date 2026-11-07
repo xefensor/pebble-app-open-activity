@@ -63,6 +63,25 @@ function inert(context) {
   assert.equal(context.messages.length, 0); assert.equal(context.subscriptions.length, 0);
   assert.equal(context.invocations.length, 0); assert.equal(context.timers.size, 0);
 }
+test('saved Halftone source survives both settings writers and a fresh Quick Launch runtime', () => {
+  const navigation = require('../src/pkjs/navigation');
+  for (const kind of ['plugin', 'pkjs']) {
+    const data = stores(), context = pkjsContext(data.pkjs);
+    const receive = kind === 'pkjs' ? context.receive : pluginContext(data.plugin);
+    const selected = {...pair(), watchface: 'halftone'};
+    assert.deepEqual(receive({type: 'saveSettings', settings: selected}), {ok: true, settings: selected});
+    if (kind === 'pkjs') data.teardown();
+    assert.deepEqual(pluginContext(data.plugin)({type: 'getSettings'}).settings, selected);
+    inert(context);
+    const fresh = pkjsContext(stores(settings.load(data.plugin)).pkjs);
+    fresh.events.ready();
+    fresh.events.appmessage({payload: protocol.message(protocol.operation.HELLO,
+      {OA_SESSION: 9, OA_BUTTON: 1, OA_GESTURE: 2, OA_ELAPSED_MS: 100})});
+    assert.equal(fresh.subscriptions.length, 1);
+    assert.equal(fresh.subscriptions[0].plugin, navigation.halftoneUuid);
+    assert.deepEqual([...data.native.keys()], [settings.key], 'no navigation data is persisted');
+  }
+});
 
 test('live PKJS save keeps shortcut choices in Android DOM and native stores through teardown', () => {
   const data = stores(), plugin = pluginContext(data.plugin), pkjs = pkjsContext(data.pkjs), selected = pair();

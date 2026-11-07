@@ -191,11 +191,42 @@ test('settings storage is read-back checked and contains only configuration', ()
   assert.deepEqual(JSON.parse(encoded), settings.defaults());
   assert.equal(settings.save({setItem() {}, getItem: () => null}, settings.defaults()), false);
 });
+test('watchface choice survives saving without changing shortcuts or rewriting old defaults', () => {
+  const original = settings.defaults();
+  let encoded = JSON.stringify(original), writes = 0;
+  const storage = {getItem: () => encoded, setItem(key, value) {assert.equal(key, settings.key); encoded = value; writes++;}};
+  assert.deepEqual(settings.load(storage), original); assert.equal(writes, 0);
+  const selected = {...original, watchface: 'halftone'};
+  assert.equal(settings.save(storage, selected), true);
+  assert.deepEqual(settings.load(storage), selected); assert.deepEqual(settings.choices(settings.load(storage)), selected);
+  assert.equal(settings.select(settings.load(storage), 1), 'secondary');
+  assert.equal(settings.select(settings.load(storage), 3), 'primary');
+  for (const watchface of [null, false, 1, {}, [], 'auto', 'Halftone', 'constructor', '']) {
+    assert.equal(settings.save(storage, {...original, watchface}), false);
+    assert.deepEqual(settings.load(storage), selected);
+  }
+  assert.equal(settings.save(storage, {...selected, watchface: 'dynamic'}), true);
+  assert.deepEqual(settings.load(storage), original); assert.equal(writes, 2);
+});
 test('offline settings explain separate assignment and preserve selected roles', () => {
   const html = page(settings.defaults(), false);
   assert.match(html, /Quick Launch/);
   assert.ok(html.includes(JSON.stringify({mode: 'legacy', settings: settings.defaults(), needsRepair: false, needsMigration: false}).slice(0,-1)));
   assert.match(html, /pebblejs:\/\/close#/);
   assert.doesNotMatch(html, /https?:\/\//);
+});
+test('Halftone resolution binds the provider and embedded watchface identity to the requested source', () => {
+  const value = hint({watchfaceUuid: navigation.halftoneUuid});
+  const source = envelope(value, {pluginUuid: navigation.halftoneUuid});
+  assert.deepEqual(navigation.resolve(source, 'primary', NOW, navigation.halftoneUuid), {watchAppUuid: TIMER, expiresAtMs: value.expiresAtMs});
+  assert.deepEqual(navigation.resolve(source, 'secondary', NOW, navigation.halftoneUuid), {watchAppUuid: MUSIC, expiresAtMs: value.expiresAtMs});
+  assert.equal(navigation.resolve(source, 'primary', NOW, navigation.dynamicUuid), null);
+  assert.equal(navigation.resolve(envelope(hint()), 'primary', NOW, navigation.halftoneUuid), null);
+  assert.equal(navigation.resolve(envelope(value), 'primary', NOW, navigation.halftoneUuid), null, 'provider must match the selected face');
+  assert.equal(navigation.resolve(envelope(hint(), {pluginUuid: navigation.halftoneUuid}), 'primary', NOW, navigation.halftoneUuid), null, 'embedded identity must also match');
+  assert.equal(navigation.resolve(source, 'primary', NOW, TIMER), null, 'arbitrary plugins are not navigation sources');
+  assert.equal(navigation.resolve(source, 'primary', value.expiresAtMs, navigation.halftoneUuid), null);
+  value.secondary = null;
+  assert.equal(navigation.resolve(envelope(value, {pluginUuid: navigation.halftoneUuid}), 'secondary', NOW, navigation.halftoneUuid), null);
 });
 module.exports = {NOW, TIMER, MUSIC, hint, envelope};

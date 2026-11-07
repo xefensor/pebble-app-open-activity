@@ -4,7 +4,7 @@
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
-  "description": "One Quick Launch app for Dynamic's recently displayed primary or secondary activity.",
+  "description": "One Quick Launch app for Dynamic or Halftone's recently displayed primary or secondary activity.",
   "scripts": {
     "test": "node --test tests/*.test.js && python3 scripts/test-native.py && npm run test:workflow && npm run check:docs && npm run test:release",
     "build": "python3 scripts/build.py",

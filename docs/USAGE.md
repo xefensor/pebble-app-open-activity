@@ -2,6 +2,11 @@
 
 ## Installation and settings
 
+The current development candidate supports Dynamic and Halftone. In Open Activity
+settings, choose **Watchface → Halftone** (or **Dynamic**) and Save. Install a
+current build of that face exposing `navigation/presented_activities`. Existing
+settings keep Dynamic. The frozen 0.3.3 download below predates this selector.
+
 Use the updated Dynamic build that exposes `navigation/presented_activities`;
 older Dynamic versions do not provide the required handoff. Download
 [`Open-Activity-0.3.3.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3.pbw)
@@ -16,7 +21,7 @@ SDK support and allow **Launch apps** for Open Activity in the phone app.
 
 Open **Open Activity from the watch's app list**. It stays on a setup screen
 with the time and instructions. Then open its settings in the Pebble phone app,
-choose Primary/Secondary shortcuts and Save. Press Back on the watch when done.
+choose the Watchface and Primary/Secondary shortcuts and Save. Press Back on the watch when done.
 This makes the normal settings route usable when the phone requires the
 watchapp to be running. Quick Launch retains its automatic transition behavior.
 
@@ -25,7 +30,8 @@ plugin can serve settings independently when the phone UI allows closed-app
 configuration; no extra watchapp or Activities service is required.
 
 The page explains Primary as the large activity and Secondary as the smaller
-row. The page has two shortcut dropdowns and one separate Light/Dark watch-appearance choice. **Setup & help** contains
+row. The page has a Dynamic/Halftone watchface selector, two shortcut dropdowns
+and one separate Light/Dark watch-appearance choice. **Setup & help** contains
 the permission and Quick Launch steps. Phone light/dark appearance follows the
 phone independently of the watch.
 
@@ -61,7 +67,7 @@ open for setup; use the configured shortcuts for opening activities.
 
 ## Behavior
 
-When started by Quick Launch, the helper briefly shows Opening… while it reads Dynamic’s confirmed recent
+When started by Quick Launch, the helper briefly shows Opening… while it reads the selected watchface’s confirmed recent
 destinations. A valid selected destination opens automatically. A missing
 Secondary never falls back to Primary. Missing/expired data, unsupported SDK,
 disconnection, denied permission or a resolution error closes the helper.
@@ -73,10 +79,13 @@ The shortcut opens the **whole associated app**. Timer opens Timer; media can
 open Pebble’s Music controls. It does not select a specific timer, notification
 or song, and it does not issue Pause/Stop/Next commands.
 
-This is explicitly **Dynamic’s recent selection**, even when the shortcut is
-used shortly after changing watchfaces. The current SDK cannot verify which
-watchface immediately preceded this helper. Dynamic’s original routing expiry
-is enforced; reading it never extends its validity.
+This opens the **selected watchface’s recent activity**, even when the shortcut is
+used shortly after changing watchfaces. Change the Watchface setting when switching
+between Dynamic and Halftone. The current SDK cannot verify which watchface
+immediately preceded this helper. The helper requests only the selected source
+and checks both its provider and embedded watchface identity; it never borrows the
+other face’s activity. The original routing expiry is enforced; reading it never
+extends its validity.
 
 Use one connected watch. The official `launch_app` action currently targets all
 connected watches and provides no selection/count API to this app. After a
@@ -85,7 +94,7 @@ does not retry or replay an attempt after reconnect.
 
 ## Data and protocol
 
-The helper stores only its two shortcut choices. It keeps the selected app
+The helper stores only its watchface, shortcut and appearance settings. It keeps the selected app
 UUID and expiry in memory during one attempt. It never stores activity content,
 the navigation record, notification text, track metadata, artwork or an activity
 history, and it has no Internet permission.
@@ -93,7 +102,9 @@ history, and it has no Internet permission.
 The phone reads exactly:
 
 ```text
-provider: cc1281f1-3b4d-45b5-b235-6881b1fd8fbd (Dynamic)
+provider: selected watchface only
+  Dynamic:  cc1281f1-3b4d-45b5-b235-6881b1fd8fbd
+  Halftone: d4dd5046-53be-4624-99e8-46e0b377fe66
 category/item: navigation/presented_activities
 instance: current
 property: hint.longText.text
@@ -115,7 +126,9 @@ confirmation can issue one Watch State `launch_app` invocation. Duplicate and
 late callbacks cannot create another invocation.
 
 The `open-activity-settings-v1` storage key is retained. The version2 record is
-`{version:2,primaryShortcut,secondaryShortcut}`. Each choice is one of the eight
+`{version:2,primaryShortcut,secondaryShortcut,watchface?}`. The optional `watchface`
+is `halftone`; omitted or explicit `dynamic` selects Dynamic, and saves omit the
+default. Unsupported watchface values are rejected. Each shortcut choice is one of the eight
 shortcut IDs or `none`; a nonempty shortcut cannot be assigned to both roles.
 Version1 records retain their previous routing until explicit Save replaces
 them. The

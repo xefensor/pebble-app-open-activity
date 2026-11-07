@@ -39,7 +39,7 @@ module.exports = function (options) {
   function current(value) { return attempt === value && phase !== 'closed' && now() < value.deadline; }
   function sourceData(value, envelope) {
     if (!current(value) || phase !== 'resolving') return;
-    var destination = navigation.resolve(envelope, value.role, now());
+    var destination = navigation.resolve(envelope, value.role, now(), value.watchfaceUuid);
     stopSource(value);
     if (!destination) { close(true); return; }
     value.destination = destination;
@@ -68,6 +68,7 @@ module.exports = function (options) {
     if (!uint32(requestTicket)) { attempt = {session: session, timer: null}; close(true); return; }
     attempt = {
       session: session, ticket: requestTicket, role: role,
+      watchfaceUuid: saved.watchface === 'halftone' ? navigation.halftoneUuid : navigation.dynamicUuid,
       deadline: now() + protocol.budgetMs - elapsed,
       destination: null, source: null, sourceDone: false, timer: null
     };
@@ -79,7 +80,7 @@ module.exports = function (options) {
     }
     try {
       var source = pebble.subscribeToSource({
-        plugin: navigation.dynamicUuid,
+        plugin: value.watchfaceUuid,
         category: 'navigation', item: 'presented_activities', properties: ['hint'],
         onData: function (envelope) { sourceData(value, envelope); },
         onError: function () { if (current(value) && phase === 'resolving') close(true); }

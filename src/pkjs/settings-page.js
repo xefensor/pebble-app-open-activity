@@ -10,6 +10,7 @@ var translations = require('./settings-i18n');
 function behavior(initial) {
   'use strict';
   var primary = document.getElementById('primary'), secondary = document.getElementById('secondary');
+  var watchface = document.getElementById('watchface');
   var theme = document.getElementById('watch-theme'), delivery = document.getElementById('watch-delivery');
   var appearanceSupported = false, appearanceRepair = false, savedAppearance = '';
   var locale = typeof navigator !== 'undefined' && /^cs(?:[-_]|$)/i.test(navigator.language || '') ? 'cs' : 'en';
@@ -31,10 +32,13 @@ function behavior(initial) {
   }
   function normalize(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value) || value.version !== 2 ||
-        Object.keys(value).some(function(name) { return ['version','primaryShortcut','secondaryShortcut'].indexOf(name) === -1; }) ||
+        Object.keys(value).some(function(name) { return ['version','primaryShortcut','secondaryShortcut','watchface'].indexOf(name) === -1; }) ||
+        value.watchface !== undefined && value.watchface !== 'dynamic' && value.watchface !== 'halftone' ||
         !shortcut(value.primaryShortcut) || !shortcut(value.secondaryShortcut) ||
         value.primaryShortcut !== 'none' && value.primaryShortcut === value.secondaryShortcut) return null;
-    return {version: 2, primaryShortcut: value.primaryShortcut, secondaryShortcut: value.secondaryShortcut};
+    var chosen = {version: 2, primaryShortcut: value.primaryShortcut, secondaryShortcut: value.secondaryShortcut};
+    if (value.watchface === 'halftone') chosen.watchface = 'halftone';
+    return chosen;
   }
   function normalizeAppearance(value) {
     if (!value || value.version !== 1 || value.theme !== 'light' && value.theme !== 'dark' ||
@@ -43,7 +47,7 @@ function behavior(initial) {
   }
   function appearanceValue() { return appearanceSupported ? normalizeAppearance({version: 1, theme: theme.value}) : undefined; }
   function value() {
-    return normalize({version: 2, primaryShortcut: primary.value, secondaryShortcut: secondary.value});
+    return normalize({version: 2, primaryShortcut: primary.value, secondaryShortcut: secondary.value, watchface: watchface.value});
   }
   function edited() { return loaded && (JSON.stringify(value()) !== saved || appearanceSupported && JSON.stringify(appearanceValue()) !== savedAppearance); }
   function dirty() { return loaded && (repairing || appearanceRepair || migrating || uncertain || edited()); }
@@ -99,6 +103,7 @@ function behavior(initial) {
   function controls() {
     var editing = loaded && phase !== 'saving';
     fields.forEach(function(field) { field.disabled = !editing; });
+    watchface.disabled = !editing;
     theme.disabled = !editing || !appearanceSupported;
     save.disabled = !editing || !dirty() || !value() || appearanceSupported && !appearanceValue();
     save.textContent = tr(phase === 'saving' ? 'Saving…' : 'Save');
@@ -115,6 +120,7 @@ function behavior(initial) {
   }
   function apply(settings, repair, migration, appearance, repairAppearance) {
     primary.value = settings.primaryShortcut; secondary.value = settings.secondaryShortcut;
+    watchface.value = settings.watchface || 'dynamic';
     var normalizedAppearance = normalizeAppearance(appearance);
     appearanceSupported = !!normalizedAppearance; appearanceRepair = repairAppearance === true;
     theme.value = normalizedAppearance ? normalizedAppearance.theme : '';
@@ -145,7 +151,7 @@ function behavior(initial) {
   function load() {
     var readback = uncertain;
     loaded = false; phase = 'loading';
-    fields.forEach(function(field) { field.value = ''; }); theme.value = '';
+    fields.forEach(function(field) { field.value = ''; }); theme.value = ''; watchface.value = '';
     controls(); message('Loading settings…');
     if (!bridgeReady) { stopTimer(); timer = setTimeout(loadFailed, 6000); return; }
     request({type: 'getSettings', uiVersion: 1}, function(response) {
@@ -159,6 +165,7 @@ function behavior(initial) {
     for (var i = 0; i < field.options.length; i++) field.options[i].textContent = tr(field.options[i].textContent);
   });
   theme.onchange = changed;
+  watchface.onchange = changed;
   retry.onclick = load;
   discard.onclick = function() {
     if (legacy) location.href = 'pebblejs://close#';
@@ -252,12 +259,13 @@ function render(initial) {
     'select[aria-invalid=true]{border-color:var(--error);box-shadow:0 0 0 1px var(--error)}.inline-error{margin:16px 0 0;font-size:14px;color:var(--error)}.intro{color:var(--muted);font-size:14px}',
     '.help ol{margin:12px 0 16px;padding-left:22px}.help li{padding-left:3px;margin:9px 0}.help p{color:var(--muted);font-size:14px}.help p:last-child{margin-bottom:0}',
     '</style></head><body><main><header><h1>Open Activity</h1><p data-i18n="Choose a shortcut for each activity.">Choose a shortcut for each activity.</p></header>',
-    '<form id="settings"><section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading" data-i18n="Activity shortcuts">Activity shortcuts</h2>',
+    '<form id="settings"><section class="card" aria-labelledby="watchface-heading"><h2 id="watchface-heading" data-i18n="Watchface">Watchface</h2><label class="sr-only" for="watchface" data-i18n="Watchface">Watchface</label><select id="watchface" disabled aria-describedby="watchface-help"><option value="" disabled hidden selected data-i18n="Loading saved choice…">Loading saved choice…</option><option value="dynamic">Dynamic</option><option value="halftone">Halftone</option></select><p id="watchface-help" class="hint" data-i18n="Open activities shown by this watchface. Change this choice when you switch watchfaces.">Open activities shown by this watchface. Change this choice when you switch watchfaces.</p></section>',
+    '<section class="card" aria-labelledby="shortcuts-heading"><h2 id="shortcuts-heading" data-i18n="Activity shortcuts">Activity shortcuts</h2>',
     picker('primary', 'Primary activity'), picker('secondary', 'Secondary activity'),
     '<p id="shortcut-error" class="inline-error" hidden></p><p id="assignment-help" class="intro" style="margin-top:20px"></p></section>',
     '<section class="card" aria-labelledby="appearance-heading"><h2 id="appearance-heading" data-i18n="Watch appearance">Watch appearance</h2><label class="sr-only" for="watch-theme" data-i18n="Watch appearance">Watch appearance</label><select id="watch-theme" disabled aria-describedby="watch-theme-help watch-delivery"><option value="" disabled hidden selected data-i18n="Loading saved choice…">Loading saved choice…</option><option value="light" data-i18n="Light">Light</option><option value="dark" data-i18n="Dark">Dark</option></select><p id="watch-theme-help" class="hint"></p><p id="watch-delivery" class="hint" data-i18n="Watch appearance will update when Open Activity next opens." hidden>Watch appearance will update when Open Activity next opens.</p></section>',
-    '</form><details class="card help"><summary data-i18n="Setup & help">Setup &amp; help</summary><ol><li data-i18n="Install the current Dynamic build.">Install the current Dynamic build.</li><li data-i18n="Allow Open Activity to launch apps in the Pebble phone app.">Allow Open Activity to launch apps in the Pebble phone app.</li><li data-i18n="In Pebble’s Quick Launch settings, assign this same Open Activity app to each shortcut you want to use.">In Pebble’s Quick Launch settings, assign this same Open Activity app to each shortcut you want to use.</li></ol>',
-    '<p data-i18n="Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.">Use one connected watch. This opens Dynamic’s recent selection, including briefly after changing watchfaces.</p>',
+    '</form><details class="card help"><summary data-i18n="Setup & help">Setup &amp; help</summary><ol><li data-i18n="Install the current build of your selected watchface.">Install the current build of your selected watchface.</li><li data-i18n="Allow Open Activity to launch apps in the Pebble phone app.">Allow Open Activity to launch apps in the Pebble phone app.</li><li data-i18n="In Pebble’s Quick Launch settings, assign this same Open Activity app to each shortcut you want to use.">In Pebble’s Quick Launch settings, assign this same Open Activity app to each shortcut you want to use.</li></ol>',
+    '<p data-i18n="Use one connected watch. This opens the selected watchface’s recent activity. It does not switch sources automatically.">Use one connected watch. This opens the selected watchface’s recent activity. It does not switch sources automatically.</p>',
     '<p data-i18n="A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.">A missing or expired activity returns to the watchface. It never substitutes Primary for a missing Secondary.</p>',
     '<p data-i18n="These choices apply when the shortcut is assigned to Open Activity. Other Quick Launch assignments stay as you set them.">These choices apply when the shortcut is assigned to Open Activity. Other Quick Launch assignments stay as you set them.</p>',
     '<p data-i18n="Open Activity from the watch’s app list stays open for setup. Open its settings in the Pebble phone app, then press Back on the watch when finished. Assigned Quick Launch shortcuts still open activities automatically.">Open Activity from the watch’s app list stays open for setup. Open its settings in the Pebble phone app, then press Back on the watch when finished. Assigned Quick Launch shortcuts still open activities automatically.</p>',

@@ -10,11 +10,11 @@ const op = protocol.operation;
 const NOW = 1793700000000;
 const TIMER = '50e9ef12-a5ab-4369-a3b5-3447bfba5151';
 const MUSIC = '1f03293d-47af-4f28-b960-f2b02a6dd757';
-function source(changes) {
-  const hint = Object.assign({schema: 1, watchfaceUuid: navigation.dynamicUuid, nativeSession: 12,
+function source(changes, watchfaceUuid = navigation.dynamicUuid) {
+  const hint = Object.assign({schema: 1, watchfaceUuid, nativeSession: 12,
     viewSequence: 41, presentationSequence: 7, presentedAtMs: NOW - 5000,
     expiresAtMs: NOW + 40000, primary: {watchAppUuid: TIMER}, secondary: {watchAppUuid: MUSIC}}, changes);
-  return {pluginUuid: navigation.dynamicUuid, validUntilMs: hint.expiresAtMs,
+  return {pluginUuid: watchfaceUuid, validUntilMs: hint.expiresAtMs,
     instances: [{instanceId: 'current', properties: {hint: {longText: {text: JSON.stringify(hint)}}}}]};
 }
 function rig(options = {}) {
@@ -98,6 +98,32 @@ test('Up chooses Secondary; an absent Secondary closes without Primary fallback'
   assert.equal(empty.launcher.state(), 'closed');
   assert.equal(empty.invocations.length, 0);
   assert.equal(empty.prepare(), undefined);
+});
+test('Halftone choice opens the exact role once, without borrowing Dynamic data', () => {
+  const chosen = {...settings.defaults(), watchface: 'halftone'};
+  for (const [button, role, uuid] of [[3, 'primary', TIMER], [1, 'secondary', MUSIC]]) {
+    const options = {encodedSettings: JSON.stringify(chosen)};
+    const app = rig(options); app.hello(button);
+    assert.equal(app.subscription.plugin, navigation.halftoneUuid);
+    // Saving another choice cannot retarget an attempt already in progress.
+    options.encodedSettings = JSON.stringify(settings.defaults());
+    app.data(source({}, navigation.halftoneUuid));
+    assert.equal(protocol.get(app.prepare(), 'OA_ROLE'), protocol.role[role]);
+    app.confirm(); app.confirm();
+    assert.equal(app.invocations.length, 1); assert.equal(app.invocations[0].args.uuid, uuid);
+  }
+  for (const envelope of [source(), source({watchfaceUuid: navigation.dynamicUuid}, navigation.halftoneUuid),
+    source({secondary: null}, navigation.halftoneUuid), source({expiresAtMs: NOW}, navigation.halftoneUuid)]) {
+    const app = rig({encodedSettings: JSON.stringify(chosen)}); app.hello(1); app.data(envelope);
+    assert.equal(app.launcher.state(), 'closed'); assert.equal(app.prepare(), undefined);
+    assert.equal(app.invocations.length, 0); assert.equal(app.unsubscribed, 1);
+  }
+  const dynamic = rig(); dynamic.hello(); dynamic.data(source({}, navigation.halftoneUuid));
+  assert.equal(dynamic.launcher.state(), 'closed'); assert.equal(dynamic.invocations.length, 0);
+  for (const watchface of ['auto', 'Halftone', null, {}, 1]) {
+    const app = rig({encodedSettings: JSON.stringify({...chosen, watchface})}); app.hello();
+    assert.equal(app.subscription, undefined); assert.equal(app.launcher.state(), 'closed');
+  }
 });
 test('saved independent mappings select a different role', () => {
   const value = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary', down: 'secondary'}};

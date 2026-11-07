@@ -1,5 +1,28 @@
 # Open Activity validation
 
+## Development watchface selector — 7 November 2026
+
+The development candidate adds a saved Dynamic/Halftone source choice. Existing
+settings retain Dynamic. Both the source provider and embedded face identity
+must match the saved choice; absent Secondary never borrows Primary or another
+face's data. Shortcut assignments, passive setup and the original deadline remain.
+
+61 source JavaScript tests, six packaged tests, both portable native harnesses,
+workflow guards (seven passed, two skipped), 24 release-fixture tests and active
+documentation checks passed. SDK 4.33.1 Emery build and artifact/minification
+checks passed for PBW SHA-256
+`30040abe24f0fc9a0624925c570e074e988d433105a014a4e9439f381360aa2a`.
+Ten additional simulated bridge checks used the actual Halftone navigation
+producer with the packaged consumer, covering both roles, native promotion,
+cleared/expired data and wrong providers.
+
+Disposable details are in ignored `build/qa/watchface-settings/`. A temporary
+extraction adapter worked around Node reporting EPERM after successful Python
+ZIP reads; it changed no application code or test assertions. Fresh browser
+inspection is blocked: Chromium exits on sandbox-denied `setsockopt`, and Firefox
+crashes during headless startup. No fresh emulator or physical phone/watch check
+is claimed. Frozen release files and historical evidence remain untouched.
+
 ## Local whole-screen candidate 0.3.2 — 7 November 2026
 
 The complete setup typography and spacing were rebalanced on the local redesign

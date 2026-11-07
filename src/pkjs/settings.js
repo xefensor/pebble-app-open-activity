@@ -38,10 +38,14 @@ function overrides(value, buttons) {
 function normalize(value) {
   if (!object(value)) return null;
   if (value.version === 2) {
-    if (!only(value, ['version', 'primaryShortcut', 'secondaryShortcut']) ||
+    if (!only(value, ['version', 'primaryShortcut', 'secondaryShortcut', 'watchface']) ||
+        value.watchface !== undefined && value.watchface !== 'dynamic' && value.watchface !== 'halftone' ||
         !shortcutId(value.primaryShortcut) || !shortcutId(value.secondaryShortcut) ||
         value.primaryShortcut !== 'none' && value.primaryShortcut === value.secondaryShortcut) return null;
-    return {version: 2, primaryShortcut: value.primaryShortcut, secondaryShortcut: value.secondaryShortcut};
+    var chosen = {version: 2, primaryShortcut: value.primaryShortcut, secondaryShortcut: value.secondaryShortcut};
+    // Omitted means Dynamic, preserving existing records and the default route.
+    if (value.watchface === 'halftone') chosen.watchface = 'halftone';
+    return chosen;
   }
   if (!only(value, ['version', 'defaultRole', 'holdOverrides', 'tapOverrides', 'comboOverrides']) ||
       value.version !== 1 || !role(value.defaultRole)) return null;

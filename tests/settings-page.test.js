@@ -9,16 +9,18 @@ const pair = (primary = 'hold-down', secondary = 'hold-up') => ({version: 2, pri
 const loaded = () => ({ok: true, settings: pair(), needsRepair: false, needsMigration: false});
 const legacy = () => ({version: 1, defaultRole: 'primary', holdOverrides: {up: 'secondary', down: 'primary', back: 'secondary'}, tapOverrides: {down: 'secondary'}});
 
-test('page has only Primary and Secondary choices, each offering all eight shortcuts and None', async () => {
+test('page offers a watchface, two activity shortcuts and separate appearance', async () => {
   const html = page.config();
   assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), html);
-  assert.equal((html.match(/<select\b/g) || []).length, 3);
+  assert.equal((html.match(/<select\b/g) || []).length, 4);
   assert.match(html, /Primary activity/); assert.match(html, /Secondary activity/);
   const ui = mount(html, () => Promise.resolve(loaded()));
   ui.ready('pkjs'); assert.equal(ui.requests.length, 0);
   ui.ready(); ui.ready(); await ui.tick();
   assert.equal(ui.requests.length, 1); assert.equal(ui.elements.save.disabled, true);
   assert.equal(ui.elements.primary.value, 'hold-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
+  assert.equal(ui.elements.watchface.value, 'dynamic');
+  assert.deepEqual(ui.elements.watchface.options.filter(option => option.value).map(option => option.value), ['dynamic', 'halftone']);
   for (const id of ['primary', 'secondary']) {
     assert.deepEqual(ui.elements[id].options.filter(option => option.value).map(option => option.value).sort(),
       ['none', 'hold-up', 'hold-select', 'hold-down', 'hold-back', 'tap-up', 'tap-down', 'combo-back-up', 'combo-up-down'].sort());
@@ -42,6 +44,36 @@ test('each shortcut can be chosen for either activity and survives Save and a co
       assert.equal(reopened.elements[role].value, shortcut); assert.equal(reopened.elements.save.disabled, true);
     }
   }
+});
+test('watchface changes share confirmed Save, Discard and cold reopening with shortcut choices', async () => {
+  let stored = pair();
+  const reply = message => {
+    if (message.type === 'saveSettings') stored = JSON.parse(JSON.stringify(message.settings));
+    return Promise.resolve({ok: true, settings: stored});
+  };
+  const ui = mount(page.config(), reply);
+  assert.equal(ui.elements.watchface.disabled, true);
+  ui.ready(); await ui.tick();
+  assert.equal(ui.elements.watchface.disabled, false);
+  ui.change('watchface', 'halftone');
+  assert.equal(ui.elements.save.disabled, false); assert.deepEqual(stored, pair());
+  ui.elements.discard.onclick(); assert.equal(ui.elements.watchface.value, 'dynamic');
+  assert.equal(ui.elements.save.disabled, true);
+  ui.change('watchface', 'halftone'); ui.elements.save.onclick();
+  assert.equal(ui.elements.watchface.disabled, true); await ui.tick();
+  assert.deepEqual(stored, {...pair(), watchface: 'halftone'});
+  assert.equal(ui.elements.status.textContent, '✓ Saved');
+  const reopened = mount(page.config(), reply); reopened.ready(); await reopened.tick();
+  assert.equal(reopened.elements.watchface.value, 'halftone'); assert.equal(reopened.elements.save.disabled, true);
+  reopened.change('primary', 'tap-down'); reopened.elements.save.onclick(); await reopened.tick();
+  assert.deepEqual(stored, {...pair('tap-down'), watchface: 'halftone'});
+  reopened.change('watchface', 'dynamic'); reopened.elements.save.onclick(); await reopened.tick();
+  assert.deepEqual(stored, pair('tap-down'));
+  const legacy = mount(page({...pair(), watchface: 'halftone'}, false), () => {throw Error('legacy');});
+  assert.equal(legacy.elements.watchface.value, 'halftone');
+  legacy.change('primary', 'tap-down'); legacy.elements.save.onclick();
+  assert.deepEqual(JSON.parse(decodeURIComponent(legacy.location.href.split('#')[1])).settings,
+    {...pair('tap-down'), watchface: 'halftone'});
 });
 
 test('a duplicate shortcut blocks Save without clearing either choice; None can disable both', async () => {

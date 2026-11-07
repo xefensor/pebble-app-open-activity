@@ -1,7 +1,11 @@
 # Open Activity
 
 A Quick Launch shortcut that opens the app behind the primary or secondary activity recently
-displayed by Dynamic.
+displayed by Dynamic or Halftone.
+
+The current development checkout adds **Watchface → Dynamic / Halftone** in Open
+Activity settings. Choose Halftone and Save when using Halftone; existing settings
+keep Dynamic. This change is in development candidates, not the frozen download below.
 
 ## Download
 

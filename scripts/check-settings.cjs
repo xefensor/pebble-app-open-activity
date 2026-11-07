@@ -126,7 +126,9 @@ async function run() {
     await wait('!document.getElementById("primary").disabled');
     assert.equal(await evaluate('document.getElementById("save").disabled'),true);
     assert.deepEqual(await evaluate('Object.keys(__qa.store)'),[],'reading defaults never writes them');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['primary','secondary','watch-theme']);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['watchface','primary','secondary','watch-theme']);
+    assert.equal(await evaluate('document.getElementById("watchface").value'),'dynamic');
+    assert.deepEqual(await evaluate('Array.from(document.getElementById("watchface").options).map(o=>o.value).filter(Boolean)'),['dynamic','halftone']);
     for (const id of ['primary','secondary']) {
       const offered = await evaluate('Array.from(document.getElementById(' + JSON.stringify(id) + ').options).map(o=>o.value).filter(Boolean).sort()');
       assert.deepEqual(offered,[...ids,'none'].sort());
@@ -135,12 +137,12 @@ async function run() {
       await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
       captures.push(await capture('settings-' + width + '-' + theme + '.png'));
       const layout=await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,selects:document.querySelectorAll("select").length,targets:Array.from(document.querySelectorAll("button,select,summary")).filter(e=>e.getClientRects().length).map(e=>({id:e.id||e.textContent,height:e.getBoundingClientRect().height})),labelled:Array.from(document.querySelectorAll("select")).every(e=>document.querySelector("label[for="+e.id+"]")&&e.getAttribute("aria-describedby").split(/\\s+/).every(id=>document.getElementById(id))),background:getComputedStyle(document.body).backgroundColor})');
-      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,3);
+      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,4);
       assert.ok(layout.targets.every(target=>target.height>=44)); assert.equal(layout.labelled,true);
       layouts.push({width,theme,...layout});
     }
   }
-  checks.push('exactly two role selectors plus separate appearance, all eight shortcuts and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load');
+  checks.push('watchface selector, two role selectors and separate appearance, all eight shortcuts and None,320/360 light/dark,labels/descriptions,44px targets,no horizontal overflow,no writes on load');
   await send('Emulation.setDeviceMetricsOverride',{width:320,height:800,deviceScaleFactor:1,mobile:true});
   await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
   await change('primary','hold-up');
@@ -247,17 +249,18 @@ async function run() {
   assert.deepEqual(JSON.parse(await evaluate('__qa.store['+JSON.stringify(key)+']')),pair());
   await evaluate('document.querySelector(".help").open=true;document.querySelector(".help").scrollIntoView({block:"start"})');
   captures.push(await capture('setup-help-320.png'));
-  checks.push('unreadable preferences require explicit repair Save; two shortcut selectors plus separate watch appearance; setup stays disclosed');
+  checks.push('unreadable preferences require explicit repair Save; watchface and two shortcut selectors plus separate watch appearance; setup stays disclosed');
 
   const storageCases=[];
   const assertNoLaunchWork=async()=>assert.deepEqual(await evaluate('__qa.forbidden'),{appMessages:0,subscriptions:0,actions:0});
   const focusState=()=>evaluate('({tag:document.activeElement.tagName,id:document.activeElement.id})');
   for(const active of [false,true]) {
-    const route=active?'pkjs':'plugin',chosen=pair('tap-up','combo-up-down');
+    const route=active?'pkjs':'plugin',chosen={...pair('tap-up','combo-up-down'),watchface:'halftone'};
     await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active})});
     await wait('!document.getElementById("primary").disabled');
     assert.deepEqual(await focusState(),{tag:'BODY',id:''},'loading must not choose focus');
     await change('primary',chosen.primaryShortcut);await change('secondary',chosen.secondaryShortcut);
+    await change('watchface',chosen.watchface);
     await evaluate('document.getElementById("save").click()');
     await wait('document.getElementById("status").textContent==="✓ Saved"');
     const requests=await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")');
@@ -275,6 +278,7 @@ async function run() {
     await wait('!document.getElementById("primary").disabled');
     assert.equal(await evaluate('document.getElementById("primary").value'),chosen.primaryShortcut);
     assert.equal(await evaluate('document.getElementById("secondary").value'),chosen.secondaryShortcut);
+    assert.equal(await evaluate('document.getElementById("watchface").value'),chosen.watchface);
     assert.equal(await evaluate('document.getElementById("save").disabled'),true);
     assert.deepEqual(await evaluate('__qa.requests.filter(m=>m.type==="saveSettings")'),[],'reopening only reads confirmed preferences');
     const focus=await focusState();assert.deepEqual(focus,{tag:'BODY',id:''},'full reopen must not choose focus');
@@ -282,7 +286,7 @@ async function run() {
     storageCases.push({route,fullPageReload:true,androidSeparateStores:true,pkjsTeardown:active,settings:chosen,focus});
     if(active)captures.push(await capture('settings-live-save-reopened-320.png'));
   }
-  checks.push('closed plugin and active packaged PKJS save the exact two choices; separate Android DOM/native stores survive SDK teardown and full Page.reload with no autofocus or launch work');
+  checks.push('closed plugin and active packaged PKJS save the exact watchface and shortcut choices; separate Android DOM/native stores survive SDK teardown and full Page.reload with no autofocus or launch work');
 
   await send('Page.navigate',{url:fixture({[key]:JSON.stringify(pair())},{active:true,pkjsReject:1})});
   await wait('!document.getElementById("primary").disabled');await change('primary','hold-select');

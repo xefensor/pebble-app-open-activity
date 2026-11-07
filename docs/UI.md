@@ -3,7 +3,7 @@
 The current release is 0.3.3. Earlier downloads and frozen evidence retain
 their original versions and interfaces.
 
-The phone has exactly Primary and Secondary shortcut pickers plus separate appearance; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup uses22/24/26 Roboto Condensed with measured leading, full clock and saved appearance. Quick Launch loads only its main font; setup loads three, all allocations have cleanup/fallback paths. The helper has no action rail and never remaps global OS Quick Launch assignments.
+The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup uses22/24/26 Roboto Condensed with measured leading, full clock and saved appearance. Quick Launch loads only its main font; setup loads three, all allocations have cleanup/fallback paths. The helper has no action rail and never remaps global OS Quick Launch assignments.
 
 Setup uses the shared `pebble-xoce-ui` full-width32px header with26px title and
 clock,8px edge insets and the same divider as the other apps. Its concise title
@@ -20,7 +20,7 @@ build. Its small ASCII/ellipsis/wildcard fallback fixture records the original
 public SDK4.33.1 glyph measurement and source hash. Reusing that fixture is not
 fresh native or real-device verification.
 
-Preserve UUID, gesture/button wire identity and all eight supported shortcut identities. Ordinary user/phone/system launches show passive setup without an opening nonce or activity handshake. Quick Launch owns the original four-second budget measured before font loading, one attempt, cancellation and at most one dispatch. Validate Dynamic’s original schema/expiry and selected role; never substitute Primary for missing Secondary or independently rank activities. Persist settings only, never navigation/activity content.
+Preserve UUID, gesture/button wire identity and all eight supported shortcut identities. Ordinary user/phone/system launches show passive setup without an opening nonce or activity handshake. Quick Launch owns the original four-second budget measured before font loading, one attempt, cancellation and at most one dispatch. Validate the selected Dynamic/Halftone provider, embedded watchface identity, original schema/expiry and selected role; never fall back to the other face; never substitute Primary for missing Secondary or independently rank activities. Persist settings only, never navigation/activity content.
 
 ## Native/phone verification
 

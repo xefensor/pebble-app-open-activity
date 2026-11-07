@@ -60,11 +60,12 @@ function packagedLaunch(chosen, button, gesture) {
     {OA_SESSION: 9, OA_BUTTON: button, OA_GESTURE: gesture, OA_ELAPSED_MS: 100})});
   return {messages, invocations, subscription,
     confirm() {
-      assert.equal(subscription.plugin, navigation.dynamicUuid);
-      const hint = {schema: 1, watchfaceUuid: navigation.dynamicUuid, nativeSession: 99,
+      const watchfaceUuid = chosen.watchface === 'halftone' ? navigation.halftoneUuid : navigation.dynamicUuid;
+      assert.equal(subscription.plugin, watchfaceUuid);
+      const hint = {schema: 1, watchfaceUuid, nativeSession: 99,
         viewSequence: 41, presentationSequence: 7, presentedAtMs: NOW - 1000,
         expiresAtMs: NOW + 40000, primary: {watchAppUuid: TIMER}, secondary: {watchAppUuid: MUSIC}};
-      subscription.onData({pluginUuid: navigation.dynamicUuid, validUntilMs: hint.expiresAtMs,
+      subscription.onData({pluginUuid: watchfaceUuid, validUntilMs: hint.expiresAtMs,
         instances: [{instanceId: 'current', properties: {hint: {longText: {text: JSON.stringify(hint)}}}}]});
       const prepare = messages.find(message => protocol.get(message, 'OA_OPERATION') === protocol.operation.PREPARE);
       assert.ok(prepare); assert.ok(protocol.get(prepare, 'OA_TICKET') > 0 && protocol.get(prepare, 'OA_TICKET') <= 2147483647);
@@ -76,12 +77,12 @@ function packagedLaunch(chosen, button, gesture) {
   };
 }
 
-test('packaged config stores only the two role choices across fresh plugin contexts', {skip: !built}, () => {
+test('packaged config stores shortcut and watchface choices across fresh plugin contexts', {skip: !built}, () => {
   const store = storage(), first = coldConfig(store);
   const initial = first({type: 'getSettings'});
   assert.deepEqual(initial.settings, pair()); assert.equal(initial.needsRepair, false); assert.equal(!!initial.needsMigration, false);
   assert.equal(store.items.size, 0, 'reading defaults never writes');
-  const chosen = pair('combo-back-up', 'tap-down');
+  const chosen = {...pair('combo-back-up', 'tap-down'), watchface: 'halftone'};
   assert.deepEqual(first({type: 'saveSettings', settings: chosen}), {ok: true, settings: chosen});
   const second = coldConfig(store); assert.deepEqual(second({type: 'getSettings'}).settings, chosen);
   assert.deepEqual(Array.from(store.items.keys()), [settings.key]);
@@ -102,23 +103,27 @@ test('packaged old settings are projected without a write and convert only on an
   assert.equal(!!coldConfig(store)({type: 'getSettings'}).needsMigration, false);
 });
 
-test('actual packaged HTML has two role selectors and saves without a native session', {skip: !built}, async () => {
-  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 3);
+test('actual packaged HTML saves watchface and role selectors without a native session', {skip: !built}, async () => {
+  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 4);
   const store = storage(), invoke = coldConfig(store);
   const ui = mountSettings(bundle['config.html'], message => Promise.resolve(invoke(message)));
   ui.ready(); await ui.tick();
   assert.equal(ui.elements.primary.value, 'hold-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
   assert.equal(ui.elements.save.disabled, true);
   ui.change('primary', 'combo-back-up'); ui.change('secondary', 'tap-down');
+  ui.change('watchface', 'halftone');
   ui.elements.save.onclick(); await ui.tick();
   assert.equal(ui.elements.status.textContent, '✓ Saved'); assert.equal(ui.requests.length, 2);
-  assert.deepEqual(coldConfig(store)({type: 'getSettings'}).settings, pair('combo-back-up', 'tap-down'));
+  const saved = coldConfig(store)({type: 'getSettings'}).settings;
+  assert.deepEqual(saved, {...pair('combo-back-up', 'tap-down'), watchface: 'halftone'});
+  const attempt = packagedLaunch(saved, 3, 2); attempt.confirm();
+  assert.equal(attempt.invocations.length, 1); assert.equal(attempt.invocations[0].args.uuid, MUSIC);
   assert.doesNotMatch(bundle['config.html'], /https?:\/\//);
   assert.deepEqual(JSON.parse(bundle['appinfo.json']).plugin.sources, []);
   assert.deepEqual(JSON.parse(bundle['appinfo.json']).plugin.actions, []);
 });
 
-test('packaged legacy configuration shares two fields and retains Cancel and Save return URLs', {skip: !built}, () => {
+test('packaged legacy configuration shares watchface and shortcuts and retains return URLs', {skip: !built}, () => {
   const handlers = {}, urls = [], store = storage();
   const chosen = {version: 1, defaultRole: 'secondary', holdOverrides: {up: 'primary'}};
   settings.save(store, chosen);
@@ -128,7 +133,7 @@ test('packaged legacy configuration shares two fields and retains Cancel and Sav
   }, {timeout: 2000});
   handlers.showConfiguration();
   const html = decodeURIComponent(urls[0].replace(/^data:text\/html;charset=utf-8,/, ''));
-  assert.equal((html.match(/<select\b/g) || []).length, 3);
+  assert.equal((html.match(/<select\b/g) || []).length, 4);
   const ui = mountSettings(html, () => {throw Error('legacy config cannot use plugin bridge');});
   const projected = settings.choices(chosen);
   assert.equal(ui.elements.discard.textContent, 'Cancel'); assert.equal(ui.elements.save.disabled, false);
@@ -141,9 +146,10 @@ test('packaged legacy configuration shares two fields and retains Cancel and Sav
 });
 
 test('packaged PKJS opens either role from any chosen shortcut once and closes unassigned shortcuts', {skip: !built}, () => {
-  for (const [button, gesture, id] of slots) {
+  for (const watchface of ['dynamic', 'halftone']) for (const [button, gesture, id] of slots) {
     for (const role of ['primary', 'secondary']) {
       const chosen = pair('none', 'none'); chosen[role + 'Shortcut'] = id;
+      if (watchface === 'halftone') chosen.watchface = watchface;
       const attempt = packagedLaunch(chosen, button, gesture); attempt.confirm();
       assert.equal(attempt.invocations.length, 1);
       assert.equal(attempt.invocations[0].args.uuid, role === 'primary' ? TIMER : MUSIC);

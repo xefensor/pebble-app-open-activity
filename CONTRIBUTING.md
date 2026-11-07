@@ -33,7 +33,7 @@ npm run check:artifact
 `npm test` runs source/native, workflow, release-fixture and documentation checks. CI uses Node
 22 and Python 3.12; it does not claim SDK, emulator or physical-device coverage.
 
-`src/c` owns setup and the Quick Launch deadline; `src/plugin` owns the two shortcut settings
+`src/c` owns setup and the Quick Launch deadline; `src/plugin` owns the watchface and shortcut settings
 and navigation handoff. `vendor/` contains the UI dependency. Ordinary launches stay passive.
 
 ## Outputs and evidence
