@@ -1,6 +1,6 @@
 # Open Activity
 
-This checkout is on `design/pebble-native-redesign`: local **0.3.0** is a visual
+This checkout is on `design/pebble-native-redesign`: local **0.3.1** is a visual
 alternative for review. See [the changes, previews and checks](docs/REDESIGN.md).
 The released downloads below remain the baseline; this alternative is unpublished.
 

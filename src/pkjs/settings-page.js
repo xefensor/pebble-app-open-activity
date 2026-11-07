@@ -255,7 +255,7 @@ function render(initial) {
     'button{padding:10px 12px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-weight:650;cursor:pointer}',
     'button:disabled{opacity:.45;cursor:default}select:disabled{opacity:.6}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}',
     '.hint{font-size:14px;color:var(--muted);margin:8px 0 0}.intro{color:var(--muted);font-size:14px}',
-    'details>summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:650}details.card>summary{color:var(--ink);font-size:17px}details[open]>summary{margin-bottom:16px}',
+    'details>summary{min-height:44px;padding:10px 0;display:list-item;align-content:center;cursor:pointer;font-weight:650}details.card>summary{color:var(--ink);font-size:17px}details[open]>summary{margin-bottom:16px}',
     '.help ol{margin:12px 0 16px;padding-left:22px}.help li{padding-left:3px;margin:9px 0}.help p{color:var(--muted);font-size:14px}.help p:last-child{margin-bottom:0}',
     'footer{position:fixed;bottom:0;left:0;right:0;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:var(--page);border-top:1px solid var(--line)}footer[data-flow=true]{position:static}',
     '.footer-inner{max-width:480px;margin:auto}.status{font-size:14px;color:var(--muted);text-align:left;margin:0 0 10px;min-height:20px}.status.error{color:var(--error)}',

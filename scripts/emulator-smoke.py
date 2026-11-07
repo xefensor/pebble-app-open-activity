@@ -14,6 +14,7 @@ import tempfile
 import time
 import uuid
 import zipfile
+from datetime import datetime, timezone
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / 'package.json').read_text())
@@ -32,6 +33,7 @@ spec.loader.exec_module(helper)
 
 from pebble_tool.commands.install import ToolAppInstaller
 from libpebble2.protocol.apps import AppRunState, AppRunStateStart, AppRunStateStop, AppRunStateRequest
+from libpebble2.protocol.system import TimeMessage, SetUTC
 from libpebble2.communication.transports.qemu.protocol import QemuButton, QemuBluetoothConnection
 from pebble_tool.commands.emucontrol import send_data_to_qemu
 from libpebble2.services.appmessage import AppMessageService, Uint8
@@ -99,6 +101,14 @@ time.sleep(.2)
 capture('setup-invalid-theme-keeps-dark')
 back()
 capture('setup-back-returned')
+for hour, minute, label in ((0, 0, '00-00'), (11, 11, '11-11'), (22, 58, '22-58')):
+    stamp = int(datetime(2026, 11, 7, hour, minute, tzinfo=timezone.utc).timestamp())
+    connection.send_packet(TimeMessage(message=SetUTC(unix_time=stamp, utc_offset=0, tz_name='UTC')))
+    time.sleep(.2)
+    connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
+    await_foreground(True)
+    capture('setup-clock-' + label)
+    back()
 send_data_to_qemu(connection.transport, QemuBluetoothConnection(connected=False))
 connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
 await_foreground(True)

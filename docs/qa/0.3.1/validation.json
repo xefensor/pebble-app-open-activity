@@ -1,0 +1,36 @@
+{
+  "version": "0.3.1",
+  "branch": "design/pebble-native-redesign",
+  "previousTrial": "7175224c6528587504e1bb91889993f75d58e4cd",
+  "result": "PASS",
+  "automated": {
+    "jsPassed": 62,
+    "portableNativeAdapter": true,
+    "packagedTests": 6,
+    "artifact": true
+  },
+  "native": {
+    "emulator": true,
+    "captureReport": "emulator/report.json",
+    "readabilityReport": "readability.json",
+    "clockInkHeight": 18,
+    "headerOpticalCenterDelta": 0,
+    "boxInkMarginDifferenceAtMost": 2,
+    "wideClockStrings": [
+      "00:00",
+      "11:11",
+      "22:58"
+    ]
+  },
+  "phone": {
+    "controllerChanged": false,
+    "summaryPaddingSourceFix": true,
+    "previewIsMock": true,
+    "freshBrowserRendered": false
+  },
+  "physicalWatch": false,
+  "artifacts": {
+    "Open-Activity-0.3.1.pbw": "7e9682a833f8f57a6097d393ef88ce1cd1c48a7e53ead88c81e9692a61effb16",
+    "Open-Activity-0.3.1-debug.zip": "ff0b702445495d83b237a696aa1204b2b7faceae9ad7de9e46bb6574d1e2d211"
+  }
+}

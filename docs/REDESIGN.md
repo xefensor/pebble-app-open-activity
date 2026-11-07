@@ -1,13 +1,20 @@
 # Pebble native redesign — review branch
 
 This is an alternative for Xef to review on `design/pebble-native-redesign`,
-based on `8ab401c6b58c783be596143657d3be272517c870`. Local version **0.3.0**.
+based on `8ab401c6b58c783be596143657d3be272517c870`. Local version **0.3.1**,
+correcting the smaller text in the first 0.3.0 trial.
 It is not an approved replacement for the shared standard or a published release.
 
-The watch now uses Pebble's Gothic 18 Bold title/time, Gothic 24 Bold instruction
-and Gothic 18 secondary text. The frames fit those actual fonts. The violet
-identity and independent saved light/dark appearance stay. Removing custom font
-loads also removes their allocation and cleanup work.
+Xef's requirement is readability first: native styling must not shrink the top
+clock/date, and text should sit centrally in its space. The clock now uses Gothic
+28 Bold, giving 18px of actual visible digit ink instead of the first trial's
+11px. The title, instruction and hint use Gothic 24 Bold. The hint is larger and
+heavier; its secondary colour still distinguishes it from the main instruction.
+Frames account for the actual glyph bearings and descenders. Title and time
+share exactly the same optical centre. The instruction and hint have balanced
+vertical margins, and the hint retains 18px of bottom clearance.
+The violet identity and independent saved light/dark appearance stay. There are
+no custom font allocations.
 
 The automatic Opening screen remains still and uses Gothic. It keeps the original
 four-second attempt, Back cancellation and one dispatch. Setup still opens
@@ -21,22 +28,29 @@ and respect reduced motion. Exactly two role pickers and the separate watch
 appearance selector remain. The actual save, receipt, routing and draft code is
 unchanged.
 
+The help summary now has symmetric vertical padding, so its label has room above
+and below even in WebViews without block `align-content` support. The phone save
+controller is unchanged. Browser rendering of this source-level fix is unverified.
+
 ## Review and evidence
 
-- [Watch setup, light](qa/0.3.0/emulator/setup-phone-launch.png) and
-  [dark](qa/0.3.0/emulator/setup-dark.png): actual packaged native code in Emery
+- [Watch setup, light](qa/0.3.1/emulator/setup-phone-launch.png) and
+  [dark](qa/0.3.1/emulator/setup-dark.png): actual packaged native code in Emery
   QEMU, with unmodified screenshot pixels.
-- [Phone layout preview](qa/0.3.0/phone-preview.html): actual generated page with
+- [Phone layout preview](qa/0.3.1/phone-preview.html): actual generated page with
   an in-memory mock bridge. Save affects this preview only. Opening it directly
   never contacts a phone or watch.
-- [Validation record](qa/0.3.0/validation.json) and
-  [emulator report](qa/0.3.0/emulator/report.json): portable controller/native tests,
+- [Validation record](qa/0.3.1/validation.json),
+  [pixel measurements](qa/0.3.1/readability.json) and
+  [emulator report](qa/0.3.1/emulator/report.json): portable controller/native tests,
   all six packaged tests, build and artifact checks pass. Setup was checked after
   four seconds, offline, after Back and after reopening with the saved dark theme.
+  Cold openings at 00:00, 11:11 and 22:58 check narrow and wide clock strings.
+  `scripts/check-readability.py` checks the unmodified native screenshot pixels.
 
 Fresh Chromium rendering is blocked by this environment's sandbox. The phone
 preview has not been visually verified here. Real phone WebView and physical
 watch timing remain unverified. Older versioned PBWs, tags and main are retained.
 
 Build locally with the SDK on PATH: `npm test`, `npm run build`,
-`npm run check:artifact`. The review PBW is `dist/Open-Activity-0.3.0.pbw`.
+`npm run check:artifact`. The review PBW is `dist/Open-Activity-0.3.1.pbw`.

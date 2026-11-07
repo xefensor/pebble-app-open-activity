@@ -1,0 +1,186 @@
+{
+  "result": "PASS",
+  "scope": "Actual native Screenshot-service pixels, unmodified. Visible clock height, title/clock optical centers and hint clearance; three clock strings, light/dark and offline setup.",
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "da2699c0af0412572fe7e303a084c12882858d2b134d998c77cac669d1ffa394",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        144,
+        10,
+        191,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    },
+    {
+      "file": "setup-dark.png",
+      "sha256": "458dd40e34988be11419f12390e6d943427e62fb408717fa3467b677b7aa92ea",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        144,
+        10,
+        191,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    },
+    {
+      "file": "setup-clock-00-00.png",
+      "sha256": "581373945e46e671f0da97ec0ed27fbf58237172a5d0dc8ec8bc759317c84c6c",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        144,
+        10,
+        191,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    },
+    {
+      "file": "setup-clock-11-11.png",
+      "sha256": "299b44f210584c13885d5e2c4d9e21875634574482f20032441865621dc1ad14",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        145,
+        10,
+        190,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    },
+    {
+      "file": "setup-clock-22-58.png",
+      "sha256": "3076e6ad90c5e626ae59a87154e6bd564746991a2015602128faaa10ce8af75d",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        144,
+        10,
+        191,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    },
+    {
+      "file": "setup-offline.png",
+      "sha256": "3076e6ad90c5e626ae59a87154e6bd564746991a2015602128faaa10ce8af75d",
+      "titleInk": [
+        9,
+        10,
+        108,
+        28
+      ],
+      "clockInk": [
+        144,
+        10,
+        191,
+        28
+      ],
+      "headerInkCenterDelta": 0.0,
+      "instructionInk": [
+        17,
+        86,
+        161,
+        128
+      ],
+      "hintInk": [
+        17,
+        168,
+        161,
+        210
+      ],
+      "bottomClearance": 18
+    }
+  ]
+}

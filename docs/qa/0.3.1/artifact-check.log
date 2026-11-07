@@ -1,0 +1,18 @@
+
+> pebble-app-open-activity@0.3.1 check:artifact
+> python3 scripts/check-artifact.py
+
+Shared configuration template: PASS
+{
+  "pbw": "/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.3.1.pbw",
+  "sha256": "7e9682a833f8f57a6097d393ef88ce1cd1c48a7e53ead88c81e9692a61effb16",
+  "nativeFileBytes": 3944,
+  "nativeLoadedBytes": 3928,
+  "nativeVirtualBytes": 4028,
+  "phoneBundleBytes": 38923,
+  "debugArchiveBytes": 80071,
+  "minificationIdentity": "PASS",
+  "permissions": [
+    "LaunchApps"
+  ]
+}
