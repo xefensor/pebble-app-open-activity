@@ -25,7 +25,7 @@ originals = {'pebble-js-app.js': entries['pebble-js-app.js'],
              'plugin.js': (root / 'build/plugin.js').read_bytes()}
 for name, content in originals.items():
     input_file = root / 'build/release-input' / name
-    output_file = root / 'build/release' / name
+    output_file = root / 'build/optimized' / name
     output_map = output_file.with_suffix('.js.map')
     input_file.parent.mkdir(parents=True, exist_ok=True)
     input_file.write_bytes(content)

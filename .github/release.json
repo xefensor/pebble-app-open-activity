@@ -1,0 +1,23 @@
+{
+  "repository": "xefensor/pebble-app-open-activity",
+  "display_name": "Open Activity",
+  "tag_prefix": "v",
+  "prerelease": true,
+  "kind": "app",
+  "notes": {
+    "path": "README.md",
+    "heading": "## Version {version}"
+  },
+  "app_uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
+  "assets": [
+    "dist/Open-Activity-{version}.pbw",
+    "dist/Open-Activity-{version}-source.zip",
+    "dist/Open-Activity-{version}-debug.zip"
+  ],
+  "checksums_file": "dist/SHA256SUMS.txt",
+  "source_archive": {
+    "path": "dist/Open-Activity-{version}-source.zip",
+    "prefix": ""
+  },
+  "debug_archive": "dist/Open-Activity-{version}-debug.zip"
+}
