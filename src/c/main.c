@@ -7,8 +7,6 @@ static TextLayer *s_label;
 static TextLayer *s_setup_body;
 static TextLayer *s_setup_hint;
 static TextLayer *s_clock;
-static GFont s_font_body;
-static GFont s_font_title;
 static bool s_dark;
 static bool s_message_opened;
 static bool s_clock_subscribed;
@@ -44,11 +42,10 @@ static void apply_palette(void) {
 }
 static void load_ui(void) {
   s_dark = persist_exists(OA_THEME_STORAGE_KEY) && persist_read_int(OA_THEME_STORAGE_KEY) == 1;
-  s_font_body = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_18));
-  s_font_title = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_23));
 }
-static GFont body_font(void) { return s_font_body ? s_font_body : fonts_get_system_font(FONT_KEY_GOTHIC_18); }
-static GFont title_font(void) { return s_font_title ? s_font_title : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
+static GFont body_font(void) { return fonts_get_system_font(FONT_KEY_GOTHIC_18); }
+static GFont title_font(void) { return fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
+static GFont header_font(void) { return fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD); }
 static void clock_tick(struct tm *tick_time, TimeUnits units) {
   (void)units;
   strftime(s_clock_text, sizeof(s_clock_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
@@ -230,20 +227,20 @@ static bool init_setup(void) {
   window_set_background_color(s_window, background());
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
-  s_label = text_layer_create(GRect(8, 4, 122, 27));
+  s_label = text_layer_create(GRect(8, 2, 124, 28));
   if (!s_label) return false;
-  s_clock = text_layer_create(GRect(bounds.size.w - 65, 4, 57, 27));
+  s_clock = text_layer_create(GRect(bounds.size.w - 65, 2, 57, 28));
   if (!s_clock) return false;
-  s_setup_body = text_layer_create(GRect(16, 70, bounds.size.w - 32, 82));
+  s_setup_body = text_layer_create(GRect(16, 64, bounds.size.w - 32, 92));
   if (!s_setup_body) return false;
-  s_setup_hint = text_layer_create(GRect(16, bounds.size.h - 57, bounds.size.w - 32, 48));
+  s_setup_hint = text_layer_create(GRect(16, bounds.size.h - 58, bounds.size.w - 32, 50));
   if (!s_setup_hint) return false;
   TextLayer *labels[] = {s_label, s_clock, s_setup_body, s_setup_hint};
   const char *texts[] = {"Open Activity", s_clock_text, "Open settings in the Pebble phone app.",
                          "Quick Launch opens your activities."};
   for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
     text_layer_set_text(labels[i], texts[i]);
-    text_layer_set_font(labels[i], i == 2 ? title_font() : body_font());
+    text_layer_set_font(labels[i], i == 2 ? title_font() : i < 2 ? header_font() : body_font());
     text_layer_set_text_alignment(labels[i], i == 1 ? GTextAlignmentRight : GTextAlignmentLeft);
     text_layer_set_background_color(labels[i], GColorClear);
     layer_add_child(layer, text_layer_get_layer(labels[i]));
@@ -275,8 +272,6 @@ static void deinit(void) {
   if (s_clock) text_layer_destroy(s_clock);
   if (s_clock_subscribed) tick_timer_service_unsubscribe();
   if (s_setup_mode && s_message_opened) app_message_deregister_callbacks();
-  if (s_font_body) fonts_unload_custom_font(s_font_body);
-  if (s_font_title) fonts_unload_custom_font(s_font_title);
   if (s_window) window_destroy(s_window);
 }
 

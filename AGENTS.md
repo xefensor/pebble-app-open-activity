@@ -1,5 +1,11 @@
 # Open Activity maintainer notes
 
+On `design/pebble-native-redesign`, local 0.3.0 is an experimental visual
+alternative; read [docs/REDESIGN.md](docs/REDESIGN.md). Native setup uses stock
+Gothic fonts without custom font allocations. Preserve the routing, passive
+settings inbox and original attempt budget. Main and the shared design standard
+remain the comparison baseline until Xef approves this alternative.
+
 This is one stock PebbleOS Quick Launch watchapp for both Dynamic activity
 positions. Preserve UUID `d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9` and message keys.
 Target Emery. GitHub development prereleases live in

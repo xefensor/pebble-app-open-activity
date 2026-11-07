@@ -1,5 +1,9 @@
 # Open Activity
 
+This checkout is on `design/pebble-native-redesign`: local **0.3.0** is a visual
+alternative for review. See [the changes, previews and checks](docs/REDESIGN.md).
+The released downloads below remain the baseline; this alternative is unpublished.
+
 One Quick Launch app for Dynamic’s recently displayed **Primary** or
 **Secondary** activity. It targets Pebble Time 2 (`emery`) using stock PebbleOS
 and the official phone app. No phone-app or firmware fork is required.

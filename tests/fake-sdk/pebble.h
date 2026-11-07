@@ -41,6 +41,7 @@ void tick_timer_service_unsubscribe(void);
 #define FONT_KEY_GOTHIC_28_BOLD "GOTHIC_28_BOLD"
 #define FONT_KEY_GOTHIC_24_BOLD "GOTHIC_24_BOLD"
 #define FONT_KEY_GOTHIC_18 "GOTHIC_18"
+#define FONT_KEY_GOTHIC_18_BOLD "GOTHIC_18_BOLD"
 typedef struct {void (*pebble_app_connection_handler)(bool);} ConnectionHandlers;
 
 AppLaunchReason launch_reason(void);

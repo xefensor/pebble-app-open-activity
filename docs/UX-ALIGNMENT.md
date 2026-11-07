@@ -1,5 +1,10 @@
 # Open Activity UI/UX alignment — local 0.2.0 candidate
 
+The `design/pebble-native-redesign` branch adds a **0.3.0 alternative under
+review**. See [the redesign and its evidence](REDESIGN.md). Its native Gothic
+fonts and phone spacing are implemented on this branch; they do not replace
+the agreed baseline below until Xef chooses them.
+
 Reviewed baseline: Open Activity 0.1.6; repository HEAD
 `1702a46487b5d666744f54763f0ef6ab8c49e399` on 2026-11-06.
 

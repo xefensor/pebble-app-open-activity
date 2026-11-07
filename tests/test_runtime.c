@@ -117,7 +117,7 @@ static void reset(void) {
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
   s_setup_body=NULL;s_setup_hint=NULL;s_clock=NULL;s_setup_mode=false;
-  s_font_body=NULL;s_font_title=NULL;s_dark=false;s_message_opened=false;s_clock_subscribed=false;
+  s_dark=false;s_message_opened=false;s_clock_subscribed=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
 }
@@ -196,12 +196,12 @@ static void appearance_script(void) {
 }
 int main(void) {
   reset();reason=APP_LAUNCH_USER;stored_theme=1;loop_script=appearance_script;helper_app_main();
-  assert(stored_theme==0&&font_unloads==2);
+  assert(stored_theme==0&&font_loads==0&&font_unloads==0);
   const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};
   for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
     reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
     helper_app_main();assert(created==1&&loops==1&&popped==1);
-    assert(text_destroys==4&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_unloads==2);no_setup_work();
+    assert(text_destroys==4&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==0&&font_unloads==0);no_setup_work();
   }
   reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
     for(int fail=1;fail<=4;++fail){

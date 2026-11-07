@@ -1,0 +1,170 @@
+{
+  "version": "0.3.0",
+  "scope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.",
+  "phoneRuntime": false,
+  "physicalWatch": false,
+  "quickLaunchHoldSimulated": false,
+  "pbwSha256": "04f2bf70ecfc1e830b088a0f07853e69ad2ef6e603c6626c3b7dce5dce26d427",
+  "nativeSha256": "31dca31e28c55119fb1289145cfc6443b9417de9571c811a96625dffe38b21fc",
+  "events": [
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    }
+  ],
+  "checks": {
+    "ordinarySetupStaysOpen": true,
+    "outlivesQuickLaunchBudget": true,
+    "offlineSetupStaysOpen": true,
+    "backReturns": true,
+    "noNativeHandshake": true,
+    "themeUpdatesInPassiveSetup": true,
+    "darkRestoredBeforePhone": true,
+    "invalidThemeIgnored": true
+  },
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "91133aca49433db07be1e5e6f21c9ea769b570ef87683eb6640a77feb106e944",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-still-open-after-budget.png",
+      "sha256": "91133aca49433db07be1e5e6f21c9ea769b570ef87683eb6640a77feb106e944",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-dark.png",
+      "sha256": "8cc2516e5f25eae325c04802226e02cd949e9057f2be23e01d086f11bc3a0ab5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-dark-restored-before-phone.png",
+      "sha256": "8cc2516e5f25eae325c04802226e02cd949e9057f2be23e01d086f11bc3a0ab5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-invalid-theme-keeps-dark.png",
+      "sha256": "8cc2516e5f25eae325c04802226e02cd949e9057f2be23e01d086f11bc3a0ab5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-back-returned.png",
+      "sha256": "9decc159a6f0840287a54903e0942da4a49fb99bf8647519685087ac1215bea4",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-offline.png",
+      "sha256": "8cc2516e5f25eae325c04802226e02cd949e9057f2be23e01d086f11bc3a0ab5",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "version": "0.3.0",
+  "branch": "design/pebble-native-redesign",
+  "base": "8ab401c6b58c783be596143657d3be272517c870",
+  "automated": {
+    "passed": 62,
+    "skipped": 0,
+    "portableNativeAdapter": true,
+    "artifact": true
+  },
+  "emulator": true,
+  "browserRendered": false,
+  "phoneWebView": false,
+  "physicalWatch": false,
+  "browserBlocker": "Chromium aborts: sandbox_host_linux.cc shutdown: Operation not permitted",
+  "artifacts": {
+    "Open-Activity-0.3.0.pbw": "04f2bf70ecfc1e830b088a0f07853e69ad2ef6e603c6626c3b7dce5dce26d427",
+    "Open-Activity-0.3.0-debug.zip": "6325638cfca7d8fcf6edae22c78fb54ba4ab3e1011690a4ef5fce638526e7104"
+  },
+  "previousArtifactSha256": {
+    "Open-Activity-0.2.0-debug.zip": "1f7022d59de9cf811d4622aa8547537b4c7212a746db337f07a215e5bf1ca1a3",
+    "Open-Activity-0.2.0-source.zip": "6b73906922e6578daeb48598928bec17d4bb4d09ae67a9f7842f71924ade0763",
+    "Open-Activity-0.2.0.pbw": "473646c64c0929da91781327a115003b0fc41f534f7fa98407df194124e6a0f3"
+  }
+}
