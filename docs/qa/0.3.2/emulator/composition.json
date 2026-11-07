@@ -1,0 +1,26 @@
+{
+  "scope": "Early whole-screen composition captures only; not workflow verification",
+  "version": "0.3.2",
+  "pbwSha256": "ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a",
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "399cc8b92ff794e470f7f964fbcb6da8b187993c492e6998c16c69f0abbe6554",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-dark.png",
+      "sha256": "68b4e359299fb656775a9e49cd0c98f4bc84a909967dbb64b9b642888762510c",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    }
+  ],
+  "physicalWatch": false
+}

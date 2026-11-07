@@ -1,0 +1,51 @@
+{
+  "version": "0.3.2",
+  "branch": "design/pebble-native-redesign",
+  "previousCandidate": "4e5e250",
+  "result": "PASS",
+  "scope": "Whole native setup composition and original routing/lifecycle regressions",
+  "automated": {
+    "jsPassed": 62,
+    "portableNativeAdapter": true,
+    "packagedTests": 6,
+    "artifact": true
+  },
+  "native": {
+    "emulator": true,
+    "captureReport": "emulator/report.json",
+    "pbwSha256": "ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a",
+    "nativeSha256": "d295a231795c31b68825479a7c3cafa859092006fe6e8a8e4bc3e582a59b9082",
+    "readabilityReport": "readability.json",
+    "measuredScreens": 6,
+    "clockStrings": 1440,
+    "fontCapInkHeights": {
+      "22": 16,
+      "24": 17,
+      "26": 19
+    },
+    "headerOpticalCenterDeltaAtMost": 0.5,
+    "visibleLineGapAtLeast": 5,
+    "bottomClearance": 13,
+    "workflowChecks": {
+      "ordinarySetupStaysOpen": true,
+      "outlivesQuickLaunchBudget": true,
+      "offlineSetupStaysOpen": true,
+      "backReturns": true,
+      "noNativeHandshake": true,
+      "themeUpdatesInPassiveSetup": true,
+      "darkRestoredBeforePhone": true,
+      "invalidThemeIgnored": true
+    }
+  },
+  "phone": {
+    "controllerChanged": false,
+    "previewIsMock": true,
+    "freshBrowserRendered": false,
+    "browserLimitation": "Chromium and Firefox sandbox startup blocked"
+  },
+  "physicalWatch": false,
+  "artifacts": {
+    "Open-Activity-0.3.2.pbw": "ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a",
+    "Open-Activity-0.3.2-debug.zip": "26e054d703770fe4b339c46b8accb1c5adb2cae4d75b287edd7a8a9dadbab731"
+  }
+}

@@ -1,0 +1,77 @@
+
+> pebble-app-open-activity@0.3.2 test
+> node --test tests/*.test.js && python3 scripts/test-native.py
+
+✔ one startup request, exact source, no dispatch before native confirmation (3.088159ms)
+✔ Up chooses Secondary; an absent Secondary closes without Primary fallback (0.427196ms)
+✔ saved independent mappings select a different role (0.32972ms)
+✔ all Quick Launch slots can independently open either role, including tap versus hold (1.337734ms)
+✔ each role can choose any one shortcut while other shortcuts close without a launch (2.42547ms)
+✔ unsupported or missing gesture never resolves a destination (0.268356ms)
+✔ wrong confirmation session, ticket, destination and role are ignored (0.174465ms)
+✔ Back before source reply prevents any later preparation or invocation (0.186823ms)
+✔ Back during prepare ignores a late matching confirmation (0.18415ms)
+✔ native elapsed time reduces phone budget; timeout never replays (0.277158ms)
+✔ candidate can expire between source result and final confirmation (0.158326ms)
+✔ a late/invalid native elapsed confirmation never dispatches (0.215439ms)
+✔ wrong provider, invalid source or SDK failure closes (0.210939ms)
+✔ synchronous source callback releases subscription and unsubscribes only once (0.123214ms)
+✔ duplicates and late provider updates cannot retarget a resolved attempt (0.12291ms)
+✔ invocation failure closes, success never issues return navigation (0.26229ms)
+✔ post-dispatch timeout/Back closes locally without pretending to recall operation (0.099381ms)
+✔ bad settings and malformed native hello never subscribe or launch (0.134089ms)
+✔ closing discards queued preparation before old transport callback fires (0.109475ms)
+✔ symbolic protocol keys are accepted alongside numeric SDK keys (0.106316ms)
+✔ exact Dynamic source selects either role without content or provider inference (0.177534ms)
+✔ source availability and original routing expiry are both enforced (0.11517ms)
+✔ wrong provider, missing/duplicate instances and malformed transport close (0.101758ms)
+✔ hint validator rejects unsupported schema, unknown fields and invalid clocks/counters (0.293194ms)
+✔ destination objects reject recursion, zero UUID, uppercase, extra args and wrong shapes (0.124809ms)
+✔ byte accounting handles UTF-8 and malformed surrogate text (0.081902ms)
+✔ factory choices bind exactly one shortcut per role and leave other buttons unassigned (0.187462ms)
+✔ legacy eight-slot settings retain their exact routing across a cold save/load (0.283262ms)
+✔ new slots inherit Default without changing old hold mappings or adding empty tap state (0.188718ms)
+✔ each of the eight shortcuts can be chosen for either role without assigning the other seven (0.376638ms)
+✔ two role choices reject collisions and malformed shortcuts while allowing either role to be disabled (0.20572ms)
+✔ legacy projection prefers existing explicit role shortcuts and never writes until an explicit Save (0.292173ms)
+✔ corrupt, inherited-name and unsupported settings never silently become defaults (0.134474ms)
+✔ settings storage is read-back checked and contains only configuration (0.11362ms)
+✔ offline settings explain separate assignment and preserve selected roles (0.377934ms)
+✔ settings coalesces viewport/status/observer work and skips unchanged layout writes (3.263141ms)
+✔ oversized navigation input is rejected before walking its characters (0.153857ms)
+✔ Quick Launch startup does not execute the legacy settings page module (0.839977ms)
+✔ packaged config stores only the two role choices across fresh plugin contexts (1.974085ms)
+✔ packaged old settings are projected without a write and convert only on an explicit Save (1.401827ms)
+✔ actual packaged HTML has two role selectors and saves without a native session (2.968846ms)
+✔ packaged legacy configuration shares two fields and retains Cancel and Save return URLs (4.178021ms)
+✔ packaged PKJS opens either role from any chosen shortcut once and closes unassigned shortcuts (14.588608ms)
+✔ packaged PKJS keeps every old mapping active until a new two-choice configuration is saved (9.705043ms)
+✔ page has only Primary and Secondary choices, each offering all eight shortcuts and None (1.41222ms)
+✔ each shortcut can be chosen for either activity and survives Save and a cold reopen (27.388181ms)
+✔ a duplicate shortcut blocks Save without clearing either choice; None can disable both (0.95683ms)
+✔ setup guidance names only the selected shortcuts and explains the disabled state (0.893658ms)
+✔ old mappings are projected without writes and converted only by explicit Save (0.911034ms)
+✔ malformed and timed-out loading keeps choices disabled and ignores replies after Retry (1.580472ms)
+✔ failed Save retains choices, retry confirms, and ordinary Discard never writes or reads storage (1.069883ms)
+✔ an unconfirmed write is explicitly read back and late replies cannot overwrite a later draft (1.382667ms)
+✔ repair and legacy migration need explicit Save; Cancel writes nothing (3.664684ms)
+✔ appearance changes save in the same draft and confirmed Save stays open until a new edit (1.64767ms)
+✔ live PKJS save keeps shortcut choices in Android DOM and native stores through teardown (1.971363ms)
+✔ PKJS and plugin return exact saved choices for both save aliases without navigation (1.331911ms)
+✔ legacy reads preserve stored bytes and routing until explicit save migrates the choices (1.641893ms)
+✔ malformed or conflicting choices never mutate either settings store (1.6264ms)
+✔ storage exceptions or failed readback cannot produce a successful settings receipt (1.721985ms)
+✔ settings remain available after cancellation without replaying a terminal launch attempt (0.533656ms)
+✔ appearance uses a separate versioned store and survives active-writer teardown without changing legacy routing on reads (2.252203ms)
+✔ invalid appearance is rejected before either stored setting changes (1.248153ms)
+ℹ tests 62
+ℹ suites 0
+ℹ pass 62
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.8599
+native attempt: liveness, roles, duplicate prepare, closure, wrap and destinations passed
+native SDK adapter: three setup launch reasons online/offline, no attempt or native activity handshake, settings-only theme receive/cache/failed-write checks, ordinary Back after ten seconds, allocation cleanup, eight slots and gesture wire, unsupported reasons/gestures, handshake, malformed wire, timeout and disconnected closure passed
+Native/phone/package message keys and timeout agree

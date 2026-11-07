@@ -23,6 +23,7 @@ parser.add_argument('--pipe-helper', type=Path,
                     default=root.parent / 'recovery-validation/pipe_emulator.py')
 parser.add_argument('--output', type=Path, default=root / 'docs/qa' / package['version'] / 'emulator')
 parser.add_argument('--expected-sha256', help='Require the exact candidate PBW bytes')
+parser.add_argument('--composition-only', action='store_true', help='Capture light/dark composition without claiming full workflow QA')
 args = parser.parse_args()
 if not args.pipe_helper.is_file():
     raise SystemExit('Supply the local SDK FIFO emulator helper with --pipe-helper.')
@@ -86,6 +87,17 @@ send_data_to_qemu(connection.transport, QemuBluetoothConnection(connected=True))
 connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
 await_foreground(True)
 capture('setup-phone-launch')
+if args.composition_only:
+    appmessages.send_message(target,{2000:Uint8(7),2008:Uint8(1)})
+    time.sleep(.3)
+    capture('setup-dark')
+    (args.output / 'composition.json').write_text(json.dumps({
+        'scope':'Early whole-screen composition captures only; not workflow verification',
+        'version':package['version'],'pbwSha256':hashlib.sha256(pbw.read_bytes()).hexdigest(),
+        'captures':captures,'physicalWatch':False
+    },indent=2)+'\n')
+    print('Light/dark composition captured:',args.output)
+    raise SystemExit(0)
 time.sleep(5.2)
 assert foreground() == target, 'Normal setup must outlive the Quick Launch budget'
 capture('setup-still-open-after-budget')

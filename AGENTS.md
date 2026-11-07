@@ -1,16 +1,19 @@
 # Open Activity maintainer notes
 
-On `design/pebble-native-redesign`, local 0.3.1 is an experimental visual
-alternative; read [docs/REDESIGN.md](docs/REDESIGN.md). Native setup uses stock
-Gothic fonts without custom font allocations. Preserve the routing, passive
-settings inbox and original attempt budget. Main and the shared design standard
-remain the comparison baseline until Xef approves this alternative.
+On `design/pebble-native-redesign`, local 0.3.2 is an experimental visual
+alternative; read [docs/REDESIGN.md](docs/REDESIGN.md). Preserve routing, the
+passive settings inbox and the original attempt budget. Main and the shared
+design standard remain the comparison baseline until Xef approves this alternative.
 
-Xef explicitly prioritizes readability over imitating Pebble: never shrink the
-top time/date for native styling. Center visible text ink within its space,
-including descenders; do not use a font point size as the ink height. The local
-0.3.1 clock has 18px visible ink, title/clock share an optical center, and the
-instruction/hint have balanced margins. Keep these native checks.
+Xef prioritizes whole-screen readability: balance all text, icons, row heights
+and gaps together. Do not enlarge only the header. Setup uses Roboto Condensed
+Bold 22/24/26 for secondary/main/clock roles (16/17/19px actual capital ink).
+Explicit lines retain at least 4px of visible leading and 12px bottom clearance.
+Measure actual compiled glyphs and native pixels, including descenders and
+all clock strings. All three resources require extended Latin glyph coverage.
+Setup loads three fonts; Quick Launch loads only its one main font. Unload each
+successful allocation after destroying its TextLayers; retain system fallbacks.
+The four-second attempt budget starts before font loading, including failure.
 
 This is one stock PebbleOS Quick Launch watchapp for both Dynamic activity
 positions. Preserve UUID `d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9` and message keys.

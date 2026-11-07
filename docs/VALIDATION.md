@@ -1,5 +1,16 @@
 # Open Activity validation
 
+## Local whole-screen candidate 0.3.2 — 7 November 2026
+
+The complete setup typography and spacing were rebalanced on the local redesign
+branch. [Current evidence](qa/0.3.2/validation.json) binds the exact packaged
+native binary, all 1,440 clock strings and six measured whole-screen captures.
+62 JavaScript tests, portable native harnesses, six packaged tests and the
+artifact check pass. Font/label allocation failures and the original opening
+deadline remain covered. Native setup stays open, handles appearance and restores
+the saved theme after closing/reopening. Fresh browser and physical-device
+verification are pending; all older reports below retain their historical scope.
+
 ## 0.1.6 local candidate — 5 November 2026
 
 Ordinary menu/user, phone and system launches now stay open on a static setup

@@ -1,56 +1,52 @@
 # Pebble native redesign — review branch
 
-This is an alternative for Xef to review on `design/pebble-native-redesign`,
-based on `8ab401c6b58c783be596143657d3be272517c870`. Local version **0.3.1**,
-correcting the smaller text in the first 0.3.0 trial.
-It is not an approved replacement for the shared standard or a published release.
+Local **0.3.2** on `design/pebble-native-redesign` rebalances the whole setup
+screen after Xef rejected isolated header enlargement. It is an alternative
+for review, not an approved replacement for main or a published release.
+The baseline is `8ab401c6b58c783be596143657d3be272517c870`.
 
-Xef's requirement is readability first: native styling must not shrink the top
-clock/date, and text should sit centrally in its space. The clock now uses Gothic
-28 Bold, giving 18px of actual visible digit ink instead of the first trial's
-11px. The title, instruction and hint use Gothic 24 Bold. The hint is larger and
-heavier; its secondary colour still distinguishes it from the main instruction.
-Frames account for the actual glyph bearings and descenders. Title and time
-share exactly the same optical centre. The instruction and hint have balanced
-vertical margins, and the hint retains 18px of bottom clearance.
-The violet identity and independent saved light/dark appearance stay. There are
-no custom font allocations.
+Setup uses the same Roboto Condensed Bold utility family as the other apps:
+22 for the full app name and secondary instructions, 24 for the main instruction,
+and 26 for the clock. Actual capital ink is 16/17/19px. All text is readable
+at a related scale rather than leaving a large clock above small body copy.
+Explicit main and hint lines have 5px and 7px visible gaps in native captures;
+there is 13px bottom clearance. Title and clock optical centers differ by 0.5px.
+All 1,440 clock strings fit their field; the full title and instruction fit
+without clipping. The font resources include Czech accents and punctuation.
 
-The automatic Opening screen remains still and uses Gothic. It keeps the original
-four-second attempt, Back cancellation and one dispatch. Setup still opens
-without an attempt or activity handshake and stays open for phone configuration.
-There is no empty action bar or added animation before opening an activity.
+The automatic Opening screen remains still and loads only its one main font.
+Setup loads three; partial font or TextLayer allocation failures are cleaned up
+and have system-font fallbacks. The four-second opening budget still starts
+before font loading. Routing, Back cancellation and one dispatch are unchanged.
+Ordinary setup remains open for phone configuration without an activity handshake.
+Saved light/dark appearance and the violet identity remain.
 
-Phone sections use neutral headings, 16px card insets, a 24px section rhythm,
-44px controls, a 48px Save button and a left-aligned status. The violet Save
-colours adapt to phone appearance. Button feedback and help disclosure are brief
-and respect reduced motion. Exactly two role pickers and the separate watch
-appearance selector remain. The actual save, receipt, routing and draft code is
-unchanged.
-
-The help summary now has symmetric vertical padding, so its label has room above
-and below even in WebViews without block `align-content` support. The phone save
-controller is unchanged. Browser rendering of this source-level fix is unverified.
+Phone sections retain 16px card insets, a 24px section rhythm, 44px controls,
+a 48px Save button, left-aligned status and symmetric disclosure padding.
+Exactly two role pickers, the separate appearance selector, reduced-motion
+feedback and the existing save/receipt/draft controller remain. This pass does
+not change phone persistence or shortcut ownership.
 
 ## Review and evidence
 
-- [Watch setup, light](qa/0.3.1/emulator/setup-phone-launch.png) and
-  [dark](qa/0.3.1/emulator/setup-dark.png): actual packaged native code in Emery
-  QEMU, with unmodified screenshot pixels.
-- [Phone layout preview](qa/0.3.1/phone-preview.html): actual generated page with
-  an in-memory mock bridge. Save affects this preview only. Opening it directly
-  never contacts a phone or watch.
-- [Validation record](qa/0.3.1/validation.json),
-  [pixel measurements](qa/0.3.1/readability.json) and
-  [emulator report](qa/0.3.1/emulator/report.json): portable controller/native tests,
-  all six packaged tests, build and artifact checks pass. Setup was checked after
-  four seconds, offline, after Back and after reopening with the saved dark theme.
-  Cold openings at 00:00, 11:11 and 22:58 check narrow and wide clock strings.
-  `scripts/check-readability.py` checks the unmodified native screenshot pixels.
+- [Setup, light](qa/0.3.2/emulator/setup-phone-launch.png) and
+  [dark](qa/0.3.2/emulator/setup-dark.png) are unmodified native Emery captures
+  of the exact packaged candidate.
+- [Phone preview](qa/0.3.2/phone-preview.html) uses the actual generated page
+  and an in-memory mock bridge; it cannot change a phone or watch.
+- [Validation](qa/0.3.2/validation.json),
+  [whole-screen measurements](qa/0.3.2/readability.json) and
+  [native workflow report](qa/0.3.2/emulator/report.json) record the checks.
+  All 62 JavaScript tests, portable native harnesses, six packaged tests and
+  artifact checks pass. Native setup was checked after four seconds, offline,
+  after Back, after cold reopening with saved dark appearance and with wide
+  and narrow clock strings. Portable tests cover all three font failures,
+  six TextLayer failures and a font load exceeding the opening deadline.
 
-Fresh Chromium rendering is blocked by this environment's sandbox. The phone
-preview has not been visually verified here. Real phone WebView and physical
-watch timing remain unverified. Older versioned PBWs, tags and main are retained.
+Fresh browser rendering is blocked by the sandbox (Chromium and Firefox).
+Phone WebView appearance and physical-watch timing remain unverified. Emulator
+captures and portable tests do not establish physical Quick Launch performance.
+Older PBWs, tags and main retain their bytes. Nothing has been pushed or published.
 
-Build locally with the SDK on PATH: `npm test`, `npm run build`,
-`npm run check:artifact`. The review PBW is `dist/Open-Activity-0.3.1.pbw`.
+Build: `npm test`, `npm run build`, `npm run check:artifact`.
+The local review PBW is `dist/Open-Activity-0.3.2.pbw`.

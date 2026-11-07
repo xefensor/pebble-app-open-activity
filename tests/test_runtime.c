@@ -20,15 +20,17 @@ static int fail_text_at;
 static bool fail_window, fail_status;
 static int32_t stored_theme;
 static int theme_writes,clock_subscribes,clock_unsubscribes,font_loads,font_unloads;
+static int fail_font_at;
+static uint32_t font_load_delay;
 static bool theme_write_fails;
 static GColor window_background;
 static AppMessageResult opening_result;
 static DictionaryIterator outgoing;
 static AppTimer timer;
 static Window window;
-static TextLayer labels[4];
-static const char *label_text[4];
-static bool label_destroyed[4];
+static TextLayer labels[6];
+static const char *label_text[6];
+static bool label_destroyed[6];
 static StatusBarLayer status_bar;
 static Layer layer;
 static void (*loop_script)(void);
@@ -70,16 +72,16 @@ Layer *window_get_root_layer(Window *value) {(void)value;return &layer;}
 GRect layer_get_bounds(Layer *value) {(void)value;return GRect(0,0,200,228);}
 TextLayer *text_layer_create(GRect rect) {
   assert(rect.origin.x>=0&&rect.origin.x+rect.size.w<=200&&rect.origin.y>=0&&rect.origin.y+rect.size.h<=228);
-  assert(text_creates<4);int at=text_creates++;
+  assert(text_creates<6);int at=text_creates++;
   return fail_text_at==at+1?NULL:&labels[at];
 }
-void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+4);label_text[value-labels]=text;}
+void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+6);label_text[value-labels]=text;}
 void text_layer_set_font(TextLayer *value,GFont font) {(void)value;(void)font;}
 void text_layer_set_text_alignment(TextLayer *value,int alignment) {(void)value;(void)alignment;}
 void text_layer_set_text_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 void text_layer_set_background_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 GFont fonts_get_system_font(const char *key) {return key;}
-GFont fonts_load_custom_font(unsigned handle) {font_loads++;return (GFont)(uintptr_t)handle;}
+GFont fonts_load_custom_font(unsigned handle) {font_loads++;clock_ms+=font_load_delay;return font_loads==fail_font_at?NULL:(GFont)(uintptr_t)handle;}
 void fonts_unload_custom_font(GFont font) {assert(font);font_unloads++;}
 unsigned resource_get_handle(unsigned handle) {return handle;}
 bool persist_exists(unsigned key) {assert(key==OA_THEME_STORAGE_KEY);return stored_theme>=0;}
@@ -91,7 +93,7 @@ void tick_timer_service_unsubscribe(void) {clock_unsubscribes++;}
 Layer *text_layer_get_layer(TextLayer *value) {(void)value;return &layer;}
 void layer_add_child(Layer *parent,Layer *child) {(void)parent;(void)child;}
 void text_layer_destroy(TextLayer *value) {
-  assert(value>=labels&&value<labels+4);size_t at=(size_t)(value-labels);
+  assert(value>=labels&&value<labels+6);size_t at=(size_t)(value-labels);
   assert(!label_destroyed[at]);label_destroyed[at]=true;text_destroys++;
 }
 StatusBarLayer *status_bar_layer_create(void) {status_creates++;return fail_status?NULL:&status_bar;}
@@ -113,10 +115,11 @@ static void reset(void) {
   timer_registers=click_providers=default_backs=0;
   text_creates=text_destroys=window_destroys=status_creates=status_destroys=0;
   fail_text_at=0;fail_window=fail_status=false;
+  fail_font_at=0;font_load_delay=0;memset(s_fonts,0,sizeof(s_fonts));
   stored_theme=-1;theme_writes=clock_subscribes=clock_unsubscribes=font_loads=font_unloads=0;theme_write_fails=false;window_background=GColorClear;
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
-  s_setup_body=NULL;s_setup_hint=NULL;s_clock=NULL;s_setup_mode=false;
+  memset(s_setup_body,0,sizeof(s_setup_body));memset(s_setup_hint,0,sizeof(s_setup_hint));s_clock=NULL;s_setup_mode=false;
   s_dark=false;s_message_opened=false;s_clock_subscribed=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
@@ -172,10 +175,12 @@ static void no_setup_work(void) {
 }
 static void setup_script(void) {
   assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
-  assert(status_creates==0&&text_creates==4&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
+  assert(status_creates==0&&text_creates==6&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
   assert(!strcmp(label_text[0],"Open Activity"));
-  assert(!strcmp(label_text[2],"Open settings in the Pebble phone app."));
-  assert(!strcmp(label_text[3],"Quick Launch opens your activities."));
+  assert(!strcmp(label_text[2],"Open settings in"));
+  assert(!strcmp(label_text[3],"the Pebble app."));
+  assert(!strcmp(label_text[4],"Quick Launch"));
+  assert(!strcmp(label_text[5],"opens activities."));
   no_setup_work();
   clock_ms+=10000;assert(popped==0); // No four-second attempt budget in setup.
   request();prepare(123,false); // Even forced protocol callbacks cannot acquire an attempt.
@@ -196,15 +201,21 @@ static void appearance_script(void) {
 }
 int main(void) {
   reset();reason=APP_LAUNCH_USER;stored_theme=1;loop_script=appearance_script;helper_app_main();
-  assert(stored_theme==0&&font_loads==0&&font_unloads==0);
+  assert(stored_theme==0&&font_loads==3&&font_unloads==3);
   const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};
   for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
     reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
     helper_app_main();assert(created==1&&loops==1&&popped==1);
-    assert(text_destroys==4&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==0&&font_unloads==0);no_setup_work();
+    assert(text_destroys==6&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==3&&font_unloads==3);no_setup_work();
   }
+  for(int fail=1;fail<=3;++fail){
+    reset();reason=APP_LAUNCH_USER;fail_font_at=fail;loop_script=setup_script;
+    helper_app_main();assert(font_loads==3&&font_unloads==2&&default_backs==1);no_setup_work();
+  }
+  reset();font_load_delay=OA_BUDGET_MS+1;helper_app_main();
+  assert(font_loads==1&&font_unloads==1&&message_opens==0&&sent==0&&timer_registers==0&&loops==0&&s_attempt.phase==OA_CLOSED);
   reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
-    for(int fail=1;fail<=4;++fail){
+    for(int fail=1;fail<=6;++fail){
     reset();reason=APP_LAUNCH_USER;fail_text_at=fail;helper_app_main();
     assert(loops==0&&pushed==0&&text_destroys==fail-1&&status_destroys==0&&window_destroys==1);no_setup_work();
   }

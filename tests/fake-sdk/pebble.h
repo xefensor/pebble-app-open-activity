@@ -29,6 +29,9 @@ typedef unsigned TimeUnits;
 #define MINUTE_UNIT 2
 #define RESOURCE_ID_FONT_BODY_18 1
 #define RESOURCE_ID_FONT_BODY_23 2
+#define RESOURCE_ID_FONT_BODY_22 3
+#define RESOURCE_ID_FONT_BODY_24 4
+#define RESOURCE_ID_FONT_BODY_26 5
 GFont fonts_load_custom_font(unsigned);
 void fonts_unload_custom_font(GFont);
 unsigned resource_get_handle(unsigned);

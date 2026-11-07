@@ -1,0 +1,80 @@
+
+> pebble-app-open-activity@0.3.2 build
+> python3 scripts/build.py
+
+'distclean' finished successfully (0.008s)
+
+up to date in 204ms
+
+up to date in 200ms
+Setting top to                           : /home/xela/Projekty/Pebble/pebble-app-open-activity 
+Setting out to                           : /home/xela/Projekty/Pebble/pebble-app-open-activity/build 
+Checking for program 'webpack'           : /home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/current/node_modules/.bin/webpack 
+Found Pebble SDK for emery in:           : /home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/current/sdk-core/pebble/emery 
+Checking for program 'gcc, cc'           : arm-none-eabi-gcc 
+Checking for program 'ar'                : arm-none-eabi-ar 
+'configure' finished successfully (0.037s)
+Waf: Entering directory `/home/xela/Projekty/Pebble/pebble-app-open-activity/build'
+[1/3] Creating message_key_json:  -> build/js/message_keys.json
+[2/3] Creating message_key_definitions:  -> build/src/message_keys.auto.c
+[3/3] Creating message_key_header:  -> build/include/message_keys.auto.h
+[ 4/20] Compiling emery | reso: resources/fonts/RobotoCondensed-Bold.ttf -> build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_26.reso
+[ 5/20] Compiling emery | reso: resources/fonts/RobotoCondensed-Bold.ttf -> build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_22.reso
+[ 6/20] Compiling emery | reso: resources/fonts/RobotoCondensed-Bold.ttf -> build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_24.reso
+[ 7/20] Creating emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/appinfo.auto.c:  -> build/emery/appinfo.auto.c
+[ 8/20] Compiling emery | subst: ../.recovery-tools/data/pebble-sdk/SDKs/current/sdk-core/pebble/common/pebble_app.ld.template -> build/emery/pebble_app.ld.auto
+[ 9/20] Compiling emery | c: build/src/message_keys.auto.c -> build/src/message_keys.auto.c.9.o
+[10/20] Compiling emery | c: src/c/attempt.c -> build/src/c/attempt.c.9.o
+[11/20] Creating emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/appinfo.json:  -> build/appinfo.json
+[12/20] Processing emery | resource_ball: build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_22.reso build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_24.reso build/emery/resources/fonts/RobotoCondensed-Bold.ttf.FONT_BODY_26.reso -> build/emery/system_resources.resball
+[13/20] Compiling emery | generate_resource_id_definitions: build/emery/system_resources.resball -> build/emery/src/resource_ids.auto.c
+[14/20] Compiling emery | generate_pbpack: build/emery/system_resources.resball -> build/emery/app_resources.pbpack
+[15/20] Compiling emery | generate_resource_id_header: build/emery/system_resources.resball -> build/emery/src/resource_ids.auto.h
+[16/20] Compiling emery | c: build/emery/src/resource_ids.auto.c -> build/emery/src/resource_ids.auto.c.9.o
+[17/20] Compiling emery | c: src/c/main.c -> build/src/c/main.c.9.o
+[18/20] Compiling emery | c: build/emery/appinfo.auto.c -> build/emery/appinfo.auto.c.9.o
+[19/20] Linking emery | cprogram: build/src/c/attempt.c.9.o build/src/c/main.c.9.o build/emery/appinfo.auto.c.9.o build/emery/src/resource_ids.auto.c.9.o build/src/message_keys.auto.c.9.o -> build/emery/pebble-app.elf
+/home/xela/Projekty/Pebble/.recovery-tools/data/pebble-sdk/SDKs/4.33.1/toolchain/arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: warning: /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/pebble-app.elf has a LOAD segment with RWX permissions
+
+[20/20] Processing emery | memory_usage_report: build/emery/pebble-app.elf build/emery/app_resources.pbpack
+-------------------------------------------------------
+EMERY APP MEMORY USAGE
+Total size of resources:        39620 bytes / 256.0KB
+Total footprint in RAM:         4368 bytes / 128.0KB
+Free RAM available (heap):      126704 bytes
+------------------------------------------------------- 
+[21/24] Compiling emery | /home/xela/Projekty/Pebble/pebble-app-open-activity/build/emery/pebble-app.raw.bin: build/emery/pebble-app.elf -> build/emery/pebble-app.raw.bin
+[22/24] Processing merge_js: src/pkjs/index.js src/pkjs/launcher.js src/pkjs/navigation.js src/pkjs/protocol.js src/pkjs/queue.js src/pkjs/settings-i18n.js src/pkjs/settings-page.js src/pkjs/settings.js src/pkjs/ui-settings.js -> build/pebble-js-app.js build/pebble-js-app.js.map
+[23/24] Processing emery | inject-metadata: build/emery/pebble-app.raw.bin build/emery/pebble-app.elf build/emery/app_resources.pbpack -> build/emery/pebble-app.bin
+[24/24] Creating app_bundle:  -> build/pebble-app-open-activity.pbw
+Waf: Leaving directory `/home/xela/Projekty/Pebble/pebble-app-open-activity/build'
+'build' finished successfully (0.648s)
+Shared configuration template: PASS
+{
+  "pbw": "/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.3.2.pbw",
+  "sha256": "ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a",
+  "nativeFileBytes": 4272,
+  "nativeLoadedBytes": 4248,
+  "nativeVirtualBytes": 4368,
+  "phoneBundleBytes": 38923,
+  "debugArchiveBytes": 80070,
+  "minificationIdentity": "PASS",
+  "permissions": [
+    "LaunchApps"
+  ]
+}
+✔ packaged config stores only the two role choices across fresh plugin contexts (4.293755ms)
+✔ packaged old settings are projected without a write and convert only on an explicit Save (1.55688ms)
+✔ actual packaged HTML has two role selectors and saves without a native session (4.198547ms)
+✔ packaged legacy configuration shares two fields and retains Cancel and Save return URLs (4.608496ms)
+✔ packaged PKJS opens either role from any chosen shortcut once and closes unassigned shortcuts (19.072012ms)
+✔ packaged PKJS keeps every old mapping active until a new two-choice configuration is saved (10.533553ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 89.671012
+/home/xela/Projekty/Pebble/pebble-app-open-activity/dist/Open-Activity-0.3.2.pbw

@@ -1,0 +1,281 @@
+{
+  "version": "0.3.2",
+  "scope": "Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.",
+  "phoneRuntime": false,
+  "physicalWatch": false,
+  "quickLaunchHoldSimulated": false,
+  "pbwSha256": "ebef82ff7fe1bc3c739075ae212b0a8af6600cb5622a05eae0880424cdff3d7a",
+  "nativeSha256": "d295a231795c31b68825479a7c3cafa859092006fe6e8a8e4bc3e582a59b9082",
+  "events": [
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "stop",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "stop",
+      "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    },
+    {
+      "kind": "start",
+      "uuid": "1197fc39-47e7-439b-82be-f56d9ba1dbd8"
+    }
+  ],
+  "checks": {
+    "ordinarySetupStaysOpen": true,
+    "outlivesQuickLaunchBudget": true,
+    "offlineSetupStaysOpen": true,
+    "backReturns": true,
+    "noNativeHandshake": true,
+    "themeUpdatesInPassiveSetup": true,
+    "darkRestoredBeforePhone": true,
+    "invalidThemeIgnored": true
+  },
+  "captures": [
+    {
+      "file": "setup-phone-launch.png",
+      "sha256": "7251a39191b58b6df59ef176fd626cf13ddd18fc648a0868b0c19c30854a2441",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-still-open-after-budget.png",
+      "sha256": "7251a39191b58b6df59ef176fd626cf13ddd18fc648a0868b0c19c30854a2441",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-dark.png",
+      "sha256": "83f50dff758509fcd8f3e27625421a7cd5c2caea585f94f8dc1d20f08065e7b9",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-dark-restored-before-phone.png",
+      "sha256": "83f50dff758509fcd8f3e27625421a7cd5c2caea585f94f8dc1d20f08065e7b9",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-invalid-theme-keeps-dark.png",
+      "sha256": "83f50dff758509fcd8f3e27625421a7cd5c2caea585f94f8dc1d20f08065e7b9",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-back-returned.png",
+      "sha256": "f64c8badeb9188ef02452aeb70fddf0c2a10f62ffc7f61fade1c4416b803e74b",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-clock-00-00.png",
+      "sha256": "64d62214ddfaa9328888c507d0d6ffe4dfb265c4003a36e5cd7a19c8c9f8e69e",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-clock-11-11.png",
+      "sha256": "c67e3b1156f191dce6bb2930e21bf93156448a08b4b518d74784fcd0ce4fb1cd",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-clock-22-58.png",
+      "sha256": "b00a5ca1c8388d20ec4ba5b4108fe6e7ce04a25010d44636d4938df6f682f9fa",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    },
+    {
+      "file": "setup-offline.png",
+      "sha256": "b00a5ca1c8388d20ec4ba5b4108fe6e7ce04a25010d44636d4938df6f682f9fa",
+      "pixels": [
+        200,
+        228
+      ],
+      "nativePixelsModified": false
+    }
+  ]
+}
