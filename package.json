@@ -82,6 +82,6 @@
     "terser": "5.46.0"
   },
   "dependencies": {
-    "pebble-xoce-ui": "file:vendor/pebble-xoce-ui-0.1.0.tgz"
+    "pebble-xoce-ui": "file:vendor/pebble-xoce-ui-0.1.1-dev.0.tgz"
   }
 }
