@@ -66,3 +66,11 @@ This passive setup channel creates no opening nonce or activity session. Quick
 Launch uses the last confirmed display, makes its one bounded attempt and keeps
 the original four-second deadline. Changing settings during Opening stays pending
 for a later passive setup launch.
+
+
+## Supporting text contrast
+
+Supporting/help text uses the normal foreground colour rather than blended grey.
+This keeps black text on white and white text on black readable without changing
+type sizes or layouts. See the [contrast checkpoint](text-contrast-checkpoint.md)
+for the current candidate and verification scope.

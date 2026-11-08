@@ -49,7 +49,7 @@ static void apply_palette(void) {
   if (s_label) text_layer_set_text_color(s_label, s_setup_mode ? accent() : foreground());
   if (s_header) layer_mark_dirty(s_header);
   for (unsigned i = 0; i < 2; ++i) {
-    if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], i ? secondary() : foreground());
+    if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], foreground());
   }
 }
 static void load_ui(void) {
