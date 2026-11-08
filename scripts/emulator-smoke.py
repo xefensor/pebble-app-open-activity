@@ -160,7 +160,7 @@ time.sleep(5.2)
 assert foreground() == target, 'Offline setup must stay open'
 capture('setup-offline')
 back()
-assert not native_messages, 'Setup must not emit a native activity handshake'
+assert all(set(data)=={2010} for data in native_messages),'Setup may only confirm display preferences, never emit an activity operation/session'
 if args.native_sizes:
     for size,label in enumerate(('small','medium','large'),1):
         send_data_to_qemu(connection.transport,QemuContentSize(size=size))
@@ -187,7 +187,7 @@ if args.native_sizes:
             time.sleep(.2)
             connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
             await_foreground(True);capture(label+('-24h' if style else '-12h')+'-clock');back()
-    assert not native_messages,'Size/scroll/clock tests must never initiate activity navigation'
+    assert all(set(data)=={2010} for data in native_messages),'Size/scroll/clock tests may confirm preferences but must never initiate activity navigation'
 for _ in range(args.repeat_cycles):
     connection.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
     await_foreground(True);time.sleep(.08);back()
@@ -207,7 +207,7 @@ report = {
     'nativeSha256': hashlib.sha256(binary).hexdigest(),
     'events': events[start:],
     'checks': {'ordinarySetupStaysOpen': True, 'outlivesQuickLaunchBudget': True,
-               'offlineSetupStaysOpen': True, 'backReturns': True, 'noNativeHandshake': True,
+               'offlineSetupStaysOpen': True, 'backReturns': True, 'noNativeActivityHandshake':True,'displayReceiptMessages':len(native_messages),
                'themeUpdatesInPassiveSetup': True, 'darkRestoredBeforePhone': True, 'invalidThemeIgnored': True},
     'captures': captures
 }

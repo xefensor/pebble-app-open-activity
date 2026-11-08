@@ -22,7 +22,7 @@ with tempfile.TemporaryDirectory(prefix='open-activity-runtime-') as scratch:
         os.environ.get('CC', 'cc'), '-std=c99', '-I', str(root / 'node_modules'), '-Wall', '-Wextra', '-Werror', '-pedantic',
         '-I', str(root / 'tests/fake-sdk'),
         '-I', str(root / 'node_modules/pebble-xoce-ui/include'),
-        str(root / 'src/c/attempt.c'),
+        str(root / 'src/c/attempt.c'),str(root/'src/c/oa_ui_preferences.c'),
         str(root / 'node_modules/pebble-xoce-ui/src/c/layout.c'),
         str(root / 'node_modules/pebble-xoce-ui/src/c/header.c'),
         str(root / 'node_modules/pebble-xoce-ui/src/c/native_type.c'),

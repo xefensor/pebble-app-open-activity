@@ -12,7 +12,7 @@ const legacy = () => ({version: 1, defaultRole: 'primary', holdOverrides: {up: '
 test('page offers a watchface, two activity shortcuts and separate appearance', async () => {
   const html = page.config();
   assert.equal(fs.readFileSync(require.resolve('../config.html'), 'utf8'), html);
-  assert.equal((html.match(/<select\b/g) || []).length, 4);
+  assert.equal((html.match(/<select\b/g) || []).length, 5);
   assert.match(html, /Primary activity/); assert.match(html, /Secondary activity/);
   const ui = mount(html, () => Promise.resolve(loaded()));
   ui.ready('pkjs'); assert.equal(ui.requests.length, 0);
@@ -210,4 +210,19 @@ for(const locale of require('../src/common/translations.json').languages) test('
  assert.equal(ui.elements.status.textContent,require('../src/common/translations.json').words[locale]['✓ Saved']);
  assert.deepEqual(stored,{...pair(),watchface:'halftone'});
  const fresh=mount(page.config(),reply,undefined,locale);fresh.ready();await fresh.tick();assert.equal(fresh.elements.watchface.value,'halftone');assert.equal(fresh.elements.save.disabled,true);
+});
+
+for(const locale of require('../src/common/translations.json').languages)test('display choices and watch receipt are independent of shortcuts: '+locale,async()=>{
+ let stored=pair(),display={version:2,textSize:'follow',appearance:'light',lastExplicit:'light'},applied=false;
+ const reply=message=>{
+  if(message.type==='saveSettings'){stored=message.settings;display=message.preferences;}
+  if(message.type==='getUiPreferences')return Promise.resolve({ok:true,settings:display,saved:true,delivery:{applied}});
+  return Promise.resolve({ok:true,settings:stored,appearance:{version:1,theme:display.lastExplicit},preferences:{ok:true,settings:display,saved:true,delivery:{applied}}});
+ };
+ const ui=mount(page.config(),reply,undefined,locale);ui.ready();await ui.tick();
+ ui.change('watch-theme','dark');ui.change('text-size','large');ui.change('watch-theme','follow');ui.elements.save.onclick();await ui.tick();
+ assert.deepEqual(JSON.parse(JSON.stringify(display)),{version:2,textSize:'large',appearance:'follow',lastExplicit:'dark'});assert.deepEqual(JSON.parse(JSON.stringify(stored)),pair());
+ const words=require('../src/common/translations.json').words[locale];assert.equal(ui.elements['watch-delivery'].textContent,words['Saved on phone · Pending on watch']);
+ applied=true;ui.timeout();await ui.tick();assert.equal(ui.elements['watch-delivery'].textContent,words['Applied on watch']);
+ ui.change('text-size','small');ui.elements.discard.onclick();assert.equal(ui.elements['text-size'].value,'large');assert.equal(ui.elements['watch-theme'].value,'follow');
 });

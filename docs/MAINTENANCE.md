@@ -35,3 +35,30 @@ sibling checkouts. Do not repin consumers or change published bytes as cleanup.
 
 [Earlier maintainer notes](history/maintainer-notes-before-rework.md) retain the
 full rationale/history. Read them only when investigating an old decision.
+
+## Display preferences and the launch boundary
+
+`open-activity-ui-preferences-v1` stores desired text size, appearance, last explicit
+colour, revision and exact applied receipt on the phone. Existing UI key
+`open-activity-ui-v1` remains the colour-only mirror. Reads and the isolated display
+API do not rewrite the version-1/version-2 shortcut record. The form’s explicit
+Save commits its projected version-2 shortcuts as before. The original provider,
+button, gesture and role fields retain their validation and numbering.
+
+Native preference key 2 stores a verified 20-byte frame; legacy colour key 1 stays
+compatible. AppMessage keys 2009/2010 are appended after 2008. The frame contains
+version 1, three fields, status and a hello flag, then four-byte little-endian
+revision, text-size choice, appearance choice and last explicit appearance.
+Only a positive revision, valid enums and exact persistence readback can establish
+an applied reply. A failed save leaves rendered choices unchanged and replies
+with failure. The phone requires the same revision and every choice, independently
+of transport success. Startup/reconnect mismatch invalidates an old receipt.
+
+Only passive setup sends preference hello/replies or accepts a new frame. The
+launcher enables display delivery after that native setup proof, through its
+existing single queue. Ready alone sends only the original REQUEST. Starting a
+Quick Launch stops display retry work and clears unsent settings; native ignores
+new display frames during an attempt. It uses the saved profile loaded inside
+the original launch budget. The two settings paths retain exact verified Save,
+Android live-writer handoff and pending choices across reopening. No display
+state creates a source subscription, navigation nonce or launch capability.

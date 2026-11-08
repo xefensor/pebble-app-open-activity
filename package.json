@@ -64,7 +64,9 @@
       "OA_ELAPSED_MS": 2005,
       "OA_TICKET": 2006,
       "OA_GESTURE": 2007,
-      "OA_THEME": 2008
+      "OA_THEME": 2008,
+      "OA_UI_PREFERENCES": 2009,
+      "OA_UI_PREFERENCES_RESULT": 2010
     }
   },
   "devDependencies": {

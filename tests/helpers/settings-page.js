@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 module.exports = function mount(html, reply, viewport, locale = 'en') {
   const elements = {};
-  for (const id of ['primary', 'secondary', 'watchface', 'settings', 'save', 'discard', 'retry', 'status', 'actions', 'shortcut-error', 'assignment-help', 'primary-help', 'secondary-help', 'watch-theme', 'watch-theme-help', 'watch-delivery']) {
+  for (const id of ['primary', 'secondary', 'watchface', 'settings', 'save', 'discard', 'retry', 'status', 'actions', 'shortcut-error', 'assignment-help', 'primary-help', 'secondary-help', 'watch-theme', 'watch-theme-help', 'watch-delivery','text-size','delivery-retry']) {
     const select = html.match(new RegExp('<select[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)<\\/select>'));
     const options = select ? [...select[1].matchAll(/<option[^>]*value="([^"]*)"[^>]*>([^<]*)<\/option>/g)].map(match => ({value: match[1], textContent: match[2]})) : [];
     elements[id] = {id, value: '', disabled: true, hidden: false, textContent: '', options, className: '',
@@ -34,12 +34,12 @@ module.exports = function mount(html, reply, viewport, locale = 'en') {
     setTimeout(callback) {const id = next++; timers.set(id, callback); return id;},
     clearTimeout(id) {timers.delete(id);},
     Pebble: {addEventListener(event, handler) {assert.equal(event, 'ready'); ready = handler;},
-      sendMessage(target, message) {assert.equal(target, 'plugin'); requests.push(message); return reply(message);}}
+      sendMessage(target, message) {assert.ok(target==='plugin'||target==='pkjs'); requests.push(message); return reply(message);}}
   }, browser), {timeout: 2000});
   return {elements, requests, location, ready: target => ready({target: target || 'plugin'}),
     timeout() {const callback = [...timers.values()].pop(); assert.ok(callback); timers.clear(); callback();},
     change(id, value) {elements[id].value = value; elements[id].onchange();},
-    tick: async () => {await Promise.resolve(); await Promise.resolve();}, geometry,
+    tick: async () => {for(let i=0;i<20;++i)await Promise.resolve();}, geometry,
     frame() {const work = frames.splice(0); work.forEach(callback => callback());},
     resize() {resize.resize(); visualResize.resize(); observed();}};
 };

@@ -1,6 +1,7 @@
 'use strict';
 
-// One bounded AppMessage queue. There are no retries or competing dispatchers.
+// One bounded AppMessage queue. Opening messages never retry; the display
+// controller may retry only after passive setup has been identified.
 module.exports = function (send) {
   var pending = [], busy = false;
   function flush() {

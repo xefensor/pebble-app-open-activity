@@ -3,11 +3,11 @@
 // are simulated. Requires an existing local Chromium debugging endpoint.
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const crypto = require('node:crypto'), assert = require('node:assert/strict');
-const {execFileSync} = require('node:child_process');
+const {execFileSync,spawn} = require('node:child_process');
 const root = path.resolve(__dirname, '..'), version = require('../package.json').version;
 const artifact = path.resolve(process.env.PEBBLE_PBW || path.join(root, 'build/candidate/Open-Activity-' + version + '.pbw'));
 const output = path.resolve(process.argv[2] || path.join(process.env.PEBBLE_QA_OUTPUT_ROOT || path.join(root, 'build/qa'), 'settings'));
-const endpoint = process.env.OPEN_ACTIVITY_CHROMIUM_ENDPOINT || 'http://127.0.0.1:9229';
+let endpoint=process.env.OPEN_ACTIVITY_CHROMIUM_ENDPOINT,ownedBrowser;
 const files = JSON.parse(execFileSync('python3', ['-c',
   'import json,sys,zipfile\nwith zipfile.ZipFile(sys.argv[1]) as z: print(json.dumps({n:z.read(n).decode() for n in ["config.html","plugin.js","pebble-js-app.js"]}))', artifact], {encoding: 'utf8'}));
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -86,6 +86,14 @@ function fixture(seed = {}, faults = {}) {
   return 'file://' + name;
 }
 async function run() {
+  if(!endpoint){
+    const profile=path.join(scratch,'chromium-profile');fs.mkdirSync(profile,{recursive:true});
+    const log=fs.openSync(path.join(output,'chromium.log'),'a');
+    ownedBrowser=spawn(process.env.CHROMIUM_BINARY||'/usr/bin/chromium',['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--no-first-run','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:['ignore',log,log]});fs.closeSync(log);
+    const portFile=path.join(profile,'DevToolsActivePort');
+    for(let i=0;i<100&&!fs.existsSync(portFile);++i)await new Promise(resolve=>setTimeout(resolve,50));
+    assert.ok(fs.existsSync(portFile),'Local Chromium did not start');endpoint='http://127.0.0.1:'+fs.readFileSync(portFile,'utf8').split('\n')[0];
+  }
   const tabs = await (await fetch(endpoint + '/json')).json();
   const socket = new WebSocket(tabs.find(tab => tab.type === 'page').webSocketDebuggerUrl);
   activeSocket = socket;
@@ -104,7 +112,7 @@ async function run() {
     assert.equal(result.exceptionDetails, undefined, expression); return result.result.value;
   };
   const wait = async expression => {
-    for (let i = 0; i < 100; i++) {if (await evaluate(expression)) return; await new Promise(resolve => setTimeout(resolve, 30));}
+    for (let i = 0; i < 100; i++) {if(await evaluate('document.readyState==="complete"&&!!document.getElementById("primary")&&('+expression+')'))return; await new Promise(resolve => setTimeout(resolve, 30));}
     throw Error('Timed out waiting for ' + expression);
   };
   const change = async (id, value) => evaluate('(()=>{const field=document.getElementById(' + JSON.stringify(id) + ');field.value=' + JSON.stringify(value) + ';field.dispatchEvent(new Event("change",{bubbles:true}));})()');
@@ -124,9 +132,9 @@ async function run() {
     await send('Emulation.setDeviceMetricsOverride', {width, height:800, deviceScaleFactor:1, mobile:true});
     await send('Page.navigate', {url:fixture()});
     await wait('!document.getElementById("primary").disabled');
-    assert.equal(await evaluate('document.getElementById("save").disabled'),true);
+    assert.equal(await evaluate('document.getElementById("save").disabled'),false);
     assert.deepEqual(await evaluate('Object.keys(__qa.store)'),[],'reading defaults never writes them');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['watchface','primary','secondary','watch-theme']);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("select")).map(e=>e.id)'),['watchface','primary','secondary','text-size','watch-theme']);
     assert.equal(await evaluate('document.getElementById("watchface").value'),'dynamic');
     assert.deepEqual(await evaluate('Array.from(document.getElementById("watchface").options).map(o=>o.value).filter(Boolean)'),['dynamic','halftone']);
     for (const id of ['primary','secondary']) {
@@ -137,7 +145,7 @@ async function run() {
       await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
       captures.push(await capture('settings-' + width + '-' + theme + '.png'));
       const layout=await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,selects:document.querySelectorAll("select").length,targets:Array.from(document.querySelectorAll("button,select,summary")).filter(e=>e.getClientRects().length).map(e=>({id:e.id||e.textContent,height:e.getBoundingClientRect().height})),labelled:Array.from(document.querySelectorAll("select")).every(e=>document.querySelector("label[for="+e.id+"]")&&e.getAttribute("aria-describedby").split(/\\s+/).every(id=>document.getElementById(id))),background:getComputedStyle(document.body).backgroundColor})');
-      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,4);
+      assert.ok(layout.scrollWidth<=width); assert.equal(layout.selects,5);
       assert.ok(layout.targets.every(target=>target.height>=44)); assert.equal(layout.labelled,true);
       layouts.push({width,theme,...layout});
     }
@@ -362,7 +370,7 @@ async function run() {
     captures.push(await capture('focus-' + viewport.name + '.png'));
     await change('primary','combo-back-up');
     await evaluate('document.getElementById("primary").focus()');
-    for (let index=0; index<5; index++) {
+    for (let index=0; index<6; index++) {
       await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
       await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
     }
@@ -407,6 +415,8 @@ async function run() {
   const appearanceStore=await evaluate('__qa.store');
   assert.equal(JSON.parse(appearanceStore['open-activity-ui-v1']).theme,'dark');
   captures.push(await capture('appearance-saved-360.png'));
+  await evaluate('document.getElementById("appearance-heading").scrollIntoView({block:"start"})');
+  captures.push(await capture('watch-display-pending-360.png'));
   await send('Page.navigate',{url:fixture(appearanceStore,{active:true})});
   await wait('!document.getElementById("watch-theme").disabled');
   assert.equal(await evaluate('document.getElementById("watch-theme").value'),'dark');
@@ -437,10 +447,11 @@ async function run() {
     captures, layouts, accessibility, layoutWork, storageCases, checks, errors,
     scope: 'Actual packaged offline config HTML, config plugin and PKJS configmessage handler in installed Chromium. Mock SDK bridge, separate modeled Android DOM/native preference stores and simulated SDK teardown; no PKJS ready/appmessage dispatch, native lifetime, live phone WebView or physical-watch Quick Launch claim.'};
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
-  socket.close(); fs.rmSync(scratch, {recursive: true, force: true});
+  socket.close();
   console.log(JSON.stringify({result: 'PASS', output, captures: captures.length, checks}, null, 2));
 }
-run().catch(error => {console.error(error); process.exitCode = 1;}).finally(() => {
+run().catch(error => {console.error(error); process.exitCode = 1;}).finally(async () => {
   if (activeSocket) activeSocket.close();
+  if(ownedBrowser&&ownedBrowser.exitCode===null){ownedBrowser.kill('SIGTERM');for(let i=0;i<40&&ownedBrowser.exitCode===null;++i)await new Promise(resolve=>setTimeout(resolve,25));}
   fs.rmSync(scratch, {recursive:true,force:true});
 });

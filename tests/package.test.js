@@ -104,12 +104,12 @@ test('packaged old settings are projected without a write and convert only on an
 });
 
 test('actual packaged HTML saves watchface and role selectors without a native session', {skip: !built}, async () => {
-  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 4);
+  assert.equal((bundle['config.html'].match(/<select\b/g) || []).length, 5);
   const store = storage(), invoke = coldConfig(store);
   const ui = mountSettings(bundle['config.html'], message => Promise.resolve(invoke(message)));
   ui.ready(); await ui.tick();
   assert.equal(ui.elements.primary.value, 'hold-down'); assert.equal(ui.elements.secondary.value, 'hold-up');
-  assert.equal(ui.elements.save.disabled, true);
+  assert.equal(ui.elements.save.disabled,false,'fresh display defaults require verified phone Save');
   ui.change('primary', 'combo-back-up'); ui.change('secondary', 'tap-down');
   ui.change('watchface', 'halftone');
   ui.elements.save.onclick(); await ui.tick();
@@ -133,7 +133,7 @@ test('packaged legacy configuration shares watchface and shortcuts and retains r
   }, {timeout: 2000});
   handlers.showConfiguration();
   const html = decodeURIComponent(urls[0].replace(/^data:text\/html;charset=utf-8,/, ''));
-  assert.equal((html.match(/<select\b/g) || []).length, 4);
+  assert.equal((html.match(/<select\b/g) || []).length, 5);
   const ui = mountSettings(html, () => {throw Error('legacy config cannot use plugin bridge');});
   const projected = settings.choices(chosen);
   assert.equal(ui.elements.discard.textContent, 'Cancel'); assert.equal(ui.elements.save.disabled, false);

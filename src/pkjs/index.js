@@ -3,6 +3,7 @@
 var createLauncher = require('./launcher');
 var settings = require('./settings');
 var uiSettings = require('./ui-settings');
+var preferences=require('./ui-preferences');
 var launcher = createLauncher({pebble: Pebble, storage: localStorage});
 
 Pebble.addEventListener('ready', function () { launcher.ready(); });
@@ -11,7 +12,7 @@ Pebble.addEventListener('showConfiguration', function () {
   // Quick Launch does not need to initialize the legacy configuration page.
   var page = require('./settings-page');
   var current = settings.load(localStorage);
-  Pebble.openURL('data:text/html;charset=utf-8,' + encodeURIComponent(page(current || settings.defaults(), !current, uiSettings.load(localStorage))));
+  Pebble.openURL('data:text/html;charset=utf-8,' + encodeURIComponent(page(current || settings.defaults(), !current, uiSettings.load(localStorage),launcher.preferences({type:'getUiPreferences'}))));
 });
 Pebble.addEventListener('webviewclosed', function (event) {
   if (!event || !event.response) return;
@@ -21,7 +22,10 @@ Pebble.addEventListener('webviewclosed', function (event) {
     if (response && response.uiVersion === 1) {
       var appearance = uiSettings.normalize(response.appearance);
       var selected = settings.normalize(response.settings);
-      if (appearance && selected && settings.save(localStorage, selected) && uiSettings.save(localStorage, appearance)) launcher.appearanceChanged();
+      var display=response.preferences===undefined?null:preferences.normalize(response.preferences);
+      if(appearance&&selected&&(response.preferences===undefined||display&&display.lastExplicit===appearance.theme)&&settings.save(localStorage,selected)&&uiSettings.save(localStorage,appearance)){
+        if(display)launcher.preferences({type:'saveUiPreferences',settings:display});else launcher.appearanceChanged();
+      }
     } else settings.save(localStorage, response);
   } catch (error) {}
 });
@@ -30,6 +34,7 @@ Pebble.addEventListener('configmessage', function (event) {
   var message = event.message || event.data || event.payload || event;
   try {
     if (typeof message === 'string') message = JSON.parse(message);
+    if(preferences.isRequest(message)){event.respond(launcher.preferences(message));return;}
     if (!message || message.type === 'getSettings' || message.type === 'load_settings') {
       var current = settings.load(localStorage);
       var loaded = {ok: true, settings: settings.choices(current || settings.defaults()),
@@ -38,6 +43,7 @@ Pebble.addEventListener('configmessage', function (event) {
         var appearance = uiSettings.load(localStorage); loaded.appearance = appearance || uiSettings.defaults();
         loaded.needsAppearanceRepair = !appearance;
       }
+      if(message&&message.includeUiPreferences)loaded.preferences=launcher.preferences({type:'getUiPreferences'});
       event.respond(loaded);
     } else if (message.type === 'saveSettings' || message.type === 'save_settings') {
       var normalized = settings.normalize(message.settings);
@@ -45,12 +51,14 @@ Pebble.addEventListener('configmessage', function (event) {
       // Save through the active PKJS DOM and its native write-through store.
       // Plugin-only writes can be replaced by Android's stale DOM at teardown.
       var appearance = message.uiVersion === 1 ? uiSettings.normalize(message.appearance) : undefined;
-      if (!selected || message.uiVersion === 1 && !appearance) {event.respond(message.uiVersion === 1 ? {ok: false, rejected: true} : {ok: false}); return;}
+      var display=message.preferences===undefined?null:preferences.normalize(message.preferences);
+      if (!selected || message.uiVersion === 1 && !appearance || message.preferences!==undefined&&(!display||!appearance||display.lastExplicit!==appearance.theme)) {event.respond(message.uiVersion === 1 ? {ok: false, rejected: true} : {ok: false}); return;}
       if (!settings.save(localStorage, selected) || appearance && !uiSettings.save(localStorage, appearance)) {event.respond({ok: false}); return;}
       var receipt = {ok: true, settings: selected};
+      if(display){receipt.preferences=launcher.preferences({type:'saveUiPreferences',settings:display});if(!receipt.preferences.ok){event.respond({ok:false});return;}}
       if (appearance) {
         receipt.appearance = appearance;
-        receipt.watchDelivery = launcher.appearanceChanged() ? 'queued' : 'deferred';
+        receipt.watchDelivery = !display&&launcher.appearanceChanged() ? 'queued' : 'deferred';
       }
       event.respond(receipt);
     } else event.respond({ok: false});

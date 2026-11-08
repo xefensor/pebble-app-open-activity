@@ -11,7 +11,7 @@ typedef enum { APP_LAUNCH_SYSTEM, APP_LAUNCH_USER, APP_LAUNCH_PHONE, APP_LAUNCH_
 typedef enum { APP_QUICK_LAUNCH_ACTION_NONE, APP_QUICK_LAUNCH_ACTION_HOLD, APP_QUICK_LAUNCH_ACTION_TAP, APP_QUICK_LAUNCH_ACTION_COMBO } AppQuickLaunchAction;
 typedef enum { APP_MSG_OK, APP_MSG_ERROR } AppMessageResult;
 enum { TUPLE_BYTE_ARRAY, TUPLE_CSTRING, TUPLE_UINT, TUPLE_INT };
-typedef union { int8_t int8; uint8_t uint8; int16_t int16; uint16_t uint16; int32_t int32; uint32_t uint32; char cstring[64]; } TupleValue;
+typedef union { int8_t int8; uint8_t uint8; int16_t int16; uint16_t uint16; int32_t int32; uint32_t uint32; char cstring[64]; uint8_t data[64]; } TupleValue;
 typedef struct { uint32_t key; uint8_t type; uint16_t length; TupleValue *value; } Tuple;
 typedef struct { size_t count; Tuple tuples[8]; TupleValue values[8]; } DictionaryIterator;
 typedef struct {int16_t x,y;} GPoint;
@@ -49,6 +49,9 @@ unsigned resource_get_handle(unsigned);
 bool persist_exists(unsigned);
 int32_t persist_read_int(unsigned);
 int persist_write_int(unsigned,int32_t);
+int persist_get_size(unsigned);
+int persist_read_data(unsigned,void *,size_t);
+int persist_write_data(unsigned,const void *,size_t);
 bool clock_is_24h_style(void);
 void tick_timer_service_subscribe(TimeUnits,void (*)(struct tm *,TimeUnits));
 void tick_timer_service_unsubscribe(void);
@@ -122,3 +125,5 @@ Layer *scroll_layer_get_layer(const ScrollLayer *);
 void scroll_layer_add_child(ScrollLayer *,Layer *);
 void scroll_layer_set_click_config_onto_window(ScrollLayer *,Window *);
 void scroll_layer_set_content_size(ScrollLayer *,GSize);
+
+void dict_write_data(DictionaryIterator *,uint32_t,const uint8_t *,uint16_t);

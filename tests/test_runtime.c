@@ -23,6 +23,8 @@ static int layer_creates,layer_destroys,header_draws,header_strings;
 static int fail_text_at;
 static bool fail_window, fail_status, fail_header;
 static int32_t stored_theme;
+static uint8_t stored_ui[OA_UI_PREFERENCES_BYTES];
+static bool ui_exists;static unsigned ui_writes;
 static int theme_writes,clock_subscribes,clock_unsubscribes,font_loads,font_unloads;
 static int fail_font_at;
 static uint32_t font_load_delay;
@@ -87,6 +89,8 @@ void layer_set_update_proc(Layer *value,void (*update)(Layer *,GContext *)) {ass
 void layer_mark_dirty(Layer *value) {assert(value==&header_layer);}
 GRect layer_get_bounds(Layer *value) {return value==&header_layer?header_bounds:GRect(0,0,200,228);}
 void layer_set_frame(Layer *value,GRect frame) {
+  if(value==&header_layer){header_bounds=frame;return;}
+  if(value==&scroll_root){scroll.frame=frame;return;}
   assert(value>=text_layers&&value<text_layers+6);
   assert(frame.origin.x==16&&frame.size.w==168&&frame.size.h>0&&frame.origin.y>=0);
 }
@@ -127,9 +131,15 @@ WatchInfoVersion watch_info_get_firmware_version(void) {return firmware;}
 GFont fonts_load_custom_font(unsigned handle) {font_loads++;clock_ms+=font_load_delay;return font_loads==fail_font_at?NULL:(GFont)(uintptr_t)handle;}
 void fonts_unload_custom_font(GFont font) {assert(font);font_unloads++;}
 unsigned resource_get_handle(unsigned handle) {return handle;}
-bool persist_exists(unsigned key) {assert(key==OA_THEME_STORAGE_KEY);return stored_theme>=0;}
+bool persist_exists(unsigned key) {assert(key==1||key==2);return key==1?stored_theme>=0:ui_exists;}
 int32_t persist_read_int(unsigned key) {assert(key==OA_THEME_STORAGE_KEY);return stored_theme;}
 int persist_write_int(unsigned key,int32_t value) {assert(key==OA_THEME_STORAGE_KEY);theme_writes++;if(theme_write_fails)return -1;stored_theme=value;return sizeof(int32_t);}
+int persist_get_size(unsigned key){assert(key==2);return ui_exists?(int)sizeof(stored_ui):-1;}
+int persist_read_data(unsigned key,void *data,size_t size){assert(key==2&&size==sizeof(stored_ui));if(!ui_exists)return -1;memcpy(data,stored_ui,size);return (int)size;}
+int persist_write_data(unsigned key,const void *data,size_t size){assert(key==2&&size==sizeof(stored_ui));if(theme_write_fails)return -1;memcpy(stored_ui,data,size);ui_exists=true;++ui_writes;return (int)size;}
+void dict_write_data(DictionaryIterator *dict,uint32_t key,const uint8_t *data,uint16_t size){
+ assert(dict->count<8&&size<=64);size_t at=dict->count++;dict->tuples[at]=(Tuple){key,TUPLE_BYTE_ARRAY,size,&dict->values[at]};memcpy(dict->values[at].data,data,size);
+}
 bool clock_is_24h_style(void) {return true;}
 void tick_timer_service_subscribe(TimeUnits units,void (*handler)(struct tm *,TimeUnits)) {assert(units==MINUTE_UNIT&&handler);clock_subscribes++;}
 void tick_timer_service_unsubscribe(void) {clock_unsubscribes++;}
@@ -167,6 +177,7 @@ static void reset(void) {
   fail_text_at=0;fail_window=fail_status=fail_header=false;
   fail_font_at=0;font_load_delay=0;preferred_size=1;firmware=(WatchInfoVersion){4,33,2};
   scroll_creates=scroll_destroys=scroll_clicks=0;fail_scroll=false;s_setup_scroll=NULL;
+  ui_exists=false;ui_writes=0;s_ui_pending=s_ui_sending=false;s_ui_attempts=0;s_ui_generation=s_ui_flight=0;
   stored_theme=-1;theme_writes=clock_subscribes=clock_unsubscribes=font_loads=font_unloads=0;theme_write_fails=false;window_background=GColorClear;
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
@@ -219,14 +230,15 @@ static void slot_script(void) {
 }
 static void no_setup_work(void) {
   assert(gesture_reads==0&&button_reads==0);
-  assert(message_opens<=1&&message_handlers<=1&&outbox_begins==0&&sent==0);
-  assert(connection_subscribes==0&&connection_unsubscribes==0&&connection_peeks==0);
+  assert(message_opens<=1&&message_handlers<=3);
+  if(sent){assert(dict_find(&outgoing,OA_KEY_UI_PREFERENCES_RESULT));assert(!dict_find(&outgoing,OA_KEY_OPERATION)&&!dict_find(&outgoing,OA_KEY_SESSION));}
+  assert(connection_subscribes<=1&&connection_unsubscribes<=1);
   assert(timer_registers==0&&!timer.active&&s_timeout==NULL);
   assert(s_attempt.phase==OA_CLOSED&&s_attempt.session==0&&s_attempt.started_ms==0&&s_attempt.ticket==0&&!s_attempt.destination[0]);
 }
 static void setup_script(void) {
   assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
-  assert(status_creates==0&&text_creates==2&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
+  assert(status_creates==0&&text_creates==2&&clock_subscribes==1&&message_opens==1&&message_handlers==3);
   assert(scroll_creates==1&&scroll_clicks==1&&scroll.content.h>=scroll.frame.size.h);
   assert(layer_creates==1&&header_update);
   assert(!strcmp(label_text[0],"Open settings in the Pebble app."));
@@ -252,7 +264,26 @@ static void appearance_script(void) {
   assert(!s_dark&&window_background==GColorWhite&&stored_theme==0&&theme_writes==2);
   no_setup_work();
 }
+static void quick_preferences_ignored(void){
+ assert(!s_setup_mode&&s_attempt.phase==OA_WAITING);
+ const uint32_t started=s_attempt.started_ms;const uint32_t delay=timer.delay;
+ OaUiPreferences chosen={88,3,2,2};uint8_t bytes[OA_UI_PREFERENCES_BYTES];oa_ui_preferences_encode(&chosen,0,0,bytes);
+ DictionaryIterator message={0};dict_write_data(&message,OA_KEY_UI_PREFERENCES,bytes,sizeof(bytes));inbox_received(&message,NULL);
+ assert(!ui_exists&&!ui_writes&&s_text_size==0&&!s_dark&&s_attempt.started_ms==started&&timer.delay==delay&&s_attempt.phase==OA_WAITING);
+ back_handler(NULL,NULL);
+}
+static void preferences_script(void){
+ assert(s_setup_mode&&s_text_size==0);
+ OaUiPreferences chosen={77,3,0,2};uint8_t bytes[OA_UI_PREFERENCES_BYTES];oa_ui_preferences_encode(&chosen,0,0,bytes);
+ DictionaryIterator message={0};dict_write_data(&message,OA_KEY_UI_PREFERENCES,bytes,sizeof(bytes));inbox_received(&message,NULL);
+ assert(s_text_size==2&&s_dark&&ui_writes==1&&ui_exists);
+ outbox_sent(NULL,NULL);assert(!memcmp(dict_find(&outgoing,OA_KEY_UI_PREFERENCES_RESULT)->value->data,bytes,sizeof(bytes)));
+ load_ui();assert(s_ui_preferences.revision==77&&s_ui_preferences.appearance==0&&s_text_size==2&&s_dark);
+ no_setup_work();
+}
 int main(void) {
+  reset();loop_script=quick_preferences_ignored;helper_app_main();assert(timer_registers==1&&sent==1);
+  reset();reason=APP_LAUNCH_USER;loop_script=preferences_script;helper_app_main();
   reset();reason=APP_LAUNCH_USER;stored_theme=1;loop_script=appearance_script;helper_app_main();
   assert(stored_theme==0&&font_loads==0&&font_unloads==0);
   const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};

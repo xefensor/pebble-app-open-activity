@@ -43,15 +43,16 @@ test('Quick Launch startup does not execute the legacy settings page module', ()
     localStorage: {},
     require(name) {
       imports.push(name);
-      if (name === './launcher') return () => ({ready() {}, message() {}});
+      if (name === './launcher') return () => ({ready() {},message() {},preferences(){return {ok:true};}});
+      if (name === './ui-preferences')return require('../src/pkjs/ui-preferences');
       if (name === './ui-settings') return {load: () => ({version: 1, theme: 'light'})};
       if (name === './settings') return {load: () => ({}), defaults: () => ({})};
       assert.equal(name, './settings-page'); return () => '<html>settings</html>';
     }
   });
   handlers.ready(); handlers.appmessage({payload: {}});
-  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings']);
+  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings','./ui-preferences']);
   handlers.showConfiguration();
-  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings', './settings-page']);
+  assert.deepEqual(imports, ['./launcher', './settings', './ui-settings','./ui-preferences', './settings-page']);
   assert.match(urls[0], /^data:text\/html;charset=utf-8,/);
 });

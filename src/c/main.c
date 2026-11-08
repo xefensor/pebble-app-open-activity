@@ -3,6 +3,7 @@
 
 #include "attempt.h"
 #include "localization.h"
+#include "oa_ui_preferences.h"
 
 static Window *s_window;
 static TextLayer *s_label;
@@ -10,7 +11,12 @@ static TextLayer *s_setup_body[2];
 static ScrollLayer *s_setup_scroll;
 static char s_setup_text[2][256];
 static Layer *s_header;
-static unsigned s_text_size;
+static unsigned s_text_size,s_system_text_size;
+static OaUiPreferences s_ui_preferences;
+static uint8_t s_ui_reply[OA_UI_PREFERENCES_BYTES];
+static bool s_ui_pending,s_ui_sending;
+static unsigned s_ui_attempts;
+static uint32_t s_ui_generation,s_ui_flight;
 static bool s_modern_type;
 static bool s_dark;
 static bool s_message_opened;
@@ -47,8 +53,9 @@ static void apply_palette(void) {
   }
 }
 static void load_ui(void) {
-  s_dark = persist_exists(OA_THEME_STORAGE_KEY) && persist_read_int(OA_THEME_STORAGE_KEY) == 1;
-  s_text_size = xoce_ui_effective_text_size(0, preferred_content_size());
+  oa_ui_preferences_load(&s_ui_preferences);
+  s_dark=oa_ui_preferences_dark(&s_ui_preferences);s_system_text_size=preferred_content_size();
+  s_text_size=xoce_ui_effective_text_size(s_ui_preferences.text_size,s_system_text_size);
   const WatchInfoVersion firmware = watch_info_get_firmware_version();
   s_modern_type = firmware.major > 4 || (firmware.major == 4 && firmware.minor >= 44);
 }
@@ -86,6 +93,30 @@ static void refresh_setup_language(void) {
   }
   scroll_layer_set_content_size(s_setup_scroll,(GSize){bounds.size.w,y>viewport?y:viewport});
 }
+static void apply_ui_preferences(const OaUiPreferences *value){
+  s_ui_preferences=*value;s_dark=oa_ui_preferences_dark(value);
+  s_text_size=xoce_ui_effective_text_size(value->text_size,s_system_text_size);
+  const GRect bounds=layer_get_bounds(window_get_root_layer(s_window));
+  const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
+      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  layer_set_frame(s_header,GRect(0,0,bounds.size.w,header_height));
+  layer_set_frame(scroll_layer_get_layer(s_setup_scroll),GRect(0,header_height,bounds.size.w,bounds.size.h-header_height));
+  for(unsigned i=0;i<2;++i)text_layer_set_font(s_setup_body[i],fonts_get_system_font(
+      xoce_ui_native_font_key(s_text_size,i?XOCE_UI_TYPE_MENU_SUBTITLE:XOCE_UI_TYPE_MENU_TITLE,s_modern_type)));
+  refresh_setup_language();apply_palette();
+}
+static void flush_ui_reply(void){
+  if(!s_setup_mode||!s_message_opened||s_sending||!s_ui_pending||s_ui_attempts>=3||!connection_service_peek_pebble_app_connection())return;
+  ++s_ui_attempts;DictionaryIterator *out;
+  if(app_message_outbox_begin(&out)!=APP_MSG_OK)return;
+  dict_write_data(out,OA_KEY_UI_PREFERENCES_RESULT,s_ui_reply,sizeof(s_ui_reply));
+  s_sending=true;s_ui_sending=true;s_ui_pending=false;s_ui_flight=s_ui_generation;
+  if(app_message_outbox_send()!=APP_MSG_OK){s_sending=false;s_ui_sending=false;s_ui_pending=true;}
+}
+static void ui_reply(const OaUiPreferences *value,uint8_t status,uint8_t flags){
+  oa_ui_preferences_encode(value,status,flags,s_ui_reply);++s_ui_generation;
+  s_ui_attempts=0;s_ui_pending=true;flush_ui_reply();
+}
 static void clock_tick(struct tm *tick_time, TimeUnits units) {
   refresh_setup_language();
   (void)units;
@@ -115,10 +146,17 @@ static bool read_uint(DictionaryIterator *message, uint32_t key, uint32_t *value
 static void receive_theme(DictionaryIterator *message) {
   uint32_t theme;
   if (!read_uint(message, OA_KEY_THEME, &theme) || theme > 1 || (bool)theme == s_dark) return;
+  if(s_ui_preferences.revision){
+    if(!s_setup_mode||theme==(uint32_t)(s_ui_preferences.last_explicit==OA_UI_DARK))return;
+    OaUiPreferences chosen=s_ui_preferences;chosen.appearance=chosen.last_explicit=theme?OA_UI_DARK:OA_UI_LIGHT;
+    if(oa_ui_preferences_save(&chosen))apply_ui_preferences(&chosen);
+    return;
+  }
   // Only confirmed native preference storage changes the cached first frame.
   if (persist_write_int(OA_THEME_STORAGE_KEY, (int32_t)theme) != (int)sizeof(int32_t) ||
       persist_read_int(OA_THEME_STORAGE_KEY) != (int32_t)theme) return;
   s_dark = theme != 0;
+  s_ui_preferences.appearance=s_ui_preferences.last_explicit=s_dark?OA_UI_DARK:OA_UI_LIGHT;
   apply_palette();
 }
 
@@ -176,15 +214,28 @@ static void click_config(void *context) {
 }
 
 static void connection_changed(bool connected) {
+  if(s_setup_mode){if(connected)ui_reply(&s_ui_preferences,OA_UI_APPLIED,OA_UI_HELLO);return;}
   if (!connected) close_helper(true);
 }
 
 static void inbox_received(DictionaryIterator *message, void *context) {
   (void)context;
   uint32_t operation, session;
+  Tuple *ui=dict_find(message,OA_KEY_UI_PREFERENCES);
+  if(ui){
+    // Preference delivery never joins the four-second launch queue.
+    if(!s_setup_mode)return;
+    OaUiPreferences requested,confirmed;uint8_t status,flags;
+    if(ui->type==TUPLE_BYTE_ARRAY&&oa_ui_preferences_decode(ui->value->data,ui->length,&requested,&status,&flags)&&requested.revision&&!status&&!flags){
+      if(oa_ui_preferences_save(&requested)&&oa_ui_preferences_load(&confirmed)){
+        apply_ui_preferences(&confirmed);ui_reply(&confirmed,OA_UI_APPLIED,0);
+      }else ui_reply(&requested,OA_UI_SAVE_FAILED,0);
+    }
+    return;
+  }
   if (!read_uint(message, OA_KEY_OPERATION, &operation)) return;
   if (s_setup_mode) {
-    if (operation == OA_REQUEST || operation == OA_SETTINGS) receive_theme(message);
+    if(operation==OA_REQUEST||operation==OA_SETTINGS){receive_theme(message);ui_reply(&s_ui_preferences,OA_UI_APPLIED,OA_UI_HELLO);}
     return; // Setup never acquires a launch session or navigation capability.
   }
   if (operation == OA_SETTINGS) return;
@@ -214,7 +265,8 @@ static void inbox_received(DictionaryIterator *message, void *context) {
 }
 
 static void outbox_sent(DictionaryIterator *message, void *context) {
-  (void)message; (void)context;
+  (void)context;
+  if(s_ui_sending||(message&&dict_find(message,OA_KEY_UI_PREFERENCES_RESULT))){s_sending=false;s_ui_sending=false;flush_ui_reply();return;}
   s_sending = false;
   uint8_t next = s_pending_operation;
   s_pending_operation = 0;
@@ -222,7 +274,8 @@ static void outbox_sent(DictionaryIterator *message, void *context) {
 }
 
 static void outbox_failed(DictionaryIterator *message, AppMessageResult error, void *context) {
-  (void)message; (void)error; (void)context;
+  (void)error;(void)context;
+  if(s_ui_sending||(message&&dict_find(message,OA_KEY_UI_PREFERENCES_RESULT))){s_sending=false;s_ui_sending=false;if(s_ui_flight==s_ui_generation)s_ui_pending=true;flush_ui_reply();return;}
   s_sending = false;
   close_helper(false);
 }
@@ -299,20 +352,23 @@ static bool init_setup(void) {
   clock_tick(localtime(&now), MINUTE_UNIT);
   tick_timer_service_subscribe(MINUTE_UNIT, clock_tick);
   s_clock_subscribed = true;
-  // This channel only receives public appearance preferences. No setup HELLO,
+  // This channel confirms public display preferences. No activity HELLO,
   // attempt timeout, session or source subscription is created.
   app_message_register_inbox_received(inbox_received);
+  app_message_register_outbox_sent(outbox_sent);app_message_register_outbox_failed(outbox_failed);
+  connection_service_subscribe((ConnectionHandlers){.pebble_app_connection_handler=connection_changed});
   if (app_message_open(192, 192) == APP_MSG_OK) s_message_opened = true;
   // Leave Back to the normal window-stack handler. There is no attempt to cancel.
   window_stack_push(s_window, false);
+  ui_reply(&s_ui_preferences,OA_UI_APPLIED,OA_UI_HELLO);
   return true;
 }
 
 static void deinit(void) {
   if (s_timeout) app_timer_cancel(s_timeout);
   oa_attempt_close(&s_attempt);
+  connection_service_unsubscribe();
   if (!s_setup_mode) {
-    connection_service_unsubscribe();
     app_message_deregister_callbacks();
   }
   for (unsigned i = 0; i < 2; ++i) {

@@ -7,7 +7,8 @@ The phone has a Dynamic/Halftone watchface selector, Primary and Secondary short
 
 The development candidate uses PebbleOS system fonts through the independently
 pinned UI library's native type profiles. `preferred_content_size()` is read at
-launch: Emery Small, Medium and Large correspond to SDK values 1, 2 and 3.
+launch and a local Text Size override takes precedence. Emery Small, Medium and
+Large correspond to SDK values 1, 2 and 3; manual choices use those exact roles.
 Header, MenuTitle and MenuSubtitle match the stock roles for the running firmware;
 firmware 4.44's changed Large title/subtitle pair is selected separately. No
 custom text fonts are loaded or bundled in the candidate.
@@ -31,8 +32,9 @@ Preserve UUID, gesture/button wire identity and all eight supported shortcut ide
 
 ## Native/phone verification
 
-The [native type checkpoint](native-type-checkpoint.md) records the current
-candidate's actual OS-size runs, localized lookup fixtures and their limits.
+The [native type checkpoint](native-type-checkpoint.md) records the earlier
+OS-size runs and locale fixtures. The [preferences checkpoint](ui-preferences-checkpoint.md)
+records independent overrides, watch confirmation and the preserved launch budget.
 
 Inspect actual affected compositions, full text, glyph/icon alignment, edges,
 light/dark and relevant critical states. Keep the actual packaged native payload
@@ -47,3 +49,20 @@ or source lifecycle. Current build/QA commands are in [CONTRIBUTING](../CONTRIBU
 frozen build at `99b433bde7c693484ed346d03c7ef5461957ca95`. Routine development uses build/candidate and build/qa;
 that output does not overwrite these records. Physical phone/watch checks and
 fresh browser checks remain explicitly separate.
+
+## Display preferences
+
+The existing phone Save flow includes Text Size (Follow Pebble / Small / Medium /
+Large) and Appearance (Follow Pebble / Light / Dark). Fresh defaults follow the
+watch text size and retain Open Activity's previous Light appearance. Existing
+explicit colours migrate without changing shortcut/provider records. Follow
+Appearance is retained with its last explicit colour; the page explains the
+unsupported system appearance API on the baseline SDK.
+
+The display status separates Saved on phone / Pending on watch from Applied on
+watch. Only an exact native persistence/readback receipt establishes Applied.
+Launch Open Activity from the watch app list to apply pending display settings.
+This passive setup channel creates no opening nonce or activity session. Quick
+Launch uses the last confirmed display, makes its one bounded attempt and keeps
+the original four-second deadline. Changing settings during Opening stays pending
+for a later passive setup launch.

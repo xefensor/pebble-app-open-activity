@@ -5,6 +5,7 @@ var navigation = require('./navigation');
 var settings = require('./settings');
 var uiSettings = require('./ui-settings');
 var createQueue = require('./queue');
+var preferences=require('./ui-preferences');
 var operation = protocol.operation;
 var WATCH_STATE = '00000000-0000-0000-0001-000000000007';
 function uint32(value) {
@@ -19,7 +20,12 @@ module.exports = function (options) {
   // Keep generated wire values positive even on signed-int AppMessage bridges.
   var ticket = options.ticket || function () { return Math.floor(Math.random() * 2147483647) + 1; };
   var queue = createQueue(function (message, success, failure) { pebble.sendAppMessage(message, success, failure); });
-  var phase = 'idle', attempt = null, ready = false;
+  var phase = 'idle', attempt = null, ready = false,setupVerified=false;
+  var uiPreferences=preferences.create({storage:options.storage,later:later,cancel:cancelLater,send:function(message,failure,success){
+    if(!ready||!setupVerified||phase!=='idle')return;
+    queue.send(message,success,failure);
+  }});
+  function preferenceRequest(message){var result;uiPreferences.handle(message,function(value){result=value;});return result;}
 
   function stopSource(current) {
     if (!current) return;
@@ -31,7 +37,7 @@ module.exports = function (options) {
   }
   function close(notify) {
     if (phase === 'closed') return;
-    phase = 'closed'; queue.clear();
+    phase = 'closed';uiPreferences.stop(); queue.clear();
     stopSource(attempt);
     if (attempt && attempt.timer !== null) cancelLater(attempt.timer);
     if (notify && attempt) queue.send(protocol.message(operation.CLOSE, {OA_SESSION: attempt.session}));
@@ -51,6 +57,7 @@ module.exports = function (options) {
   }
   function start(message) {
     if (phase !== 'idle') return;
+    setupVerified=false;uiPreferences.stop();queue.clear();
     var session = protocol.get(message, 'OA_SESSION');
     var elapsed = protocol.get(message, 'OA_ELAPSED_MS');
     var button = protocol.get(message, 'OA_BUTTON');
@@ -123,14 +130,21 @@ module.exports = function (options) {
       queue.send(protocol.message(operation.REQUEST, appearance ? {OA_THEME: appearance.theme === 'dark' ? 1 : 0} : {}), null, function () { close(false); });
     },
     message: function (message) {
+      var reply=protocol.get(message,'OA_UI_PREFERENCES_RESULT');
+      if(reply!==undefined&&phase==='idle'){
+        var decoded=preferences.decode(reply);if(decoded&&decoded.hello)setupVerified=true;
+        uiPreferences.receive(reply);
+      }
       var kind = protocol.get(message, 'OA_OPERATION');
       if (kind === operation.HELLO) start(message);
       else if (kind === operation.CONFIRM) confirm(message);
       else if (kind === operation.CANCEL && attempt && protocol.get(message, 'OA_SESSION') === attempt.session) close(false);
     },
+    preferences:preferenceRequest,
     appearanceChanged: function (complete) {
       var appearance = uiSettings.load(options.storage);
-      if (!ready || phase !== 'idle' || !appearance) { if (complete) complete(false); return false; }
+      if(uiPreferences.legacyChanged(appearance||{})){if(complete)complete(false);return ready&&setupVerified&&phase==='idle';}
+      if (!ready || !setupVerified || phase !== 'idle' || !appearance) { if (complete) complete(false); return false; }
       return queue.send(protocol.message(operation.SETTINGS, {OA_THEME: appearance.theme === 'dark' ? 1 : 0}),
         function () { if (complete) complete(true); }, function () { if (complete) complete(false); });
     },
