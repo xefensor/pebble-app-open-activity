@@ -3,15 +3,15 @@
 
 #include "attempt.h"
 #include "localization.h"
-#include "header_ink.h"
 
 static Window *s_window;
 static TextLayer *s_label;
 static TextLayer *s_setup_body[2];
-static TextLayer *s_setup_hint[2];
+static ScrollLayer *s_setup_scroll;
+static char s_setup_text[2][256];
 static Layer *s_header;
-enum { FONT_SECONDARY, FONT_MAIN, FONT_CLOCK, FONT_COUNT };
-static GFont s_fonts[FONT_COUNT];
+static unsigned s_text_size;
+static bool s_modern_type;
 static bool s_dark;
 static bool s_message_opened;
 static bool s_clock_subscribed;
@@ -43,51 +43,48 @@ static void apply_palette(void) {
   if (s_label) text_layer_set_text_color(s_label, s_setup_mode ? accent() : foreground());
   if (s_header) layer_mark_dirty(s_header);
   for (unsigned i = 0; i < 2; ++i) {
-    if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], foreground());
-    if (s_setup_hint[i]) text_layer_set_text_color(s_setup_hint[i], secondary());
+    if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], i ? secondary() : foreground());
   }
 }
-static void load_ui(bool setup) {
+static void load_ui(void) {
   s_dark = persist_exists(OA_THEME_STORAGE_KEY) && persist_read_int(OA_THEME_STORAGE_KEY) == 1;
-  s_fonts[FONT_MAIN] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_24));
-  if (setup) {
-    s_fonts[FONT_SECONDARY] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_22));
-    s_fonts[FONT_CLOCK] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BODY_26));
-  }
-}
-static GFont body_font(void) { return s_fonts[FONT_SECONDARY] ? s_fonts[FONT_SECONDARY] : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
-static GFont title_font(void) { return s_fonts[FONT_MAIN] ? s_fonts[FONT_MAIN] : fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD); }
-static GFont clock_font(void) { return s_fonts[FONT_CLOCK] ? s_fonts[FONT_CLOCK] : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD); }
-static int header_width(const char *text) {
-  return graphics_text_layout_get_content_size(text,clock_font(),GRect(0,0,2048,64),
-      GTextOverflowModeFill,GTextAlignmentLeft).w;
-}
-static void header_text(GContext *ctx,const char *text,int point,GRect bounds,
-    GColor color,GTextAlignment align,void *context) {
-  (void)point;(void)context;
-  char fitted[48];
-  snprintf(fitted,sizeof(fitted),"%s",text);
-  if(header_width(fitted)>bounds.size.w) {
-    // Header input is fixed English plus a numeric clock, so ASCII prefix
-    // removal cannot split a character. Keep the shared font size unchanged.
-    size_t length=strlen(fitted);
-    do {fitted[--length]='\0';strcpy(fitted+length,"…");}
-    while(length&&header_width(fitted)>bounds.size.w);
-  }
-  const OaGlyphInk ink=oa_header_ink(fitted,s_fonts[FONT_CLOCK]!=NULL);
-  const int y=xoce_ui_text_origin_y(bounds,ink.top,ink.bottom);
-  graphics_context_set_text_color(ctx,color);
-  graphics_draw_text(ctx,fitted,clock_font(),GRect(bounds.origin.x,y,bounds.size.w,48),
-      GTextOverflowModeFill,align,NULL);
+  s_text_size = xoce_ui_effective_text_size(0, preferred_content_size());
+  const WatchInfoVersion firmware = watch_info_get_firmware_version();
+  s_modern_type = firmware.major > 4 || (firmware.major == 4 && firmware.minor >= 44);
 }
 static void draw_header(Layer *layer,GContext *ctx) {
-  xoce_ui_draw_header(ctx,layer_get_bounds(layer).size.w,app_text("Activity"),s_clock_text,
-      foreground(),secondary(),header_text,NULL);
+  const int width = layer_get_bounds(layer).size.w;
+  const XoceUiHeaderLayout layout = xoce_ui_native_header_layout(s_clock_text,
+      s_text_size,s_modern_type,width,8,XOCE_UI_HEADER_HEIGHT);
+  xoce_ui_native_draw(ctx,app_heading("Activity"),s_text_size,XOCE_UI_TYPE_HEADER,
+      s_modern_type,layout.label,foreground(),GTextAlignmentLeft,GTextOverflowModeTrailingEllipsis);
+  xoce_ui_native_draw(ctx,s_clock_text,s_text_size,XOCE_UI_TYPE_HEADER,
+      s_modern_type,layout.clock,foreground(),GTextAlignmentRight,GTextOverflowModeWordWrap);
+  graphics_context_set_stroke_color(ctx,secondary());
+  graphics_draw_line(ctx,GPoint(0,layout.height-1),GPoint(width,layout.height-1));
 }
 static void refresh_setup_language(void) {
-  const char *source[]={"Open settings in","the Pebble app.","Quick Launch","opens activities."};
-  TextLayer *labels[]={s_setup_body[0],s_setup_body[1],s_setup_hint[0],s_setup_hint[1]};
-  for(unsigned i=0;i<4;++i)if(labels[i])text_layer_set_text(labels[i],app_text(source[i]));
+  if (!s_setup_scroll) return;
+  const char *source[][2]={{"Open settings in","the Pebble app."},{"Quick Launch","opens activities."}};
+  const GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
+  const int header_height = xoce_ui_native_header_layout("22:58",s_text_size,
+      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  const int viewport = bounds.size.h-header_height;
+  const int width = bounds.size.w-32;
+  int heights[2];
+  for (unsigned i=0;i<2;++i) {
+    snprintf(s_setup_text[i],sizeof(s_setup_text[i]),"%s %s",app_text(source[i][0]),app_text(source[i][1]));
+    const XoceUiTypeRole role=i?XOCE_UI_TYPE_MENU_SUBTITLE:XOCE_UI_TYPE_MENU_TITLE;
+    heights[i]=xoce_ui_native_measure(s_setup_text[i],s_text_size,role,s_modern_type,width-2).h+8;
+    text_layer_set_text(s_setup_body[i],s_setup_text[i]);
+  }
+  const int text_height=heights[0]+24+heights[1];
+  int y=text_height+32<viewport?(viewport-text_height)/2:16;
+  for (unsigned i=0;i<2;++i) {
+    layer_set_frame(text_layer_get_layer(s_setup_body[i]),GRect(16,y,width,heights[i]));
+    y+=heights[i]+(i?16:24);
+  }
+  scroll_layer_set_content_size(s_setup_scroll,(GSize){bounds.size.w,y>viewport?y:viewport});
 }
 static void clock_tick(struct tm *tick_time, TimeUnits units) {
   refresh_setup_language();
@@ -240,10 +237,14 @@ static void init(uint32_t started) {
   window_set_click_config_provider(s_window, click_config);
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
-  s_label = text_layer_create(GRect(10, (bounds.size.h - 36) / 2, bounds.size.w - 20, 36));
+  const int opening_height=xoce_ui_native_measure(app_text("Opening..."),s_text_size,
+      XOCE_UI_TYPE_MENU_TITLE,s_modern_type,bounds.size.w-22).h+8;
+  s_label = text_layer_create(GRect(10, (bounds.size.h - opening_height) / 2, bounds.size.w - 20, opening_height));
   if (!s_label) { oa_attempt_close(&s_attempt); return; }
   text_layer_set_text(s_label, app_text("Opening..."));
-  text_layer_set_font(s_label, title_font());
+  text_layer_set_font(s_label, fonts_get_system_font(xoce_ui_native_font_key(
+      s_text_size,XOCE_UI_TYPE_MENU_TITLE,s_modern_type)));
+  text_layer_set_overflow_mode(s_label,GTextOverflowModeWordWrap);
   text_layer_set_text_alignment(s_label, GTextAlignmentCenter);
   text_layer_set_text_color(s_label, foreground());
   text_layer_set_background_color(s_label, GColorClear);
@@ -271,32 +272,27 @@ static bool init_setup(void) {
   window_set_background_color(s_window, background());
   Layer *layer = window_get_root_layer(s_window);
   GRect bounds = layer_get_bounds(layer);
-  // The shared header reserves clock space before fitting the title. The
-  // concise heading keeps the same readable26px role as every other app.
-  s_header = layer_create(GRect(0,0,bounds.size.w,XOCE_UI_HEADER_HEIGHT));
+  const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
+      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  s_header = layer_create(GRect(0,0,bounds.size.w,header_height));
   if (!s_header) return false;
   layer_set_update_proc(s_header,draw_header);
   layer_add_child(layer,s_header);
-  // Explicit lines keep readable leading even when the font's descenders
-  // exceed its nominal line height. Each locale retains the same four readable setup lines.
-  s_setup_body[0] = text_layer_create(GRect(16, 72, bounds.size.w - 32, 36));
-  if (!s_setup_body[0]) return false;
-  s_setup_body[1] = text_layer_create(GRect(16, 100, bounds.size.w - 32, 36));
-  if (!s_setup_body[1]) return false;
-  s_setup_hint[0] = text_layer_create(GRect(16, 163, bounds.size.w - 32, 32));
-  if (!s_setup_hint[0]) return false;
-  s_setup_hint[1] = text_layer_create(GRect(16, 189, bounds.size.w - 32, 32));
-  if (!s_setup_hint[1]) return false;
-  TextLayer *labels[] = {s_setup_body[0], s_setup_body[1], s_setup_hint[0], s_setup_hint[1]};
-  const char *texts[] = {app_text("Open settings in"), app_text("the Pebble app."),
-                         app_text("Quick Launch"), app_text("opens activities.")};
-  GFont fonts[] = {title_font(), title_font(), body_font(), body_font()};
-  for (unsigned i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i) {
-    text_layer_set_text(labels[i], texts[i]);
-    text_layer_set_font(labels[i], fonts[i]);
-    text_layer_set_text_alignment(labels[i], GTextAlignmentLeft);
-    text_layer_set_background_color(labels[i], GColorClear);
-    layer_add_child(layer, text_layer_get_layer(labels[i]));
+  s_setup_scroll=scroll_layer_create(GRect(0,header_height,bounds.size.w,bounds.size.h-header_height));
+  if (!s_setup_scroll) return false;
+  layer_add_child(layer,scroll_layer_get_layer(s_setup_scroll));
+  // Native scrolling keeps complete instructions reachable at every OS size.
+  // It owns setup's Up/Down clicks; normal Back still leaves this passive screen.
+  scroll_layer_set_click_config_onto_window(s_setup_scroll,s_window);
+  for (unsigned i=0;i<2;++i) {
+    s_setup_body[i]=text_layer_create(GRect(16,0,bounds.size.w-32,1));
+    if (!s_setup_body[i]) return false;
+    text_layer_set_font(s_setup_body[i],fonts_get_system_font(xoce_ui_native_font_key(
+        s_text_size,i?XOCE_UI_TYPE_MENU_SUBTITLE:XOCE_UI_TYPE_MENU_TITLE,s_modern_type)));
+    text_layer_set_overflow_mode(s_setup_body[i],GTextOverflowModeWordWrap);
+    text_layer_set_text_alignment(s_setup_body[i],GTextAlignmentLeft);
+    text_layer_set_background_color(s_setup_body[i],GColorClear);
+    scroll_layer_add_child(s_setup_scroll,text_layer_get_layer(s_setup_body[i]));
   }
   apply_palette();
   time_t now = time(NULL);
@@ -320,17 +316,13 @@ static void deinit(void) {
     app_message_deregister_callbacks();
   }
   for (unsigned i = 0; i < 2; ++i) {
-    if (s_setup_hint[i]) text_layer_destroy(s_setup_hint[i]);
     if (s_setup_body[i]) text_layer_destroy(s_setup_body[i]);
   }
+  if (s_setup_scroll) scroll_layer_destroy(s_setup_scroll);
   if (s_label) text_layer_destroy(s_label);
   if (s_header) layer_destroy(s_header);
   if (s_clock_subscribed) tick_timer_service_unsubscribe();
   if (s_setup_mode && s_message_opened) app_message_deregister_callbacks();
-  for (unsigned i = 0; i < FONT_COUNT; ++i) {
-    if (s_fonts[i]) fonts_unload_custom_font(s_fonts[i]);
-    s_fonts[i] = NULL;
-  }
   if (s_window) window_destroy(s_window);
 }
 
@@ -338,7 +330,7 @@ int main(void) {
   uint32_t started = now_ms();
   AppLaunchReason reason = launch_reason();
   if (reason == APP_LAUNCH_USER || reason == APP_LAUNCH_PHONE || reason == APP_LAUNCH_SYSTEM) {
-    load_ui(true);
+    load_ui();
     if (init_setup()) app_event_loop();
     deinit();
     return 0;
@@ -353,7 +345,7 @@ int main(void) {
     (s_gesture == APP_QUICK_LAUNCH_ACTION_COMBO &&
      (s_button == BUTTON_ID_BACK || s_button == BUTTON_ID_UP));
   if (!supported) return 0;
-  load_ui(false);
+  load_ui();
   init(started);
   if (s_attempt.phase != OA_CLOSED) app_event_loop();
   deinit();

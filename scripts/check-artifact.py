@@ -32,6 +32,9 @@ with zipfile.ZipFile(pbw) as archive:
     assert appinfo['appKeys'] == package['pebble']['messageKeys']
     assert set(appinfo['targetPlatforms']) == {'emery'}
     binary = archive.read('emery/pebble-app.bin')
+    assert all(item['type']!='font' for item in package['pebble']['resources']['media'])
+    for key in (b'RESOURCE_ID_GOTHIC_18_BOLD',b'RESOURCE_ID_GOTHIC_24_BOLD',b'RESOURCE_ID_GOTHIC_28_BOLD'):
+        assert key in binary,'Missing native OS type profile: '+repr(key)
     assert binary[:8] == b'PBLAPP\x00\x00'
     elf = (root / 'build/emery/pebble-app.elf').read_bytes()
     assert elf[:6] == b'\x7fELF\x01\x01'

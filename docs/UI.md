@@ -3,26 +3,36 @@
 The current release is 0.3.3. Earlier downloads and frozen evidence retain
 their original versions and interfaces.
 
-The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup uses22/24/26 Roboto Condensed with measured leading, full clock and saved appearance. Quick Launch loads only its main font; setup loads three, all allocations have cleanup/fallback paths. The helper has no action rail and never remaps global OS Quick Launch assignments.
+The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save.
 
-Setup uses the shared `pebble-xoce-ui` full-width32px header with26px title and
-clock,8px edge insets and the same divider as the other apps. Its concise title
-is **Activity**; the launcher name stays **Open Activity**. Both text runs are
-centered using actual glyph ink, including the recorded SDK Gothic fallback;
-the title yields space to the full clock. Body instructions remain24px and
-secondary instructions22px, with explicit lines and measured leading. Fonts
-remain loaded and owned here. The header adds no launch handshake, animation
-timer or change to the original Quick Launch budget.
+The development candidate uses PebbleOS system fonts through the independently
+pinned UI library's native type profiles. `preferred_content_size()` is read at
+launch: Emery Small, Medium and Large correspond to SDK values 1, 2 and 3.
+Header, MenuTitle and MenuSubtitle match the stock roles for the running firmware;
+firmware 4.44's changed Large title/subtitle pair is selected separately. No
+custom text fonts are loaded or bundled in the candidate.
 
-`scripts/generate-header-ink.py` regenerates the committed setup-header metrics
-from `build/emery/app_resources.pbpack`; `--check` compares them after an SDK
-build. Custom-font metrics include every translated header glyph. Its small ASCII/ellipsis/wildcard fallback fixture records the original
-public SDK4.33.1 glyph measurement and source hash. Reusing that fixture is not
-fresh native or real-device verification.
+Setup keeps the full-width header, left **Activity** label, right clock, 8px edge
+insets and divider. The same native Header font measures and draws both text runs;
+the label yields to the complete clock. The launcher name stays **Open Activity**.
+The two complete instruction paragraphs use MenuTitle and MenuSubtitle. Their
+measured wrapped heights determine leading and available space below the header.
+A standard ScrollLayer owns Up/Down scrolling when longer text exceeds that space;
+normal Back exits. There is no action rail or setup action on Select. Touch
+navigation is not enabled by this candidate.
+
+The opening state uses the native MenuTitle role with a measured, centered text
+frame. Setup and opening retain their saved light/dark colors. Reading font roles
+and measuring text do not restart or extend Quick Launch's original budget.
+The previous bundled-font metrics and generator remain historical source only;
+they no longer determine the candidate's layout.
 
 Preserve UUID, gesture/button wire identity and all eight supported shortcut identities. Ordinary user/phone/system launches show passive setup without an opening nonce or activity handshake. Quick Launch owns the original four-second budget measured before font loading, one attempt, cancellation and at most one dispatch. Validate the selected Dynamic/Halftone provider, embedded watchface identity, original schema/expiry and selected role; never fall back to the other face; never substitute Primary for missing Secondary or independently rank activities. Persist settings only, never navigation/activity content.
 
 ## Native/phone verification
+
+The [native type checkpoint](native-type-checkpoint.md) records the current
+candidate's actual OS-size runs, localized lookup fixtures and their limits.
 
 Inspect actual affected compositions, full text, glyph/icon alignment, edges,
 light/dark and relevant critical states. Keep the actual packaged native payload

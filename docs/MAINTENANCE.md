@@ -9,7 +9,7 @@ Preserve UUID, gesture/button wire identity and all eight supported shortcut ide
 
 ## Current interaction and product boundaries
 
-The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup uses22/24/26 Roboto Condensed with measured leading, full clock and saved appearance. Quick Launch loads only its main font; setup loads three, all allocations have cleanup/fallback paths. The helper has no action rail and never remaps global OS Quick Launch assignments.
+The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save. Setup and opening use PebbleOS native type profiles at the launch-time OS text size. Setup measures complete instruction paragraphs and uses native scrolling when needed. The clock retains its full measured width. No custom font loading or unloading occurs. The helper has no action rail and never remaps global OS Quick Launch assignments.
 
 ## Source ownership
 

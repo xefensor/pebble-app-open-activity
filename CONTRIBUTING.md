@@ -67,5 +67,5 @@ shortening body text. `nativeLayout` records measured control/help/warning width
 After editing the catalogue, run `python3 scripts/generate-localization.py` and
 `node scripts/generate-config.cjs`. Native strings load one language at a time from
 a bounded resource buffer. `npm test` checks catalogue/placeholder parity and
-resource failure handling; `npm run check:artifact` checks actual bundled glyphs,
-resources and text widths.
+resource failure handling; `npm run check:artifact` checks locale resource identity and native font keys. OS glyph rendering and
+localized layout are checked separately in the emulator.

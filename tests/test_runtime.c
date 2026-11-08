@@ -3,6 +3,7 @@
 #include <pebble.h>
 
 const char *app_text(const char *text) { return text; }
+const char *app_heading(const char *text) { return text; }
 
 #define main helper_app_main
 #include "../src/c/main.c"
@@ -25,6 +26,11 @@ static int32_t stored_theme;
 static int theme_writes,clock_subscribes,clock_unsubscribes,font_loads,font_unloads;
 static int fail_font_at;
 static uint32_t font_load_delay;
+static unsigned preferred_size;
+static WatchInfoVersion firmware;
+static ScrollLayer scroll;
+static int scroll_creates,scroll_destroys,scroll_clicks;
+static bool fail_scroll;
 static bool theme_write_fails;
 static GColor window_background;
 static AppMessageResult opening_result;
@@ -35,7 +41,7 @@ static TextLayer labels[6];
 static const char *label_text[6];
 static bool label_destroyed[6];
 static StatusBarLayer status_bar;
-static Layer layer;
+static Layer layer,scroll_root,text_layers[6];
 static Layer header_layer;
 static GRect header_bounds;
 static void (*header_update)(Layer *,GContext *);
@@ -80,20 +86,22 @@ void layer_destroy(Layer *value) {assert(value==&header_layer);layer_destroys++;
 void layer_set_update_proc(Layer *value,void (*update)(Layer *,GContext *)) {assert(value==&header_layer);header_update=update;}
 void layer_mark_dirty(Layer *value) {assert(value==&header_layer);}
 GRect layer_get_bounds(Layer *value) {return value==&header_layer?header_bounds:GRect(0,0,200,228);}
+void layer_set_frame(Layer *value,GRect frame) {
+  assert(value>=text_layers&&value<text_layers+6);
+  assert(frame.origin.x==16&&frame.size.w==168&&frame.size.h>0&&frame.origin.y>=0);
+}
 GSize graphics_text_layout_get_content_size(const char *text,GFont font,GRect bounds,GTextOverflowMode overflow,GTextAlignment alignment) {
-  (void)font;(void)bounds;(void)overflow;(void)alignment;
-  return (GSize){(int16_t)(strlen(text)*10),26};
+  (void)overflow;(void)alignment;
+  const int point=strstr((const char *)font,"28")?28:strstr((const char *)font,"24")?24:18;
+  const int width=(int)strlen(text)*(point/2),lines=(width+bounds.size.w-1)/bounds.size.w;
+  return (GSize){width<bounds.size.w?width:bounds.size.w,lines*point};
 }
 void graphics_context_set_text_color(GContext *ctx,GColor color) {(void)ctx;(void)color;}
 void graphics_draw_text(GContext *ctx,const char *text,GFont font,GRect bounds,GTextOverflowMode overflow,GTextAlignment alignment,void *attributes) {
   (void)ctx;(void)font;(void)overflow;(void)alignment;(void)attributes;
   assert(!strcmp(text,"Activity")||strchr(text,':'));
-  const OaGlyphInk ink=oa_header_ink(text,s_fonts[FONT_CLOCK]!=NULL);
-  const int top=bounds.origin.y+ink.top,bottom=bounds.origin.y+ink.bottom;
-  assert(top>=0&&bottom<XOCE_UI_HEADER_HEIGHT-1);
-  // Optical centering differs by at most one pixel for odd ink heights.
-  assert(top-(XOCE_UI_HEADER_HEIGHT-1-bottom)>=-1);
-  assert(top-(XOCE_UI_HEADER_HEIGHT-1-bottom)<=1);
+  assert(bounds.origin.x>=8&&bounds.origin.x+bounds.size.w<=192);
+  assert(bounds.origin.y==0&&bounds.size.h>=XOCE_UI_HEADER_HEIGHT);
   header_strings++;
 }
 void graphics_context_set_stroke_color(GContext *ctx,GColor color) {(void)ctx;(void)color;}
@@ -109,10 +117,13 @@ TextLayer *text_layer_create(GRect rect) {
 }
 void text_layer_set_text(TextLayer *value,const char *text) {assert(value>=labels&&value<labels+6);label_text[value-labels]=text;}
 void text_layer_set_font(TextLayer *value,GFont font) {(void)value;(void)font;}
+void text_layer_set_overflow_mode(TextLayer *value,GTextOverflowMode mode) {(void)value;assert(mode==GTextOverflowModeWordWrap);}
 void text_layer_set_text_alignment(TextLayer *value,int alignment) {(void)value;(void)alignment;}
 void text_layer_set_text_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 void text_layer_set_background_color(TextLayer *value,GColor color) {(void)value;(void)color;}
 GFont fonts_get_system_font(const char *key) {return key;}
+unsigned preferred_content_size(void) {clock_ms+=font_load_delay;return preferred_size;}
+WatchInfoVersion watch_info_get_firmware_version(void) {return firmware;}
 GFont fonts_load_custom_font(unsigned handle) {font_loads++;clock_ms+=font_load_delay;return font_loads==fail_font_at?NULL:(GFont)(uintptr_t)handle;}
 void fonts_unload_custom_font(GFont font) {assert(font);font_unloads++;}
 unsigned resource_get_handle(unsigned handle) {return handle;}
@@ -122,7 +133,7 @@ int persist_write_int(unsigned key,int32_t value) {assert(key==OA_THEME_STORAGE_
 bool clock_is_24h_style(void) {return true;}
 void tick_timer_service_subscribe(TimeUnits units,void (*handler)(struct tm *,TimeUnits)) {assert(units==MINUTE_UNIT&&handler);clock_subscribes++;}
 void tick_timer_service_unsubscribe(void) {clock_unsubscribes++;}
-Layer *text_layer_get_layer(TextLayer *value) {(void)value;return &layer;}
+Layer *text_layer_get_layer(TextLayer *value) {return &text_layers[value-labels];}
 void layer_add_child(Layer *parent,Layer *child) {(void)parent;(void)child;}
 void text_layer_destroy(TextLayer *value) {
   assert(value>=labels&&value<labels+6);size_t at=(size_t)(value-labels);
@@ -137,6 +148,12 @@ void connection_service_subscribe(ConnectionHandlers handlers) {assert(handlers.
 void connection_service_unsubscribe(void) {connection_unsubscribes++;}
 bool connection_service_peek_pebble_app_connection(void) {connection_peeks++;return connected;}
 void app_event_loop(void) {loops++;if(loop_script)loop_script();}
+ScrollLayer *scroll_layer_create(GRect frame) {scroll_creates++;scroll.frame=frame;return fail_scroll?NULL:&scroll;}
+void scroll_layer_destroy(ScrollLayer *value) {assert(value==&scroll);scroll_destroys++;assert(scroll_destroys==1);}
+Layer *scroll_layer_get_layer(const ScrollLayer *value) {assert(value==&scroll);return &scroll_root;}
+void scroll_layer_add_child(ScrollLayer *value,Layer *child) {assert(value==&scroll&&child>=text_layers&&child<text_layers+6);}
+void scroll_layer_set_click_config_onto_window(ScrollLayer *value,Window *parent) {assert(value==&scroll&&parent==&window);scroll_clicks++;}
+void scroll_layer_set_content_size(ScrollLayer *value,GSize size) {assert(value==&scroll&&size.w==200&&size.h>=scroll.frame.size.h);scroll.content=size;}
 
 static void reset(void) {
   reason=APP_LAUNCH_QUICK_LAUNCH;gesture=APP_QUICK_LAUNCH_ACTION_HOLD;
@@ -148,11 +165,12 @@ static void reset(void) {
   text_creates=text_destroys=window_destroys=status_creates=status_destroys=0;
   layer_creates=layer_destroys=header_draws=header_strings=0;header_update=NULL;
   fail_text_at=0;fail_window=fail_status=fail_header=false;
-  fail_font_at=0;font_load_delay=0;memset(s_fonts,0,sizeof(s_fonts));
+  fail_font_at=0;font_load_delay=0;preferred_size=1;firmware=(WatchInfoVersion){4,33,2};
+  scroll_creates=scroll_destroys=scroll_clicks=0;fail_scroll=false;s_setup_scroll=NULL;
   stored_theme=-1;theme_writes=clock_subscribes=clock_unsubscribes=font_loads=font_unloads=0;theme_write_fails=false;window_background=GColorClear;
   memset(label_text,0,sizeof(label_text));memset(label_destroyed,0,sizeof(label_destroyed));
   s_window=NULL;s_label=NULL;s_timeout=NULL;s_sending=false;s_pending_operation=0;
-  memset(s_setup_body,0,sizeof(s_setup_body));memset(s_setup_hint,0,sizeof(s_setup_hint));s_header=NULL;s_setup_mode=false;
+  memset(s_setup_body,0,sizeof(s_setup_body));s_header=NULL;s_setup_mode=false;
   s_dark=false;s_message_opened=false;s_clock_subscribed=false;
   memset(&s_attempt,0,sizeof(s_attempt));memset(&timer,0,sizeof(timer));
   loop_script=NULL;back_click=NULL;
@@ -208,12 +226,12 @@ static void no_setup_work(void) {
 }
 static void setup_script(void) {
   assert(s_setup_mode&&pushed==1&&click_providers==0&&back_click);
-  assert(status_creates==0&&text_creates==4&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
+  assert(status_creates==0&&text_creates==2&&clock_subscribes==1&&message_opens==1&&message_handlers==1);
+  assert(scroll_creates==1&&scroll_clicks==1&&scroll.content.h>=scroll.frame.size.h);
   assert(layer_creates==1&&header_update);
-  assert(!strcmp(label_text[0],"Open settings in"));
-  assert(!strcmp(label_text[1],"the Pebble app."));
-  assert(!strcmp(label_text[2],"Quick Launch"));
-  assert(!strcmp(label_text[3],"opens activities."));
+  assert(!strcmp(label_text[0],"Open settings in the Pebble app."));
+  assert(!strcmp(label_text[1],"Quick Launch opens activities."));
+  assert(s_text_size==preferred_size-1);
   GContext ctx;header_update(&header_layer,&ctx);header_draws++;
   assert(header_strings==2);
   no_setup_work();
@@ -236,25 +254,25 @@ static void appearance_script(void) {
 }
 int main(void) {
   reset();reason=APP_LAUNCH_USER;stored_theme=1;loop_script=appearance_script;helper_app_main();
-  assert(stored_theme==0&&font_loads==3&&font_unloads==3);
+  assert(stored_theme==0&&font_loads==0&&font_unloads==0);
   const AppLaunchReason setup_reasons[]={APP_LAUNCH_USER,APP_LAUNCH_PHONE,APP_LAUNCH_SYSTEM};
-  for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline){
-    reset();reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
+  for(size_t i=0;i<sizeof(setup_reasons)/sizeof(setup_reasons[0]);++i)for(unsigned offline=0;offline<2;++offline)for(unsigned size=1;size<=3;++size){
+    reset();preferred_size=size;reason=setup_reasons[i];connected=!offline;loop_script=setup_script;
     helper_app_main();assert(created==1&&loops==1&&popped==1);
-    assert(text_destroys==4&&layer_destroys==1&&header_draws==1&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==3&&font_unloads==3);no_setup_work();
+    assert(text_destroys==2&&scroll_destroys==1&&layer_destroys==1&&header_draws==1&&status_destroys==0&&window_destroys==1&&clock_unsubscribes==1&&font_loads==0&&font_unloads==0);no_setup_work();
   }
-  for(int fail=1;fail<=3;++fail){
-    reset();reason=APP_LAUNCH_USER;fail_font_at=fail;loop_script=setup_script;
-    helper_app_main();assert(font_loads==3&&font_unloads==2&&default_backs==1);no_setup_work();
-  }
+  reset();reason=APP_LAUNCH_USER;preferred_size=3;firmware=(WatchInfoVersion){4,44,0};loop_script=setup_script;
+  helper_app_main();assert(s_modern_type&&font_loads==0&&font_unloads==0);
   reset();font_load_delay=OA_BUDGET_MS+1;helper_app_main();
-  assert(font_loads==1&&font_unloads==1&&message_opens==0&&sent==0&&timer_registers==0&&loops==0&&s_attempt.phase==OA_CLOSED);
+  assert(font_loads==0&&font_unloads==0&&message_opens==0&&sent==0&&timer_registers==0&&loops==0&&s_attempt.phase==OA_CLOSED);
   reset();reason=APP_LAUNCH_USER;fail_window=true;helper_app_main();assert(loops==0&&pushed==0&&window_destroys==0);no_setup_work();
   reset();reason=APP_LAUNCH_USER;fail_header=true;helper_app_main();
   assert(loops==0&&pushed==0&&text_destroys==0&&layer_destroys==0&&window_destroys==1);no_setup_work();
-  for(int fail=1;fail<=4;++fail){
+  reset();reason=APP_LAUNCH_USER;fail_scroll=true;helper_app_main();
+  assert(loops==0&&pushed==0&&scroll_destroys==0&&layer_destroys==1&&window_destroys==1);no_setup_work();
+  for(int fail=1;fail<=2;++fail){
     reset();reason=APP_LAUNCH_USER;fail_text_at=fail;helper_app_main();
-    assert(loops==0&&pushed==0&&text_destroys==fail-1&&layer_destroys==1&&status_destroys==0&&window_destroys==1);no_setup_work();
+    assert(loops==0&&pushed==0&&text_destroys==fail-1&&scroll_destroys==1&&layer_destroys==1&&status_destroys==0&&window_destroys==1);no_setup_work();
   }
   const AppLaunchReason unsupported_reasons[]={APP_LAUNCH_WAKEUP,APP_LAUNCH_WORKER,APP_LAUNCH_TIMELINE_ACTION,APP_LAUNCH_SMARTSTRAP,(AppLaunchReason)99};
   for(size_t i=0;i<sizeof(unsupported_reasons)/sizeof(unsupported_reasons[0]);++i){

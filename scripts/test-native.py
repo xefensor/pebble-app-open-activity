@@ -25,6 +25,7 @@ with tempfile.TemporaryDirectory(prefix='open-activity-runtime-') as scratch:
         str(root / 'src/c/attempt.c'),
         str(root / 'node_modules/pebble-xoce-ui/src/c/layout.c'),
         str(root / 'node_modules/pebble-xoce-ui/src/c/header.c'),
+        str(root / 'node_modules/pebble-xoce-ui/src/c/native_type.c'),
         str(root / 'tests/test_runtime.c'), '-o', str(executable)
     ], check=True)
     subprocess.run([str(executable)], check=True)
