@@ -32,6 +32,13 @@ The current SDK target is **Pebble Time 2 / Emery**, using **Pebble SDK 4.33.1**
 emulator evidence is versioned; physical phone/watch checks retain their documented gaps.
 Existing screenshots keep their original version and provenance.
 
+## Setup and use
+
+Configure shortcut roles in its phone settings and assign it through Pebble Quick Launch. An ordinary launch shows setup; a shortcut attempts the matching presented destination once. See [setup and supported inputs](docs/UI.md).
+
+The version notes below describe the published download. Development candidates
+remain separate; use [CONTRIBUTING](CONTRIBUTING.md) for local builds.
+
 ## Version 0.3.3
 
 - Use the shared full-width Activity header with measured title/time alignment and readable setup instructions.
