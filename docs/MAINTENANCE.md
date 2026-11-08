@@ -62,3 +62,8 @@ new display frames during an attempt. It uses the saved profile loaded inside
 the original launch budget. The two settings paths retain exact verified Save,
 Android live-writer handoff and pending choices across reopening. No display
 state creates a source subscription, navigation nonce or launch capability.
+
+A runtime resync, explicit Retry or mismatched fresh watch hello rotates the
+positive delivery revision before sending. A delayed receipt from before that
+boundary cannot mark the new delivery applied. If the new revision cannot be
+verified in phone storage, keep the choice pending and suppress old receipts.

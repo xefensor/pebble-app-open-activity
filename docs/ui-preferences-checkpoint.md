@@ -1,5 +1,7 @@
 # Open Activity preferences checkpoint — 2026-11-08
 
+The latest candidate is recorded in the [receipt freshness checkpoint](ui-preferences-revision-checkpoint.md). The evidence below describes the original preference candidate.
+
 Local candidate only; no version change, push or publication. The existing phone
 Save flow now includes independent Text Size and Appearance. Manual sizes use the
 same native role profiles as the matching Pebble sizes. Saved settings load before
