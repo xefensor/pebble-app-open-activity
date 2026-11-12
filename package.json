@@ -1,12 +1,12 @@
 {
   "name": "pebble-app-open-activity",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "description": "One Quick Launch app for Dynamic or Halftone's recently displayed primary or secondary activity.",
   "scripts": {
-    "test": "node --test tests/*.test.js && python3 scripts/test-native.py && npm run test:workflow && npm run check:docs && npm run test:release && python3 scripts/test-localization.py",
+    "test": "node --test tests/*.test.js && python3 scripts/test-native.py && npm run test:workflow && npm run check:docs && npm run test:release && python3 scripts/test-localization.py && npm run test:platforms && npm run test:store",
     "build": "python3 scripts/build.py",
     "check:artifact": "python3 scripts/check-artifact.py",
     "build:release": "python3 scripts/build.py --release",
@@ -19,7 +19,11 @@
     "release:publish": "python3 scripts/github-release.py publish",
     "test:release": "python3 -m unittest discover -s tests -p \"test_*release*.py\"",
     "check:setup": "python3 scripts/check-setup.py",
-    "check:localization": "python3 scripts/generate-localization.py --check"
+    "check:localization": "python3 scripts/generate-localization.py --check",
+    "test:platforms": "python3 -m unittest discover -s tests -p test_platform_audit.py",
+    "store:prepare": "python3 scripts/store-kit.py",
+    "store:check": "python3 scripts/store-kit.py --check",
+    "test:store": "python3 -m unittest discover -s tests -p test_store_kit.py"
   },
   "pebble": {
     "displayName": "Open Activity",
@@ -28,7 +32,8 @@
     "projectType": "native",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "emery"
+      "emery",
+      "gabbro"
     ],
     "watchapp": {
       "watchface": false
@@ -38,7 +43,11 @@
     ],
     "configPage": "config.html",
     "usesPermissions": [
-      "LaunchApps"
+      {
+        "name": "LaunchApps",
+        "reason": "To open the app associated with your chosen activity",
+        "required": true
+      }
     ],
     "plugin": {
       "description": "Open Activity shortcut settings. No activity sources or action proxy.",
@@ -73,6 +82,6 @@
     "terser": "5.46.0"
   },
   "dependencies": {
-    "pebble-xoce-ui": "file:vendor/pebble-xoce-ui-0.1.1-native-type-63526c2e66e1.tgz"
+    "pebble-xoce-ui": "file:vendor/pebble-xoce-ui-0.1.2.tgz"
   }
 }

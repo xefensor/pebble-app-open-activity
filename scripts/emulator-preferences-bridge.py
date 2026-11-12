@@ -11,14 +11,16 @@ from libpebble2.services.screenshot import Screenshot
 from PIL import Image
 from libpebble2.services.appmessage import AppMessageService,ByteArray,Uint32,CString
 ROOT=Path(__file__).resolve().parents[1];PBW=candidate(ROOT,'Open-Activity');check_build(ROOT,PBW)
-OUT=ROOT/'build/qa/preferences-bridge'/str(time.time_ns());OUT.mkdir(parents=True)
+PLATFORM=os.environ.get('PEBBLE_QA_PLATFORM','emery');assert PLATFORM in ('emery','gabbro')
+DIMENSIONS=(260,260) if PLATFORM=='gabbro' else (200,228)
+OUT=ROOT.parent/'recovery-validation/release-qa/open-activity'/PLATFORM/'preferences-bridge'/str(time.time_ns());OUT.mkdir(parents=True)
 os.environ['PEBBLE_QA_STATE']=str(OUT/'emulator');sys.path.insert(0,str(ROOT.parent/'recovery-validation'))
 from pipe_emulator import connect
 with zipfile.ZipFile(PBW) as source,zipfile.ZipFile(OUT/'native.pbw','w') as native:
     info=json.loads(source.read('appinfo.json'))
     for name in ('plugin.js','pebble-js-app.js'):(OUT/name).write_bytes(source.read(name))
     for name in source.namelist():
-        if name=='appinfo.json' or name.startswith('emery/'):native.writestr(name,source.read(name))
+        if name=='appinfo.json' or name.startswith(PLATFORM+'/'):native.writestr(name,source.read(name))
 keys=info.get('messageKeys') or info['appKeys'];inverse={value:key for key,value in keys.items()};target=uuid.UUID(info['uuid'])
 p=connect();service=AppMessageService(p);lines=queue.Queue();lock=threading.Lock();closing=threading.Event();transactions={};replies=[];commands=0;responses={}
 phone=subprocess.Popen(['node',str(ROOT/'scripts/emulator-preferences-phone.cjs'),str(OUT)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
@@ -74,7 +76,7 @@ try:
         expected=[index+1,0,0,0,{'light':1,'dark':2,'follow':0}[appearance],0,0,0,1 if last=='light' else 2,0,0,0]
         assert any(frame[2:4]==[0,0] and frame[8:20]==expected for frame in replies),replies
         time.sleep(.6) # Wait for native Window motion before inspecting settled pixels.
-        Image.frombytes('RGB',(200,228),b''.join(Screenshot(p).grab_image())).save(OUT/(text+'-'+appearance+'.png'))
+        Image.frombytes('RGB',DIMENSIONS,b''.join(Screenshot(p).grab_image())).save(OUT/(text+'-'+appearance+'.png'))
         p.send_packet(AppRunState(data=AppRunStateStop(uuid=target)));time.sleep(.2);replies.clear()
         p.send_packet(AppRunState(data=AppRunStateStart(uuid=target)))
         until=time.monotonic()+8
@@ -82,7 +84,7 @@ try:
         assert any(frame[3]==1 and frame[8:20]==expected for frame in replies),'Relaunch did not load exact saved choices'
         cases.append({'pendingBeforeWatch':saved,'appliedAfterNativeReceipt':applied,'survivesNativeRelaunch':True})
     check_build(ROOT,PBW)
-    report={'result':'PASS','pbwSha256':hashlib.sha256(PBW.read_bytes()).hexdigest(),'cases':cases,'firmware':str(p.watch_info.running),'scope':'Exact optimized PBW plugin and PKJS, actual Emery AppMessage transport ACKs and native save/readback/application receipts. All three manual sizes survive relaunch;phone SDK and storage simulated;not a physical phone/watch test.'}
+    report={'result':'PASS','platform':PLATFORM,'pbwSha256':hashlib.sha256(PBW.read_bytes()).hexdigest(),'cases':cases,'firmware':str(p.watch_info.running),'scope':'Exact optimized PBW plugin and PKJS, actual native AppMessage transport ACKs and native save/readback/application receipts. All three manual sizes survive relaunch;phone SDK and storage simulated;not a physical phone/watch test.'}
     (OUT/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'result':'PASS','path':str(OUT/'report.json')}),flush=True)
 
 finally:

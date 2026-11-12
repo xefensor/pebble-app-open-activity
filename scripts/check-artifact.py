@@ -24,13 +24,13 @@ with zipfile.ZipFile(pbw) as archive:
     assert appinfo['versionLabel'] == package['version']
     assert appinfo['shortName'] == 'Open Activity'
     assert appinfo['manifestVersion'] == 2
-    assert appinfo['usesPermissions'] == ['LaunchApps']
+    assert appinfo['usesPermissions'] == package['pebble']['usesPermissions']
     assert appinfo['configPage'] == 'config.html'
     assert appinfo['plugin'] == package['pebble']['plugin']
     assert appinfo['plugin']['sources'] == [] and appinfo['plugin']['actions'] == []
     assert appinfo['watchapp']['watchface'] is False
     assert appinfo['appKeys'] == package['pebble']['messageKeys']
-    assert set(appinfo['targetPlatforms']) == {'emery'}
+    assert appinfo['targetPlatforms'] == package['pebble']['targetPlatforms']
     binary = archive.read('emery/pebble-app.bin')
     assert all(item['type']!='font' for item in package['pebble']['resources']['media'])
     for key in (b'RESOURCE_ID_GOTHIC_18_BOLD',b'RESOURCE_ID_GOTHIC_24_BOLD',b'RESOURCE_ID_GOTHIC_28_BOLD'):
@@ -46,8 +46,8 @@ with zipfile.ZipFile(pbw) as archive:
     loaded_bytes = max(section[3] + section[5] for section in loaded)
     virtual_bytes = max(section[3] + section[5] for section in allocated)
     assert loaded_bytes <= 65535 and virtual_bytes <= 65535
-    assert struct.unpack_from('<H', binary, 14)[0] == loaded_bytes
-    assert struct.unpack_from('<H', binary, 128)[0] == virtual_bytes
+    assert (struct.unpack_from('<H', binary, 14)[0] | (binary[130] << 16)) == loaded_bytes
+    assert (struct.unpack_from('<H', binary, 128)[0] | (binary[131] << 16)) == virtual_bytes
     relocations = struct.unpack_from('<I', binary, 100)[0]
     assert len(binary) == loaded_bytes + 4 * relocations
     js = archive.read('pebble-js-app.js').decode()
@@ -101,3 +101,6 @@ print(json.dumps({'pbw': str(pbw), 'sha256': checksum, 'nativeFileBytes': len(bi
 
 import subprocess
 subprocess.run(["python3",str(root / "scripts/check-localization-fonts.py"),"--pbw",str(pbw)],check=True)
+
+from platform_audit import audit_platforms
+print(audit_platforms(root,pbw))

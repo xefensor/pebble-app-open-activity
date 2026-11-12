@@ -10,7 +10,7 @@ static TextLayer *s_label;
 static TextLayer *s_setup_body[2];
 static ScrollLayer *s_setup_scroll;
 static char s_setup_text[2][256];
-static Layer *s_header;
+static Layer *s_header,*s_content;
 static unsigned s_text_size,s_system_text_size;
 static OaUiPreferences s_ui_preferences;
 static uint8_t s_ui_reply[OA_UI_PREFERENCES_BYTES];
@@ -73,7 +73,7 @@ static void draw_header(Layer *layer,GContext *ctx) {
 static void refresh_setup_language(void) {
   if (!s_setup_scroll) return;
   const char *source[][2]={{"Open settings in","the Pebble app."},{"Quick Launch","opens activities."}};
-  const GRect bounds = layer_get_bounds(window_get_root_layer(s_window));
+  const GRect bounds = layer_get_bounds(s_content);
   const int header_height = xoce_ui_native_header_layout("22:58",s_text_size,
       s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
   const int viewport = bounds.size.h-header_height;
@@ -96,7 +96,7 @@ static void refresh_setup_language(void) {
 static void apply_ui_preferences(const OaUiPreferences *value){
   s_ui_preferences=*value;s_dark=oa_ui_preferences_dark(value);
   s_text_size=xoce_ui_effective_text_size(value->text_size,s_system_text_size);
-  const GRect bounds=layer_get_bounds(window_get_root_layer(s_window));
+  const GRect bounds=layer_get_bounds(s_content);
   const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
       s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
   layer_set_frame(s_header,GRect(0,0,bounds.size.w,header_height));
@@ -288,7 +288,14 @@ static void init(uint32_t started) {
   if (!s_window) { oa_attempt_close(&s_attempt); return; }
   window_set_background_color(s_window, background());
   window_set_click_config_provider(s_window, click_config);
-  Layer *layer = window_get_root_layer(s_window);
+  Layer *root = window_get_root_layer(s_window);
+  Layer *layer=root;
+#ifdef PBL_ROUND
+  const GRect viewport=xoce_ui_safe_viewport(layer_get_bounds(root),true);
+  layer=s_content=layer_create(viewport);
+#endif
+  if (!layer) return;
+  if(s_content)layer_add_child(root,layer);
   GRect bounds = layer_get_bounds(layer);
   const int opening_height=xoce_ui_native_measure(app_text("Opening..."),s_text_size,
       XOCE_UI_TYPE_MENU_TITLE,s_modern_type,bounds.size.w-22).h+8;
@@ -323,7 +330,14 @@ static bool init_setup(void) {
   s_window = window_create();
   if (!s_window) return false;
   window_set_background_color(s_window, background());
-  Layer *layer = window_get_root_layer(s_window);
+  Layer *root = window_get_root_layer(s_window);
+  Layer *layer=root;
+#ifdef PBL_ROUND
+  const GRect viewport=xoce_ui_safe_viewport(layer_get_bounds(root),true);
+  layer=s_content=layer_create(viewport);
+#endif
+  if (!layer) return false;
+  if(s_content)layer_add_child(root,layer);
   GRect bounds = layer_get_bounds(layer);
   const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
       s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
@@ -377,6 +391,7 @@ static void deinit(void) {
   if (s_setup_scroll) scroll_layer_destroy(s_setup_scroll);
   if (s_label) text_layer_destroy(s_label);
   if (s_header) layer_destroy(s_header);
+  if (s_content) layer_destroy(s_content);
   if (s_clock_subscribed) tick_timer_service_unsubscribe();
   if (s_setup_mode && s_message_opened) app_message_deregister_callbacks();
   if (s_window) window_destroy(s_window);

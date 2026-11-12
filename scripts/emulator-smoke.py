@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Isolated Emery QEMU check of the native setup screen, never hardware.
+"""Isolated native QEMU check of the native setup screen, never hardware.
 
 This does not run the plugin phone runtime or simulate a Quick Launch hold.
 The portable SDK adapter tests cover the hold/prepare/confirmation path.
@@ -19,10 +19,12 @@ from datetime import datetime, timezone
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / 'package.json').read_text())
+platform=os.environ.get('PEBBLE_QA_PLATFORM','emery');assert platform in ('emery','gabbro')
+dimensions=(260,260) if platform=='gabbro' else (200,228)
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--pipe-helper', type=Path,
                     default=root.parent / 'recovery-validation/pipe_emulator.py')
-parser.add_argument('--output', type=Path, default=qa_output(root, '') / 'emulator')
+parser.add_argument('--output', type=Path, default=root.parent/'recovery-validation/release-qa/open-activity'/platform/str(time.time_ns()))
 parser.add_argument('--expected-sha256', help='Require the exact candidate PBW bytes')
 parser.add_argument('--pbw',type=Path,help='Explicitly separate lookup/launch-reason fixture')
 parser.add_argument('--native-sizes',action='store_true',help='Relaunch after each actual OS content-size setting')
@@ -84,9 +86,9 @@ def capture(name):
     time.sleep(.25)
     image = args.output / (name + '.png')
     rows = Screenshot(connection).grab_image()
-    Image.frombytes('RGB', (200, 228), b''.join(rows)).save(image)
+    Image.frombytes('RGB', dimensions, b''.join(rows)).save(image)
     captures.append({'file': image.name, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest(),
-                     'pixels': [200, 228], 'nativePixelsModified': False})
+                     'pixels': list(dimensions), 'nativePixelsModified': False})
 def back():
     send_data_to_qemu(connection.transport, QemuButton(state=int(QemuButton.Button.Back)))
     time.sleep(.12)
@@ -196,10 +198,10 @@ if args.repeat_cycles:
     cleanup=[line for line in native_logs if 'Still allocated' in line]
     assert len(cleanup)>=args.repeat_cycles and all('Still allocated <0B>' in line for line in cleanup),cleanup
 with zipfile.ZipFile(pbw) as archive:
-    binary = archive.read('emery/pebble-app.bin')
+    binary = archive.read(platform+'/pebble-app.bin')
 report = {
-    'version': package['version'],
-    'scope': 'Real packaged native binary in isolated Emery QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.',
+    'version': package['version'],'platform':platform,
+    'scope': 'Real packaged native binary in isolated native QEMU; ordinary phone-launch setup, duration beyond four seconds, light/dark appearance delivery, cold dark reopening before phone data, invalid theme rejection, offline setup and Back. Menu launch reasons and Quick Launch gestures are checked separately by the portable native SDK adapter.',
     'phoneRuntime': False, 'physicalWatch': False, 'quickLaunchHoldSimulated': False,
     'lookupOrReasonFixture':bool(args.pbw),'actualOsContentSizes':[1,2,3] if args.native_sizes else None,
     'repeatCycles':args.repeat_cycles,'nativeLogs':native_logs,

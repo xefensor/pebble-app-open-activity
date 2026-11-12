@@ -1,0 +1,37 @@
+{
+  "product": "Open Activity",
+  "version": "0.4.0",
+  "pbwSha256": "c7329dcecbd57604bfa8fa30523c0e32ea0c77adc6ea0fbc27ad0ffaecd24c73",
+  "targets": [
+    "emery",
+    "gabbro"
+  ],
+  "automated": [
+    "npm test PASS (pinned Node/Python)",
+    "Current configuration generation PASS",
+    "Exact candidate SDK/ELF/PBW audits PASS",
+    "Store prepare/check PASS",
+    "npm audit: zero known vulnerabilities"
+  ],
+  "emulatorAndLiveScope": "Two emulator models: ordinary setup stays open beyond four seconds, offline setup, theme restore, invalid-theme rejection, all three sizes, scrolling, clock formats and ten open/Back cleanup cycles pass. Packaged plugin/PKJS bridge confirms saved display settings and native readback after restart. Phone SDK/storage are simulated. Actual Quick Launch gesture remains a physical check; its routing/deadline/cancellation guards pass portable SDK adapter tests.",
+  "physicalWatchTested": false,
+  "physicalPhoneTested": false,
+  "remoteCiRun": false,
+  "published": false,
+  "remainingPublicationGates": [
+    "Physical Time 2 and current Android Pebble app checks (Round 2 is emulator-only)",
+    "Verify Developer Dashboard listing ownership, UUID and unused version",
+    "Publish and verify proposed privacy/support URLs",
+    "Explicit final publication approval"
+  ],
+  "renderer": {
+    "emery": {
+      "nativeRendererSha256": "5084e35bec86ee8770b2f6677a09aba4a0d1db27081d6cb47a9ac0d0464551ae",
+      "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
+    },
+    "gabbro": {
+      "nativeRendererSha256": "1a9dca5ac985f5b0e753f334e35ab8fc48692fc137502f1f07b634f3c1dc47ef",
+      "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
+    }
+  }
+}

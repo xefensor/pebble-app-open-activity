@@ -38,6 +38,7 @@ unsigned preferred_content_size(void);
 enum {GCornerNone};
 typedef unsigned TimeUnits;
 #define MINUTE_UNIT 2
+#define PBL_IF_ROUND_ELSE(round,rectangular) (rectangular)
 #define RESOURCE_ID_FONT_BODY_18 1
 #define RESOURCE_ID_FONT_BODY_23 2
 #define RESOURCE_ID_FONT_BODY_22 3

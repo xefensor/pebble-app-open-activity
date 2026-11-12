@@ -1,0 +1,4 @@
+e799fc29511fb78c83be43d47bb9067cb9b84616b414557a8a0cc1afac61c763  Open-Activity-0.4.0-debug.zip
+2d9a752501e2a40821070467200de679327e6d9032df44c421e9b07b00c41c89  Open-Activity-0.4.0-source.zip
+4d957bcdf2ebf9ee7ccf3787e47c67e57110ec7e3b13aed308d2af414c94aa83  Open-Activity-0.4.0-store-package.zip
+c7329dcecbd57604bfa8fa30523c0e32ea0c77adc6ea0fbc27ad0ffaecd24c73  Open-Activity-0.4.0.pbw

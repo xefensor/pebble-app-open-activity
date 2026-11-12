@@ -1,0 +1,9 @@
+Open the app behind your current Pebble activity.
+
+Assign Open Activity to a supported Quick Launch gesture. It asks compatible activity providers for their associated app and opens the valid destination. Ordinary launches show its setup page.
+
+Only a verified, current activity can supply the destination. Missing or unavailable activities leave the helper without an app to open. The launch attempt has a short, bounded lifetime.
+
+Requires the current Pebble mobile app with Plugins / permissions preview enabled, compatible activity providers and Launch Apps permission. Configure its appearance and Small, Medium, Large or Follow Pebble text from the phone.
+
+Free. For Pebble Time 2 and Round 2. Round 2 validation uses the emulator; physical Time 2 and Android checks are pending before publication.
