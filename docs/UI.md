@@ -74,3 +74,17 @@ Supporting/help text uses the normal foreground colour rather than blended grey.
 This keeps black text on white and white text on black readable without changing
 type sizes or layouts. See the [contrast checkpoint](text-contrast-checkpoint.md)
 for the current candidate and verification scope.
+
+
+## Round 2 development layout
+
+Gabbro uses the complete 260×260 physical display. Text and artwork are fitted
+inside the chord for their vertical band; the shared UI library owns only
+geometry and drawing. Time 2 retains its established rectangular composition.
+The SDK 4.44 reference and disposable candidate evidence are in the workspace's
+`Round2-Development/` directory. This is development work; frozen release files
+and historical QA are unchanged. No physical Round 2 or Android result is implied.
+
+Setup text uses native screen text flow and paginated scrolling. The centered
+opening message uses the full round display. Ordinary setup remains passive;
+font loading, layout and pagination do not extend the Quick Launch deadline.

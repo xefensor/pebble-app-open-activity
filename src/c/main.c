@@ -9,6 +9,9 @@ static Window *s_window;
 static TextLayer *s_label;
 static TextLayer *s_setup_body[2];
 static ScrollLayer *s_setup_scroll;
+#ifdef PBL_ROUND
+static Layer *s_scroll_indicators[2];
+#endif
 static char s_setup_text[2][256];
 static Layer *s_header,*s_content;
 static unsigned s_text_size,s_system_text_size;
@@ -48,6 +51,14 @@ static void apply_palette(void) {
   if (s_window) window_set_background_color(s_window, background());
   if (s_label) text_layer_set_text_color(s_label, s_setup_mode ? accent() : foreground());
   if (s_header) layer_mark_dirty(s_header);
+#ifdef PBL_ROUND
+  if(s_setup_scroll)for(unsigned i=0;i<2;++i)if(s_scroll_indicators[i]) {
+    const ContentIndicatorConfig config={.layer=s_scroll_indicators[i],.times_out=false,
+        .alignment=i?GAlignBottom:GAlignTop,.colors={.foreground=foreground(),.background=background()}};
+    content_indicator_configure_direction(scroll_layer_get_content_indicator(s_setup_scroll),
+        i?ContentIndicatorDirectionDown:ContentIndicatorDirectionUp,&config);
+  }
+#endif
   for (unsigned i = 0; i < 2; ++i) {
     if (s_setup_body[i]) text_layer_set_text_color(s_setup_body[i], foreground());
   }
@@ -59,23 +70,30 @@ static void load_ui(void) {
   const WatchInfoVersion firmware = watch_info_get_firmware_version();
   s_modern_type = firmware.major > 4 || (firmware.major == 4 && firmware.minor >= 44);
 }
+static XoceUiHeaderLayout setup_header(int width) {
+#ifdef PBL_ROUND
+  return xoce_ui_round_header_layout(GRect(0,0,width,width),width,s_text_size,s_modern_type);
+#else
+  return xoce_ui_native_header_layout("22:58",s_text_size,s_modern_type,width,8,XOCE_UI_HEADER_HEIGHT);
+#endif
+}
 static void draw_header(Layer *layer,GContext *ctx) {
   const int width = layer_get_bounds(layer).size.w;
-  const XoceUiHeaderLayout layout = xoce_ui_native_header_layout(s_clock_text,
-      s_text_size,s_modern_type,width,8,XOCE_UI_HEADER_HEIGHT);
+  const XoceUiHeaderLayout layout = setup_header(width);
   xoce_ui_native_draw(ctx,app_heading("Activity"),s_text_size,XOCE_UI_TYPE_HEADER,
-      s_modern_type,layout.label,foreground(),GTextAlignmentLeft,GTextOverflowModeTrailingEllipsis);
+      s_modern_type,layout.label,foreground(),PBL_IF_ROUND_ELSE(GTextAlignmentCenter,GTextAlignmentLeft),GTextOverflowModeTrailingEllipsis);
   xoce_ui_native_draw(ctx,s_clock_text,s_text_size,XOCE_UI_TYPE_HEADER,
-      s_modern_type,layout.clock,foreground(),GTextAlignmentRight,GTextOverflowModeWordWrap);
+      s_modern_type,layout.clock,foreground(),PBL_IF_ROUND_ELSE(GTextAlignmentCenter,GTextAlignmentRight),GTextOverflowModeWordWrap);
   graphics_context_set_stroke_color(ctx,secondary());
+  #ifndef PBL_ROUND
   graphics_draw_line(ctx,GPoint(0,layout.height-1),GPoint(width,layout.height-1));
+  #endif
 }
 static void refresh_setup_language(void) {
   if (!s_setup_scroll) return;
   const char *source[][2]={{"Open settings in","the Pebble app."},{"Quick Launch","opens activities."}};
   const GRect bounds = layer_get_bounds(s_content);
-  const int header_height = xoce_ui_native_header_layout("22:58",s_text_size,
-      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  const int header_height = setup_header(bounds.size.w).height;
   const int viewport = bounds.size.h-header_height;
   const int width = bounds.size.w-32;
   int heights[2];
@@ -91,14 +109,23 @@ static void refresh_setup_language(void) {
     layer_set_frame(text_layer_get_layer(s_setup_body[i]),GRect(16,y,width,heights[i]));
     y+=heights[i]+(i?16:24);
   }
+#ifdef PBL_ROUND
+  y=8;
+  for(unsigned i=0;i<2;++i) {
+    layer_set_frame(text_layer_get_layer(s_setup_body[i]),GRect(8,y,bounds.size.w-16,2048));
+    text_layer_enable_screen_text_flow_and_paging(s_setup_body[i],8);
+    const GSize measured=text_layer_get_content_size(s_setup_body[i]);
+    layer_set_frame(text_layer_get_layer(s_setup_body[i]),GRect(8,y,bounds.size.w-16,measured.h+8));
+    y+=measured.h+24;
+  }
+#endif
   scroll_layer_set_content_size(s_setup_scroll,(GSize){bounds.size.w,y>viewport?y:viewport});
 }
 static void apply_ui_preferences(const OaUiPreferences *value){
   s_ui_preferences=*value;s_dark=oa_ui_preferences_dark(value);
   s_text_size=xoce_ui_effective_text_size(value->text_size,s_system_text_size);
   const GRect bounds=layer_get_bounds(s_content);
-  const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
-      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  const int header_height=setup_header(bounds.size.w).height;
   layer_set_frame(s_header,GRect(0,0,bounds.size.w,header_height));
   layer_set_frame(scroll_layer_get_layer(s_setup_scroll),GRect(0,header_height,bounds.size.w,bounds.size.h-header_height));
   for(unsigned i=0;i<2;++i)text_layer_set_font(s_setup_body[i],fonts_get_system_font(
@@ -291,7 +318,7 @@ static void init(uint32_t started) {
   Layer *root = window_get_root_layer(s_window);
   Layer *layer=root;
 #ifdef PBL_ROUND
-  const GRect viewport=xoce_ui_safe_viewport(layer_get_bounds(root),true);
+  const GRect viewport=layer_get_bounds(root);
   layer=s_content=layer_create(viewport);
 #endif
   if (!layer) return;
@@ -333,14 +360,13 @@ static bool init_setup(void) {
   Layer *root = window_get_root_layer(s_window);
   Layer *layer=root;
 #ifdef PBL_ROUND
-  const GRect viewport=xoce_ui_safe_viewport(layer_get_bounds(root),true);
+  const GRect viewport=layer_get_bounds(root);
   layer=s_content=layer_create(viewport);
 #endif
   if (!layer) return false;
   if(s_content)layer_add_child(root,layer);
   GRect bounds = layer_get_bounds(layer);
-  const int header_height=xoce_ui_native_header_layout("22:58",s_text_size,
-      s_modern_type,bounds.size.w,8,XOCE_UI_HEADER_HEIGHT).height;
+  const int header_height=setup_header(bounds.size.w).height;
   s_header = layer_create(GRect(0,0,bounds.size.w,header_height));
   if (!s_header) return false;
   layer_set_update_proc(s_header,draw_header);
@@ -351,13 +377,20 @@ static bool init_setup(void) {
   // Native scrolling keeps complete instructions reachable at every OS size.
   // It owns setup's Up/Down clicks; normal Back still leaves this passive screen.
   scroll_layer_set_click_config_onto_window(s_setup_scroll,s_window);
+#ifdef PBL_ROUND
+  scroll_layer_set_paging(s_setup_scroll,true);
+  for(unsigned i=0;i<2;++i) {
+    s_scroll_indicators[i]=layer_create(GRect(0,i?bounds.size.h-14:header_height,bounds.size.w,14));
+    if(s_scroll_indicators[i])layer_add_child(layer,s_scroll_indicators[i]);
+  }
+#endif
   for (unsigned i=0;i<2;++i) {
     s_setup_body[i]=text_layer_create(GRect(16,0,bounds.size.w-32,1));
     if (!s_setup_body[i]) return false;
     text_layer_set_font(s_setup_body[i],fonts_get_system_font(xoce_ui_native_font_key(
         s_text_size,i?XOCE_UI_TYPE_MENU_SUBTITLE:XOCE_UI_TYPE_MENU_TITLE,s_modern_type)));
     text_layer_set_overflow_mode(s_setup_body[i],GTextOverflowModeWordWrap);
-    text_layer_set_text_alignment(s_setup_body[i],GTextAlignmentLeft);
+    text_layer_set_text_alignment(s_setup_body[i],PBL_IF_ROUND_ELSE(GTextAlignmentCenter,GTextAlignmentLeft));
     text_layer_set_background_color(s_setup_body[i],GColorClear);
     scroll_layer_add_child(s_setup_scroll,text_layer_get_layer(s_setup_body[i]));
   }
@@ -388,6 +421,9 @@ static void deinit(void) {
   for (unsigned i = 0; i < 2; ++i) {
     if (s_setup_body[i]) text_layer_destroy(s_setup_body[i]);
   }
+#ifdef PBL_ROUND
+  for(unsigned i=0;i<2;++i)if(s_scroll_indicators[i])layer_destroy(s_scroll_indicators[i]);
+#endif
   if (s_setup_scroll) scroll_layer_destroy(s_setup_scroll);
   if (s_label) text_layer_destroy(s_label);
   if (s_header) layer_destroy(s_header);
