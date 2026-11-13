@@ -1,15 +1,15 @@
 {
-  "version": "0.4.1",
+  "version": "1.0.0",
   "nativePixelsModified": false,
   "scope": "Raw emulator screenshots from the exact stable candidate; synthetic example data. No physical phone/watch claim.",
-  "candidateSha256": "0cabf5d92b9b105ac301dbed43d61a0d746c83fda017e28f305c8a98071f2293",
+  "candidateSha256": "89626b480cfff05435536119215c54a15e9d206acd4034cdbdfe460326ce303c",
   "renderer": {
     "emery": {
-      "nativeRendererSha256": "134fec804d8e12748827966910d1bc48948810b3e0cf64c7f5687019996774cf",
+      "nativeRendererSha256": "57c5afa291a0a32bdf8f38a982d6a692d6306d61408686454b782780253b0a46",
       "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
     },
     "gabbro": {
-      "nativeRendererSha256": "9b1cf97f6d95cad5c4b81fa2039c9771da22525e3c3cd7669c0d84487faa855e",
+      "nativeRendererSha256": "04f1385b2a1b93c3fc7b97794abc75cd2f8de80757e1dc3c93e7dec178c0551a",
       "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
     }
   },
@@ -17,15 +17,15 @@
     "emery-overview.png": {
       "platform": "emery",
       "sha256": "f2035d2c040c49b5458d33de8da24f90c94a05ee82e46fa5acd8ec1e31a77cf4",
-      "source": "Store-Launch/stable-2026-11-13/verification/open-emery/medium-light-setup-top.png",
-      "sourceReport": "Store-Launch/stable-2026-11-13/verification/open-emery/report.json",
+      "source": "Store-Launch/stable-1.0-2026-11-13/verification/open-emery/medium-light-setup-top.png",
+      "sourceReport": "Store-Launch/stable-1.0-2026-11-13/verification/open-emery/report.json",
       "rendererProof": "Exact stable PBW captured in native emulator; original PNG bytes unchanged."
     },
     "gabbro-overview.png": {
       "platform": "gabbro",
       "sha256": "c84d13ef11e0981d740991bdee7dec01c29952bdeb11247f4705785b1eb3ffe6",
-      "source": "Store-Launch/stable-2026-11-13/verification/open-gabbro/medium-light-setup-top.png",
-      "sourceReport": "Store-Launch/stable-2026-11-13/verification/open-gabbro/report.json",
+      "source": "Store-Launch/stable-1.0-2026-11-13/verification/open-gabbro/medium-light-setup-top.png",
+      "sourceReport": "Store-Launch/stable-1.0-2026-11-13/verification/open-gabbro/report.json",
       "rendererProof": "Exact stable PBW captured in native emulator; original PNG bytes unchanged."
     }
   }
