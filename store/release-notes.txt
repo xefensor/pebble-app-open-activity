@@ -1,3 +1,5 @@
-Open Activity 0.4.0
+Open Activity 0.4.1
 
 Prepared for SDK 4.44 on Time 2 and Round 2. Keeps the existing app identity, saved state and compatible provider/action protocols. Uses the selected Pebble text size and native controls. Full verification and remaining real-device checks are recorded in the release preparation report. Not published yet.
+
+Flow passive setup and opening instructions through the full circle. Preserve Quick Launch routing and its original four-second deadline. Time 2 retains its established composition.

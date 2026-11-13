@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "Open Activity",
   "author": "Xef",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
   "type": "watchapp",
   "category": "Tools & Utilities",
@@ -33,9 +33,14 @@
     ]
   },
   "remaining_publication_gates": [
-    "Physical Time 2 and current Android Pebble app checks (Round 2 is emulator-only)",
-    "Verify Developer Dashboard listing ownership, UUID and unused version",
-    "Publish and verify proposed privacy/support URLs",
-    "Explicit final publication approval"
-  ]
+    "Verify Developer Dashboard ownership, existing listing and unused numeric version",
+    "Verify live app-owned support/privacy URLs",
+    "Publish exact checked GitHub and Store artifacts, then activate website links"
+  ],
+  "review_acceptance": {
+    "date": "2026-11-13",
+    "reviewer": "Xef",
+    "decision": "Reviewed implementation accepted for stable public release preparation; no further physical-device review prerequisite.",
+    "test_coverage": "Physical watch/phone results are not claimed; see the current release review for actual evidence."
+  }
 }

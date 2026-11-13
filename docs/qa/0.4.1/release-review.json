@@ -1,0 +1,43 @@
+{
+  "product": "Open Activity",
+  "version": "0.4.1",
+  "channel": "stable",
+  "pbwSha256": "0cabf5d92b9b105ac301dbed43d61a0d746c83fda017e28f305c8a98071f2293",
+  "targets": [
+    "emery",
+    "gabbro"
+  ],
+  "reviewAcceptance": {
+    "reviewer": "Xef",
+    "date": "2026-11-13",
+    "decision": "Reviewed and accepted for stable public release preparation; no additional physical-device review prerequisite."
+  },
+  "automated": [
+    "npm test PASS",
+    "SDK 4.44 build and exact artifact audit PASS",
+    "Generated configuration check PASS",
+    "All ten accepted revision-2 native renderer/resources identities retained; no code/version bytes normalized away",
+    "Store prepare/check PASS. Standalone source reconstruction is recorded after freezing in the external launch verification report."
+  ],
+  "sourceTestsLogSha256": "ed0c27cd549eff885521857ff24c23d57f0bbcb0031a0c2dba8ee16f4cc4558a",
+  "renderer": {
+    "emery": {
+      "nativeRendererSha256": "134fec804d8e12748827966910d1bc48948810b3e0cf64c7f5687019996774cf",
+      "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
+    },
+    "gabbro": {
+      "nativeRendererSha256": "9b1cf97f6d95cad5c4b81fa2039c9771da22525e3c3cd7669c0d84487faa855e",
+      "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
+    }
+  },
+  "emulatorScope": "Exact stable package captures on Emery and Gabbro. Fresh size/theme cases, source labels, menu/editor/reopening/alarm or face reading/media/Peek cases are indexed in the launch bundle. Locale overrides are diagnostic fixtures, not public packages.",
+  "physicalWatchTested": false,
+  "physicalPhoneTested": false,
+  "remoteCiRun": false,
+  "published": false,
+  "remainingPublicationGates": [
+    "Verify signed-in Developer Dashboard ownership, listing and unused numeric version",
+    "Publish matching stable GitHub assets and upload exact frozen PBW",
+    "Verify public Store/GitHub hashes before website activation"
+  ]
+}

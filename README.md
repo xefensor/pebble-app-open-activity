@@ -45,11 +45,11 @@ remain separate; use [CONTRIBUTING](CONTRIBUTING.md) for local builds.
 - Bundle UI 0.1.1 and shared phone settings styling with Primary/Secondary shortcut choices and confirmed saves.
 - Preserve app identity, all shortcut mappings, passive setup launches and the original Quick Launch timeout.
 
-## Version 0.4.0 — local release candidate
+## Version 0.4.1 — stable release preparation
 
 Add Time 2 and Round 2 SDK 4.44 builds and round-safe setup text. Preserve passive setup and the original Quick Launch budget.
 
-Physical Time 2 and Android validation and final publication approval remain pending.
+Xef accepted the reviewed implementation for stable release preparation on 2026-11-13. Actual test coverage remains recorded separately; no physical-device result is implied. Publication is a separate step.
 
 ## Development
 

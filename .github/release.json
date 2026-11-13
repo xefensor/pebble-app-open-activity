@@ -2,7 +2,7 @@
   "repository": "xefensor/pebble-app-open-activity",
   "display_name": "Open Activity",
   "tag_prefix": "v",
-  "prerelease": true,
+  "prerelease": false,
   "kind": "app",
   "notes": {
     "path": "store/release-notes.txt"

@@ -1,30 +1,32 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "nativePixelsModified": false,
-  "scope": "Raw native emulator screenshots, synthetic sample data; no phone/provider or physical-device claim. SDK timestamp/build-ID differences alone are normalized, with independent exact native package audits.",
-  "candidateSha256": "c7329dcecbd57604bfa8fa30523c0e32ea0c77adc6ea0fbc27ad0ffaecd24c73",
+  "scope": "Raw emulator screenshots from the exact stable candidate; synthetic example data. No physical phone/watch claim.",
+  "candidateSha256": "0cabf5d92b9b105ac301dbed43d61a0d746c83fda017e28f305c8a98071f2293",
   "renderer": {
     "emery": {
-      "nativeRendererSha256": "5084e35bec86ee8770b2f6677a09aba4a0d1db27081d6cb47a9ac0d0464551ae",
+      "nativeRendererSha256": "134fec804d8e12748827966910d1bc48948810b3e0cf64c7f5687019996774cf",
       "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
     },
     "gabbro": {
-      "nativeRendererSha256": "1a9dca5ac985f5b0e753f334e35ab8fc48692fc137502f1f07b634f3c1dc47ef",
+      "nativeRendererSha256": "9b1cf97f6d95cad5c4b81fa2039c9771da22525e3c3cd7669c0d84487faa855e",
       "resourceRendererSha256": "229201b43926a71007211c5f99880d8ceb99391abfc638d2cf22cf6387680cc6"
     }
   },
   "screenshots": {
     "emery-overview.png": {
       "platform": "emery",
-      "sha256": "88aca84cf721eb1c2d6d708fb3407df155318fc164d99016526ff113054db707",
-      "source": "recovery-validation/release-qa/open-activity/emery/1794516632515436442/small-light-setup-top.png",
-      "rendererProof": "Native source binary/resources match this candidate after identified SDK metadata normalization."
+      "sha256": "f2035d2c040c49b5458d33de8da24f90c94a05ee82e46fa5acd8ec1e31a77cf4",
+      "source": "Store-Launch/stable-2026-11-13/verification/open-emery/medium-light-setup-top.png",
+      "sourceReport": "Store-Launch/stable-2026-11-13/verification/open-emery/report.json",
+      "rendererProof": "Exact stable PBW captured in native emulator; original PNG bytes unchanged."
     },
     "gabbro-overview.png": {
       "platform": "gabbro",
-      "sha256": "dd00f35dfb1170484cfb47515fe67b7afa54dec0604850b8cae970a20b3cf96e",
-      "source": "recovery-validation/release-qa/open-activity/gabbro/1794516633671505886/small-light-setup-top.png",
-      "rendererProof": "Native source binary/resources match this candidate after identified SDK metadata normalization."
+      "sha256": "c84d13ef11e0981d740991bdee7dec01c29952bdeb11247f4705785b1eb3ffe6",
+      "source": "Store-Launch/stable-2026-11-13/verification/open-gabbro/medium-light-setup-top.png",
+      "sourceReport": "Store-Launch/stable-2026-11-13/verification/open-gabbro/report.json",
+      "rendererProof": "Exact stable PBW captured in native emulator; original PNG bytes unchanged."
     }
   }
 }
