@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "nativePixelsModified": false,
-  "scope": "Raw emulator screenshots from the activity-education development candidate; synthetic example data. No physical phone/watch claim. Frozen releases remain unchanged.",
+  "scope": "Previously captured raw native PNGs reused after current PBW renderer identity equality was verified. Synthetic example data; no physical-device claim.",
   "candidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982",
   "renderer": {
     "emery": {
@@ -28,5 +28,6 @@
       "sourceReport": "Activity-Education-Development/verification/native-gabbro-en/report.json",
       "rendererProof": "Exact development candidate captured in native emulator; original PNG bytes unchanged."
     }
-  }
+  },
+  "sourceCaptureCandidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982"
 }

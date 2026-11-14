@@ -1,15 +1,15 @@
-Open the app behind your current Pebble activity.
+A button shortcut from the activity on your watchface to the app behind it.
 
-Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.
+See a Timer countdown on Dynamic or Halftone, then use Quick Launch to open Timer. Open Activity connects that shortcut to the activity currently displayed by your chosen watchface.
 
-When a Timer countdown is visible on Dynamic or Halftone, a configured Open Activity Quick Launch shortcut can open Timer. Choose your watchface and the large Primary or smaller Secondary activity in settings, then assign Open Activity to the matching Quick Launch shortcut. It opens the whole app, not a particular saved timer.
+- Choose Dynamic or Halftone as the source watchface.
+- Select its large Primary activity or smaller Secondary row.
+- Assign different supported Quick Launch shortcuts to the two roles.
+- Open the app from the watch's app list whenever you want its setup screen.
+- Choose the display appearance and Small, Medium, Large or Follow Pebble text in phone settings.
 
-Sharing activities between apps needs plugin support in the Pebble phone app, the required permissions and a connected phone.
+Set up the same button shortcut in Open Activity and Pebble's Quick Launch settings. A shortcut opens the associated app, not a particular saved timer or item inside it. If there is no current activity with a valid installed destination, it returns to the watchface.
 
-Assign Open Activity to a supported Quick Launch gesture. It asks compatible activity providers for their associated app and opens the valid destination. Ordinary launches show its setup page.
+Requires Dynamic or Halftone, the official Pebble phone app's plugin support, a connected phone and Launch Apps permission. The source activity must provide an app to open. You can still open Timer directly from the app list without this helper.
 
-Only a verified, current activity can supply the destination. Missing or unavailable activities leave the helper without an app to open. The launch attempt has a short, bounded lifetime.
-
-Requires the current Pebble mobile app with Plugins / permissions preview enabled, compatible activity providers and Launch Apps permission. Configure its appearance and Small, Medium, Large or Follow Pebble text from the phone.
-
-Free. For Pebble Time 2 and Round 2. Round 2 has been validated in the emulator.
+Free. For Pebble Time 2 and Round 2.
