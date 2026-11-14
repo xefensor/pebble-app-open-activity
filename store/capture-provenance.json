@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "nativePixelsModified": false,
-  "scope": "Previously captured raw native PNGs reused after current PBW renderer identity equality was verified. Synthetic example data; no physical-device claim.",
-  "candidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982",
+  "scope": "Original native PNGs reused for the new patch after strict renderer/resource equality with the reviewed package was verified. Synthetic example data; no fresh capture or physical-device claim.",
+  "candidateSha256": "5e9ab0effa9053c1887f7612ac58cd8f42ca27d616ef23d47c614e12f9f317de",
   "renderer": {
     "emery": {
       "nativeRendererSha256": "c535aa125307eabf2977693dac310c0d0d4d54641da0e3a52345e862d8975fca",
@@ -19,15 +19,17 @@
       "sha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34",
       "source": "Activity-Education-Development/verification/native-emery-en/open-activity-store-overview.png",
       "sourceReport": "Activity-Education-Development/verification/native-emery-en/report.json",
-      "rendererProof": "Exact development candidate captured in native emulator; original PNG bytes unchanged."
+      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json"
     },
     "gabbro-overview.png": {
       "platform": "gabbro",
       "sha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36",
       "source": "Activity-Education-Development/verification/native-gabbro-en/open-activity-store-overview.png",
       "sourceReport": "Activity-Education-Development/verification/native-gabbro-en/report.json",
-      "rendererProof": "Exact development candidate captured in native emulator; original PNG bytes unchanged."
+      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json"
     }
   },
-  "sourceCaptureCandidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982"
+  "sourceCaptureCandidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982",
+  "originalCaptureVersion": "1.0.0",
+  "reuseProof": "docs/qa/store-version-1.0.1/package-equivalence.json"
 }

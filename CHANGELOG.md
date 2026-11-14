@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-11-14
+
+- Package the current reviewed implementation and updated Store assets under a new numeric version, preserving the public UUID and saved settings.
+- Earlier released binaries and archives remain unchanged.
+
 ## 0.1.4
 
 - Keep the two Primary/Secondary shortcut choices, with setup guidance naming
