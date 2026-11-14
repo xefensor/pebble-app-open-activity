@@ -78,4 +78,45 @@ class StoreKit(unittest.TestCase):
                 with zipfile.ZipFile(path) as z:return kit.render_identity(z,'emery')
         self.assertEqual(identity(),identity('metadata'))
         self.assertNotEqual(identity(),identity('code'));self.assertNotEqual(identity(),identity('resources'))
+class MultiBanner(unittest.TestCase):
+    def test_reviewed_examples_are_self_contained_and_tampering_is_rejected(self):
+        import shutil
+        for change in ['valid','source','record-label','svg-label','embedded-image','composition','gallery','traversal']:
+            with self.subTest(change=change),tempfile.TemporaryDirectory() as d:
+                store=Path(d)/'store';shutil.copytree(ROOT/'store',store)
+                listing=json.loads((store/'listing.json').read_text());art=json.loads((store/'artwork-provenance.json').read_text())
+                rec=art['banners']['emery'];first=rec['screenshots'][0];svg=store/'emery-family-banner.svg'
+                if change=='source':(store/first['file']).write_bytes(b'changed')
+                if change=='record-label':first['label']='OPEN ACTIVITY'
+                if change=='svg-label':
+                    svg.write_text(svg.read_text().replace('aria-label="DYNAMIC"','aria-label="OTHER"'))
+                    art['files'][svg.name]=kit.sha(svg.read_bytes())
+                if change=='embedded-image':
+                    svg.write_text(svg.read_text().replace('clip-path="url(#dynamic-screen)"','clip-path="url(#timer-screen)"'))
+                    art['files'][svg.name]=kit.sha(svg.read_bytes())
+                if change=='composition':rec['composition']='An Open Activity screen'
+                if change=='gallery':listing['screenshots']['emery'].append(first['file'])
+                if change=='traversal':first['file']='../dynamic/example.png'
+                (store/'artwork-provenance.json').write_text(json.dumps(art))
+                if change=='valid':
+                    entries=kit.banner_payload(store,listing,['emery','gabbro'])
+                    self.assertIn(first['file'],entries);self.assertIn('banner-example-provenance.json',entries)
+                else:
+                    with self.assertRaises(ValueError):kit.banner_payload(store,listing,['emery','gabbro'])
+class FinalGallery(unittest.TestCase):
+    def test_final_gallery_audit_rejects_native_or_nonicon_resource_changes(self):
+        from gallery_reuse import identity
+        baseline=json.loads((ROOT/'store/gallery-reuse-baseline.json').read_text())
+        version=json.loads((ROOT/'package.json').read_text())['version']
+        stem=json.loads((ROOT/'store/listing.json').read_text()).get('artifact_stem',json.loads((ROOT/'store/listing.json').read_text())['name'].replace(' ','-'))
+        path=ROOT/'build/candidate'/(stem+'-'+version+'.pbw')
+        if not path.exists():self.skipTest('Native build is checked separately')
+        with zipfile.ZipFile(path) as archive:
+            native=archive.read('emery/pebble-app.bin');resources=archive.read('emery/app_resources.pbpack')
+        original=identity(native,resources,baseline['candidateMenuId'])
+        self.assertEqual(original['normalizedNativeSha256'],baseline['platforms']['emery']['normalizedNativeSha256'])
+        changed=bytearray(native);changed[180]^=1
+        with self.assertRaises(ValueError):identity(bytes(changed),resources,baseline['candidateMenuId'])
+        changed=bytearray(resources);changed[-1]^=1
+        with self.assertRaises(ValueError):identity(native,bytes(changed),baseline['candidateMenuId'])
 if __name__=='__main__':unittest.main()

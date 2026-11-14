@@ -1,7 +1,4 @@
-Open Activity 1.0.1
-
-First stable preparation for Pebble Time 2 and Round 2.
-
-Connect a supported Quick Launch shortcut to the Primary or Secondary activity currently displayed by Dynamic or Halftone. For example, return from a displayed countdown to Timer. The shortcut opens the associated app, not a specific saved item inside it.
-
-Ordinary launches show setup guidance. With no current valid destination, the shortcut returns to the watchface. Pebble plugin support, a connected phone and Launch Apps permission are required.
+- New XOCE launcher icon.
+- Fixed a race that could leave settings stuck on Saving.
+- More reliable delivery feedback across edits, Save and reload.
+- Clearer setup help and appearance fallback choices.

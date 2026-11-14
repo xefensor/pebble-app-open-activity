@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS",
+  "error": null,
+  "product": "open-activity",
+  "version": "1.0.2",
+  "platform": "emery",
+  "sourcePbw": "sources/open-activity/build/candidate/Open-Activity-1.0.2.pbw",
+  "sourcePbwSha256": "bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301",
+  "nativePayloadSha256": {
+    "emery/app_resources.pbpack": "ba85efcd31a13c77823f980f50fc760456996c68245d66fdb81172f2a23c9941",
+    "emery/manifest.json": "3586c97af9489be63715007c7522c35d2c1945fdac2e45c4be9471bbeafbdff0",
+    "emery/pebble-app.bin": "013862f399fe41dcf2021e4efc2224f53ef401f1a1d182aa20762bdd2b3c3df1"
+  },
+  "temporaryNativePbwSha256": "5a2f07fbb401b2cbbfbfa17566976b9765bc36233427cf9a47fadd05e277ee89",
+  "nativePayloadPreserved": true,
+  "nativeMenuIcon": {
+    "file": "resources/images/menu-icon.png",
+    "sha256": "930313d865c4b56d1aab1ef148ec3d496aa87592fb00e235afbe265a7e07603b",
+    "unselectedIconRendered": true,
+    "matchingNativeGlyphLocations": {
+      "launcher-selected.png": [
+        {
+          "x": 13,
+          "y": 11,
+          "width": 20,
+          "height": 21
+        }
+      ],
+      "launcher-unselected.png": [
+        {
+          "x": 13,
+          "y": 11,
+          "width": 20,
+          "height": 21
+        }
+      ]
+    }
+  },
+  "firmware": "WatchVersionResponse(running=WatchFirmwareVersion(timestamp=1793831942, version_tag=v4.44.3, git_hash=2acda40, flags=0, hardware_platform=245, metadata_version=1), recovery=WatchFirmwareVersion(timestamp=1793831942, version_tag=v4.44.3, git_hash=2acda40, flags=1, hardware_platform=245, metadata_version=1), bootloader_timestamp=0, board=, serial=, bt_address=c923967bb7d7, resource_crc=1041801367, resource_timestamp=0, language=en_US, language_version=1, capabilities=526698239, is_unfaithful=True)",
+  "sdkVersion": "4.44",
+  "pebbleToolVersion": "5.1.2",
+  "capturedAtUtc": "2026-11-14T21:59:11.680804+00:00",
+  "clock": {
+    "baselineUtc": "2026-11-14T12:05:00Z",
+    "utcOffset": 3600,
+    "zone": "Europe/Prague"
+  },
+  "scope": "Native screenshot-service PNGs from the fresh candidate exact ARM/resource payload; real emulated button events. Native main UI and default-appearance launcher or watchface-picker icon visibility. Round 2 hides unselected watchface icons; other rows show icons in both states. Phone JavaScript omitted; no external provider/activity execution.",
+  "physicalDeviceTest": false,
+  "phoneRuntimeTest": false,
+  "osDarkLauncherTest": false,
+  "syntheticClock": true,
+  "renderedOrRepaintedUi": false,
+  "captures": [
+    {
+      "file": "native-main.png",
+      "sha256": "61db6b640e723eff4af5ce32762bfcdfb936f61d91e302a0bfa6951c7e5ac69a",
+      "width": 200,
+      "height": 228,
+      "description": "Fresh candidate main UI with its exact compiled native resources; no phone JavaScript."
+    },
+    {
+      "file": "launcher-selected.png",
+      "sha256": "faa3b34234e6059393963fcc972c3e08142cd9eb104829e03a7c98e4332f7a5b",
+      "width": 200,
+      "height": 228,
+      "description": "Candidate row selected in the actual native launcher."
+    },
+    {
+      "file": "launcher-unselected.png",
+      "sha256": "b8b0f5a3e267ad72913ec5de20b1a58af89bc9318dc5e7d6378c2abe8e4c7601",
+      "width": 200,
+      "height": 228,
+      "description": "Candidate row unselected on the actual native default white background."
+    }
+  ],
+  "actions": [
+    {
+      "action": "set-clock",
+      "epoch": 1794657900,
+      "utcOffset": 3600
+    },
+    {
+      "action": "install-exact-native",
+      "nativeSha256": "5a2f07fbb401b2cbbfbfa17566976b9765bc36233427cf9a47fadd05e277ee89"
+    },
+    {
+      "action": "tap",
+      "button": "Back",
+      "count": 1
+    },
+    {
+      "action": "tap",
+      "button": "Down",
+      "count": 1
+    }
+  ],
+  "nativeLogs": [
+    "AppLogMessage(uuid=d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9, timestamp=1794657902, level=100, message_length=86, line_number=497, filename=ocess_manager.c, message=Heap Usage for App <Open Activ: Total Size <121456B> Used <1216B> Still allocated <0B>)"
+  ]
+}

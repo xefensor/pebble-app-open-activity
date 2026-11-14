@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2
+
+- New XOCE launcher icon.
+- Fixed a race that could leave settings stuck on Saving.
+- More reliable delivery feedback across edits, Save and reload.
+- Clearer setup help and appearance fallback choices.
+
 ## 1.0.1 — 2026-11-14
 
 - Package the current reviewed implementation and updated Store assets under a new numeric version, preserving the public UUID and saved settings.

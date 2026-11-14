@@ -1,0 +1,47 @@
+{
+  "version": "1.0.1",
+  "pbwSha256": "5e9ab0effa9053c1887f7612ac58cd8f42ca27d616ef23d47c614e12f9f317de",
+  "candidateMenuId": 2,
+  "candidateResourceCount": 2,
+  "platforms": {
+    "emery": {
+      "normalizedNativeSha256": "a4c1175c8170d24d8d2b3d36e448289521dfd4a2d657f7f7b827da51b0db1db9",
+      "nonIconResources": {
+        "1": "2200350c7d473237a5b0322a30e2153b356c36cb44d9fb49417ac62424116805"
+      },
+      "nativeBytes": 8144,
+      "loadedBytes": 7996,
+      "relocations": 37,
+      "resourceCount": 1
+    },
+    "gabbro": {
+      "normalizedNativeSha256": "8e5745603f10f3ca31e9d3659e732ebb7a58e4175f0e934dd0326f2da0bbc7f9",
+      "nonIconResources": {
+        "1": "2200350c7d473237a5b0322a30e2153b356c36cb44d9fb49417ac62424116805"
+      },
+      "nativeBytes": 8960,
+      "loadedBytes": 8812,
+      "relocations": 37,
+      "resourceCount": 1
+    }
+  },
+  "sourceArchiveSha256": "49b575ddc22e7dd990e1000d4dbdce900a899e7c4bde31fd8ee59a4a593f2b9f",
+  "allowedNativeByteRanges": [
+    [
+      20,
+      24
+    ],
+    [
+      88,
+      92
+    ],
+    [
+      120,
+      128
+    ],
+    [
+      148,
+      168
+    ]
+  ]
+}

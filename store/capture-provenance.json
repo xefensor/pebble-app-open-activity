@@ -19,17 +19,25 @@
       "sha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34",
       "source": "Activity-Education-Development/verification/native-emery-en/open-activity-store-overview.png",
       "sourceReport": "Activity-Education-Development/verification/native-emery-en/report.json",
-      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json"
+      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json",
+      "captureVersion": "1.0.0",
+      "representedReleaseVersion": "1.0.2"
     },
     "gabbro-overview.png": {
       "platform": "gabbro",
       "sha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36",
       "source": "Activity-Education-Development/verification/native-gabbro-en/open-activity-store-overview.png",
       "sourceReport": "Activity-Education-Development/verification/native-gabbro-en/report.json",
-      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json"
+      "rendererProof": "Original capture pixels unchanged; native renderer/resources match the new patch. See docs/qa/store-version-1.0.1/package-equivalence.json",
+      "captureVersion": "1.0.0",
+      "representedReleaseVersion": "1.0.2"
     }
   },
   "sourceCaptureCandidateSha256": "8b3c43d0e6587918dc46f7f94ed0251679e591a19bb80a6b9cc9763a77c15982",
   "originalCaptureVersion": "1.0.0",
-  "reuseProof": "docs/qa/store-version-1.0.1/package-equivalence.json"
+  "reuseProof": "docs/qa/store-version-1.0.1/package-equivalence.json",
+  "representedReleaseVersion": "1.0.2",
+  "representedPbwSha256": "bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301",
+  "finalReuseProof": "final-gallery-reuse.json",
+  "freshCaptureClaimed": false
 }

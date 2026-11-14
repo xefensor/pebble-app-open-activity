@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Prepare or check a local Store review kit. Never upload or publish."""
 from pathlib import Path
-import argparse,hashlib,json,struct,zipfile,zlib
+import argparse,base64,hashlib,json,struct,zipfile,zlib
+import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
 DISPLAYS={'emery':(200,228),'gabbro':(260,260)}
@@ -34,6 +35,36 @@ def png_size(data):
     require(len(raw)==expected and decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail,'PNG pixel stream length differs')
     require(all(raw[row*stride]<=4 for row in range(height)),'Invalid PNG row filter')
     return width,height
+def multi_banner_payload(store,listing,platform,record,svg):
+    """Only Open Activity's labelled Dynamic/Timer example composition is supported."""
+    require(listing['name']=='Open Activity' and listing['uuid']=='d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9','Multi-image banner is only documented for Open Activity')
+    require(record.get('composition')=="A violet return path links clearly labelled Dynamic and Timer captures as separate example states; this is a cross-app workflow illustration, not an Open Activity app screen or a synchronized recording.",'Undocumented multi-image composition')
+    records=record['screenshots']
+    require(len(records)==2 and [r.get('product') for r in records]==['dynamic','timer'] and [r.get('label') for r in records]==['DYNAMIC','TIMER'],'Expected labelled Dynamic and Timer examples in order')
+    tree=ET.fromstring(svg)
+    images=[e for e in tree.iter() if e.tag=='{http://www.w3.org/2000/svg}image']
+    require(len(images)==2,'Expected exactly two embedded example images')
+    labels={e.get('aria-label'):e for e in tree.iter() if e.get('aria-label')}
+    for label in ['DYNAMIC','TIMER','Separate example states']:
+        require(label in labels and any(e.tag=='{http://www.w3.org/2000/svg}path' and e.get('d') for e in labels[label]),'Missing outlined example label: '+label)
+    proof_name='banner-example-provenance.json'
+    proof=json.loads((store/proof_name).read_text());entries={proof_name:(store/proof_name).read_bytes()}
+    for record,image,slug,version in zip(records,images,['dynamic','timer'],['1.0.1','1.0.2']):
+        name='banner-example-'+slug+'-'+platform+'.png'
+        require(record['file']==name and record.get('captureVersion')==version,'Unexpected local example source or capture version')
+        require(name not in listing['screenshots'][platform],'Cross-app examples cannot enter Open Activity gallery')
+        data=(store/name).read_bytes()
+        require(png_size(data)==DISPLAYS[platform] and sha(data)==record['sha256'],'Example dimensions/source hash differs')
+        href=image.get('href','')
+        require(href.startswith('data:image/png;base64,') and base64.b64decode(href.split(',',1)[1],validate=True)==data and image.get('clip-path')=='url(#'+slug+'-screen)','Embedded example differs from labelled source')
+        evidence=proof['examples'][name]
+        require(all(evidence.get(key)==record.get(key) for key in ['product','label','captureVersion','sha256']) and evidence['platform']==platform,'Example provenance differs')
+        original=evidence['originalCaptureProvenance']
+        require(original['result']=='PASS' and original['product']=={'dynamic':'Dynamic','timer':'Timer'}[slug] and original['version']==version,'Original example capture identity differs')
+        require(record['sha256'] in json.dumps(original),'Original capture evidence does not include source hash')
+        entries[name]=data
+    return entries
+
 def banner_payload(store,listing,targets):
     entries={};kind=listing['type'];banners=listing.get('banners',{})
     if banners:
@@ -47,7 +78,11 @@ def banner_payload(store,listing,targets):
             source=Path(name).with_suffix('.svg').name
             require(artwork['files'].get(source)==sha((store/source).read_bytes()),'Banner source differs')
             record=artwork['banners'][platform]
-            require(record['file']==name and record['platform']==platform and record['screenshot'] in listing['screenshots'][platform] and record['screenshotSha256']==sha((store/record['screenshot']).read_bytes()),'Banner screenshot provenance differs')
+            require(record['file']==name and record['platform']==platform,'Banner platform provenance differs')
+            if 'screenshots' in record:
+                entries.update(multi_banner_payload(store,listing,platform,record,(store/source).read_bytes()))
+            else:
+                require(record['screenshot'] in listing['screenshots'][platform] and record['screenshotSha256']==sha((store/record['screenshot']).read_bytes()),'Banner screenshot provenance differs')
             entries[name]=data;entries[source]=(store/source).read_bytes()
         entries['artwork-provenance.json']=(store/'artwork-provenance.json').read_bytes()
         entries['ARTWORK-LICENSES.txt']=(store/'ARTWORK-LICENSES.txt').read_bytes()
@@ -83,9 +118,16 @@ def payload(root,pbw):
             from platform_audit import audit_platforms
             audit_platforms(root,pbw)
             provenance=json.loads((store/'capture-provenance.json').read_text())
-            require(provenance['version']==version and provenance['nativePixelsModified'] is False,'Invalid native capture provenance')
+            require(provenance.get('representedReleaseVersion',provenance['version'])==version and provenance['nativePixelsModified'] is False,'Invalid native capture provenance')
+            represented=provenance['renderer']
+            if 'finalReuseProof' in provenance:
+                from gallery_reuse import verify
+                represented=verify(root,z,version)
+                require(provenance['representedPbwSha256']==sha(pbw.read_bytes()),'Gallery PBW hash differs')
+                entries['gallery-reuse-baseline.json']=(store/'gallery-reuse-baseline.json').read_bytes()
+                entries['final-gallery-reuse.json']=(store/'final-gallery-reuse.json').read_bytes()
             for platform in targets:
-                require(provenance['renderer'][platform]==render_identity(z,platform),'Screenshot renderer differs: '+platform)
+                require(represented[platform]==render_identity(z,platform),'Screenshot renderer differs: '+platform)
                 screenshots=listing['screenshots'][platform];require(1<=len(screenshots)<=5,'Expected one to five screenshots per target')
                 for name in screenshots:
                     require(Path(name).name==name,'Unsafe screenshot filename');data=(store/name).read_bytes();record=provenance['screenshots'][name]

@@ -1,6 +1,6 @@
 {
   "name": "pebble-app-open-activity",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Xef",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -61,6 +61,12 @@
           "type": "raw",
           "name": "LOCALIZATION",
           "file": "localization.bin"
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu-icon.png",
+          "menuIcon": true
         }
       ]
     },

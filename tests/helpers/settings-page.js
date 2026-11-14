@@ -1,7 +1,7 @@
 'use strict';
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-module.exports = function mount(html, reply, viewport, locale = 'en') {
+module.exports = function mount(html, reply, viewport, locale = 'en', bridge = {}) {
   const elements = {};
   for (const id of ['primary', 'secondary', 'watchface', 'settings', 'save', 'discard', 'retry', 'status', 'actions', 'shortcut-error', 'assignment-help', 'primary-help', 'secondary-help', 'watch-theme', 'watch-theme-help', 'watch-delivery','text-size','delivery-retry']) {
     const select = html.match(new RegExp('<select[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)<\\/select>'));
@@ -9,6 +9,9 @@ module.exports = function mount(html, reply, viewport, locale = 'en') {
     elements[id] = {id, value: '', disabled: true, hidden: false, textContent: '', options, className: '',
       attributes: {}, setAttribute(name, value) {this.attributes[name] = value;}, removeAttribute(name) {delete this.attributes[name];},
       setCustomValidity(value) {this.validationMessage = value;}};
+    let text = '';
+    elements[id].textWrites = 0;
+    Object.defineProperty(elements[id], 'textContent', {get() {return text;}, set(value) {text = String(value); this.textWrites++;}});
   }
   const requests = [], timers = new Map(), location = {href: ''};
   const frames = [], geometry = {reads: 0, attributeWrites: 0, styleWrites: 0};
@@ -34,6 +37,7 @@ module.exports = function mount(html, reply, viewport, locale = 'en') {
     setTimeout(callback) {const id = next++; timers.set(id, callback); return id;},
     clearTimeout(id) {timers.delete(id);},
     Pebble: {addEventListener(event, handler) {assert.equal(event, 'ready'); ready = handler;},
+      targets: bridge.targets,
       sendMessage(target, message) {assert.ok(target==='plugin'||target==='pkjs'); requests.push(message); return reply(message);}}
   }, browser), {timeout: 2000});
   return {elements, requests, location, ready: target => ready({target: target || 'plugin'}),

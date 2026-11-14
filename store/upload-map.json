@@ -1,0 +1,43 @@
+{
+  "product": "Open Activity",
+  "version": "1.0.2",
+  "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
+  "type": "watchapp",
+  "pbw": "Open-Activity-1.0.2.pbw",
+  "pbwSha256": "bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301",
+  "runtimeSourceCommit": null,
+  "storeSourceCommit": null,
+  "publicStoreVersionCheckedOn20261114": "1.0.0",
+  "binaryAction": "New Release: upload the exact final GitHub PBW after publication",
+  "description": "description.txt",
+  "releaseNotes": "release-notes.txt",
+  "screenshotsInUploadOrder": {
+    "emery": [
+      "emery-overview.png"
+    ],
+    "gabbro": [
+      "gabbro-overview.png"
+    ]
+  },
+  "platformBanners": {
+    "emery": "emery-family-banner.png",
+    "gabbro": "gabbro-family-banner.png"
+  },
+  "storeIcons": [
+    "icon-small-80.png",
+    "icon-large-144.png"
+  ],
+  "icon_tintable": true,
+  "storeUrl": "https://apps.repebble.com/59af0a59f7a34cb09a79bcbe",
+  "githubBranch": null,
+  "runtimeSourceUrl": null,
+  "storeSourceUrl": null,
+  "checks": "Fresh final build and exact package/platform audits; historical gallery reuse has explicit proof. No Store submission or physical-device claim.",
+  "artworkRefresh": "XOCE individual product identities, 2026-11-14; artwork-only refresh, supplied native screens and PBW retained.",
+  "iconRefresh": "Black transparent 25px native launcher integrated for native products; Store icon assets are separate.",
+  "descriptionRefresh": "Benefit-first plain-text copy reviewed against supplied implementation and current Pebble guidance, 2026-11-14; no runtime or release identity changes.",
+  "descriptionHashes": {
+    "description.txt": "4a6a6252a117667d7b2ae38c3d05145e1525456c7406a0153da962868d16eb4c"
+  },
+  "sourceCommitRecord": "../docs/qa/release-1.0.2/source-commit.json"
+}

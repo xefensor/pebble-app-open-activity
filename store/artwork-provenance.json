@@ -1,45 +1,84 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "family": "XOCE individual product identities 2026-11-14",
+  "scope": "A violet return path links clearly labelled Dynamic and Timer captures as separate example states; this is a cross-app workflow illustration, not an Open Activity app screen or a synchronized recording.",
   "originalArtwork": true,
-  "family": "XOCE original-Halftone Store family 2026-11-14",
-  "scope": "Xef selected the original orange Halftone banner as the reference: bold colour, curved patterned edge, large title and illustrated watch. Original binary glyphs use transparency and icon_tintable; native screenshot PNGs remain unchanged.",
   "font": {
     "name": "Fira Sans Condensed Bold",
     "licence": "SIL OFL 1.1",
+    "file": "artwork/fonts/FiraSansCondensed-Bold.ttf",
     "sourceSha256": "7ea603ffe9e04b7746213bf9414c3d63babb722c8034079bb9106bd2237a8bd3",
     "treatment": "Outlined SVG text"
   },
   "reference": {
-    "file": "pebble-watchface-halftone/store/halftone-banner-720x320.png",
-    "sha256": "e166f451c58a2b6f48addce6c1d4a075a7169180145a8258f1cd35b0b3d011de"
+    "file": "artwork/reference/halftone-banner-720x320.png",
+    "sha256": "e166f451c58a2b6f48addce6c1d4a075a7169180145a8258f1cd35b0b3d011de",
+    "use": "Preserved orange/dither character for Halftone; shared family typography and hardware treatment, not a mandatory composition for other apps."
   },
+  "sharedRules": [
+    "Fira typography",
+    "Graphite and silver watch treatment",
+    "Native app screenshots",
+    "Small XOCE endorsement",
+    "Clear text margins"
+  ],
   "files": {
-    "product-mark.svg": "3e5c16690f7711a3a418da38a247c0f736a8ef90188e3fde11013cb180cb4fb5",
-    "product-mark-144.png": "462198c4ff37e42fd05fe20005aa0b31df7da03c3f90c34ef483d9f97a9b1b78",
-    "icon-source.svg": "3e5c16690f7711a3a418da38a247c0f736a8ef90188e3fde11013cb180cb4fb5",
-    "icon-small-80.png": "579fc6e395fc133efe7fd27d7f25fb0fb9ca3633a372f89c3b2a80d2a9d81612",
-    "icon-large-144.png": "462198c4ff37e42fd05fe20005aa0b31df7da03c3f90c34ef483d9f97a9b1b78",
-    "emery-family-banner.svg": "1f6ab18767eb82f376cdc07ab95b7cae420b742533276fa1696b5b974e4d867b",
-    "emery-family-banner.png": "f6f0c18504a68650b28f8ebd2da374301812462616d90ed43b4d0e067b74d729",
-    "gabbro-family-banner.svg": "d731a1393f38ba6186420f266c2b2fff4f0d45525cbe1d55d91c01ec302e6afb",
-    "gabbro-family-banner.png": "d9fa268a0e8bc0a88b4808b3ca5eb0d7960a5abe541302c411103a3d0f1e38e2"
+    "emery-family-banner.svg": "1c7f78f1018e53fe8e9ec8678929515845eff134890873fc301c877e3fbda4b3",
+    "emery-family-banner.png": "d1084cf25c4d8ad3ba5d433c452cd7072951237873ef1def06db526161c6f87c",
+    "gabbro-family-banner.svg": "de4b88bcf774c2453696db74d766afc8aee93fd9e77e00df6ee1e27b29791390",
+    "gabbro-family-banner.png": "9aa2dfd7a52e06ed1e4967ee09936fbdf961507d0c30e6bae3afe432d9902d98",
+    "banner-example-dynamic-emery.png": "3deaf722981eddf787ef3c79bb745851ec45e686d534d1b1e8284cc3fe50f5a2",
+    "banner-example-timer-emery.png": "03691897e64d30199745968f184c7dbe9ddcff4983b398ff157bdb3881ce6ba4",
+    "banner-example-dynamic-gabbro.png": "5415ea0b34ebabc3a5bb3ba10e0158e4d0e4dad81d8c5d8b9f0bfebbf543809e",
+    "banner-example-timer-gabbro.png": "23ae75577a33199acdc439577ce260241f336e8f02f088faca438cc21949d4f3"
   },
   "banners": {
     "emery": {
       "file": "emery-family-banner.png",
       "platform": "emery",
-      "screenshot": "emery-overview.png",
-      "screenshotSha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34",
-      "composition": "Based on Xef's original Halftone banner: bold colour field, curved patterned edge and illustrated watch. Native display stays at 1:1; original embedded capture bytes unchanged.",
-      "illustrationSource": "pebble-watchface-halftone/store/banner-source.svg"
+      "screenshots": [
+        {
+          "file": "banner-example-dynamic-emery.png",
+          "sha256": "3deaf722981eddf787ef3c79bb745851ec45e686d534d1b1e8284cc3fe50f5a2",
+          "product": "dynamic",
+          "label": "DYNAMIC",
+          "captureVersion": "1.0.1"
+        },
+        {
+          "file": "banner-example-timer-emery.png",
+          "sha256": "03691897e64d30199745968f184c7dbe9ddcff4983b398ff157bdb3881ce6ba4",
+          "product": "timer",
+          "label": "TIMER",
+          "captureVersion": "1.0.2"
+        }
+      ],
+      "composition": "A violet return path links clearly labelled Dynamic and Timer captures as separate example states; this is a cross-app workflow illustration, not an Open Activity app screen or a synchronized recording.",
+      "illustration": "Two original XOCE vector watch illustrations. Supplied capture bytes are embedded unchanged; the illustrations uniformly scale the images. Labels identify separate example app states."
     },
     "gabbro": {
       "file": "gabbro-family-banner.png",
       "platform": "gabbro",
-      "screenshot": "gabbro-overview.png",
-      "screenshotSha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36",
-      "composition": "Based on Xef's original Halftone banner: bold colour field, curved patterned edge and illustrated watch. Native display stays at 1:1; original embedded capture bytes unchanged.",
-      "illustrationSource": "pebble-watchface-halftone/store/banner-source.svg"
+      "screenshots": [
+        {
+          "file": "banner-example-dynamic-gabbro.png",
+          "sha256": "5415ea0b34ebabc3a5bb3ba10e0158e4d0e4dad81d8c5d8b9f0bfebbf543809e",
+          "product": "dynamic",
+          "label": "DYNAMIC",
+          "captureVersion": "1.0.1"
+        },
+        {
+          "file": "banner-example-timer-gabbro.png",
+          "sha256": "23ae75577a33199acdc439577ce260241f336e8f02f088faca438cc21949d4f3",
+          "product": "timer",
+          "label": "TIMER",
+          "captureVersion": "1.0.2"
+        }
+      ],
+      "composition": "A violet return path links clearly labelled Dynamic and Timer captures as separate example states; this is a cross-app workflow illustration, not an Open Activity app screen or a synchronized recording.",
+      "illustration": "Two original XOCE vector watch illustrations. Supplied capture bytes are embedded unchanged; the illustrations uniformly scale the images. Labels identify separate example app states."
     }
-  }
+  },
+  "source": "artwork/generate-artwork.py",
+  "screenshotPolicy": "Raw captures and PBW files are unchanged. Example data comes from supplied emulator captures, not physical hardware.",
+  "icons": "Banner generation leaves current product marks and Store icons unchanged. Their separate refresh is owned by artwork/generate-icons.py and artwork/apply-icons.py."
 }

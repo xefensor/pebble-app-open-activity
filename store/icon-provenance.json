@@ -1,23 +1,52 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "originalArtwork": true,
-  "family": "XOCE Pebble glyphs 2026-11-14",
-  "icon_tintable": true,
-  "ink": "#000000",
+  "family": "XOCE optical icon family 2026-11-14",
   "background": "transparent",
+  "ink": "#000000",
   "alphaValues": [
     0,
     255
   ],
-  "pixelGrid": [
-    16,
-    16
+  "storeIconSizes": [
+    80,
+    144
   ],
-  "format": "8-bit RGBA PNG containing a single-colour binary glyph; no antialiasing, gradients, shadows or background plate.",
-  "source": "https://appstore-api.repebble.com/#changelog",
+  "storeIconFieldsApply": true,
+  "icon_tintable": true,
+  "format": "Store PNGs use a single black glyph with binary alpha. Website SVGs use the same silhouette and render smoothly at small UI sizes.",
+  "source": "artwork/generate-icons.py",
   "files": {
-    "icon-source.svg": "3e5c16690f7711a3a418da38a247c0f736a8ef90188e3fde11013cb180cb4fb5",
-    "icon-small-80.png": "579fc6e395fc133efe7fd27d7f25fb0fb9ca3633a372f89c3b2a80d2a9d81612",
-    "icon-large-144.png": "462198c4ff37e42fd05fe20005aa0b31df7da03c3f90c34ef483d9f97a9b1b78"
-  }
+    "product-mark.svg": "8d9f1e5e7dfcadc07d16fb97ddd5c68e7d509d696afc068b4a5394c9558c124c",
+    "product-mark-144.png": "d4c377d9b4cf5e732b8da49bfb0ce5c2ec4af556dc285a0fb1ffa8ea103a3494",
+    "icon-source.svg": "8d9f1e5e7dfcadc07d16fb97ddd5c68e7d509d696afc068b4a5394c9558c124c",
+    "icon-small-80.png": "114cffdeaf30b041016ff693a8194b4c446e78f86a5330633d0aa603f5e29a01",
+    "icon-large-144.png": "d4c377d9b4cf5e732b8da49bfb0ce5c2ec4af556dc285a0fb1ffa8ea103a3494"
+  },
+  "launcherCandidates": {
+    "white": {
+      "file": "artwork/icons/open-activity/launcher-white-25.png",
+      "sha256": "f80b94822891831e795fb3145054ba58a90cf55eafc1e4fb3693827be2ca5a6d"
+    },
+    "black": {
+      "file": "artwork/icons/open-activity/launcher-black-25.png",
+      "sha256": "930313d865c4b56d1aab1ef148ec3d496aa87592fb00e235afbe265a7e07603b"
+    }
+  },
+  "launcherIntegrated": true,
+  "launcherIntegration": {
+    "version": "1.0.2",
+    "pbw": "release-candidates/pbws/Open-Activity-1.0.2.pbw",
+    "pbwSha256": "d7eed1a156f4121a1e1facd5be0dfb71169d39f9aa1ab3b231cac94a61b88b48",
+    "foreground": "black",
+    "resource": "release-candidates/sources/open-activity/resources/images/menu-icon.png",
+    "published": false,
+    "scope": "Fresh candidate build only; supplied release PBW and source stay unchanged."
+  },
+  "launcherNote": "Native candidates use black 25px glyphs: selected and unselected launcher/picker rows were checked in SDK 4.44.3 emulators. Supplied release PBWs remain unchanged.",
+  "rules": [
+    "https://developer.repebble.com/guides/appstore-publishing/preparing-a-submission/",
+    "https://appstore-api.repebble.com/#changelog",
+    "https://developer.repebble.com/guides/app-resources/images/#menu-icon-in-the-launcher"
+  ]
 }

@@ -1,15 +1,16 @@
-A button shortcut from the activity on your watchface to the app behind it.
+A button shortcut from your watchface to the app behind its activity.
 
-See a Timer countdown on Dynamic or Halftone, then use Quick Launch to open Timer. Open Activity connects that shortcut to the activity currently displayed by your chosen watchface.
+See a Timer countdown on Dynamic or Halftone, then use a Quick Launch shortcut to open Timer. Open Activity uses recent activity information from your chosen watchface.
 
 - Choose Dynamic or Halftone as the source watchface.
-- Select its large Primary activity or smaller Secondary row.
-- Assign different supported Quick Launch shortcuts to the two roles.
-- Open the app from the watch's app list whenever you want its setup screen.
-- Choose the display appearance and Small, Medium, Large or Follow Pebble text in phone settings.
+- Bind supported Quick Launch shortcuts to its large Primary activity or smaller Secondary row.
+- Open the helper from the watch app list to read its setup guidance.
+- Choose text size and a Light or Dark watch appearance in phone settings.
 
-Set up the same button shortcut in Open Activity and Pebble's Quick Launch settings. A shortcut opens the associated app, not a particular saved timer or item inside it. If there is no current activity with a valid installed destination, it returns to the watchface.
+Assign Open Activity to the same shortcuts in Pebble's Quick Launch settings. If you switch between Dynamic and Halftone, update the source watchface in Open Activity too.
 
-Requires Dynamic or Halftone, the official Pebble phone app's plugin support, a connected phone and Launch Apps permission. The source activity must provide an app to open. You can still open Timer directly from the app list without this helper.
+The shortcut opens the associated app, not a particular timer, song or notification. Timer's controls stay in Timer. When no valid activity destination is available, the helper returns to the watchface.
 
-Free. For Pebble Time 2 and Round 2.
+For Pebble Time 2 and Round 2, with one connected watch. Requires Dynamic or Halftone, a connected phone, plugin support enabled in the official Pebble phone app, and Launch Apps permission. The activity must provide an installed app to open.
+
+Free. Part of XOCE. No XOCE account, ads or analytics.

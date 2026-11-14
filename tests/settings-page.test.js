@@ -171,6 +171,72 @@ test('an unconfirmed write is explicitly read back and late replies cannot overw
   assert.equal(ui.requests.filter(m => m.type === 'saveSettings').length, 1);
 });
 
+test('a delivery poll waiting for targets cannot replace an in-progress Save', async () => {
+  const display = {version: 2, textSize: 'follow', appearance: 'light', lastExplicit: 'light'};
+  let targets = 0, pollTarget, acknowledge, selected;
+  const ui = mount(page.config(), message => {
+    if (message.type === 'saveSettings') {
+      selected = message; return new Promise(resolve => {acknowledge = resolve;});
+    }
+    assert.equal(message.type, 'getSettings');
+    return Promise.resolve({...loaded(), appearance: {version: 1, theme: 'light'},
+      preferences: {ok: true, settings: display, saved: true, delivery: {applied: false}}});
+  }, undefined, 'en', {targets() {
+    if (++targets === 2) return new Promise(resolve => {pollTarget = resolve;});
+    return Promise.resolve([{id: 'plugin'}]);
+  }});
+  ui.ready(); await ui.tick(); ui.timeout(); await ui.tick();
+  ui.change('watch-theme', 'dark'); ui.elements.save.onclick(); await ui.tick();
+  assert.equal(ui.elements.status.textContent, 'Saving…');
+  pollTarget([{id: 'plugin'}]); await ui.tick();
+  assert.deepEqual(ui.requests.map(message => message.type), ['getSettings', 'saveSettings']);
+  acknowledge({ok: true, settings: selected.settings, appearance: selected.appearance,
+    preferences: {ok: true, settings: selected.preferences, saved: true, delivery: {applied: false}}});
+  await ui.tick();
+  assert.equal(ui.elements.status.textContent, '✓ Saved');
+  assert.equal(ui.elements.save.disabled, true); assert.equal(ui.elements.primary.disabled, false);
+});
+
+test('failed readback clears every choice and marks every loading placeholder as not loaded', async () => {
+  let reads = 0;
+  const ui = mount(page.config(), message => message.type === 'getSettings' && ++reads === 1 ?
+    Promise.resolve({...loaded(), appearance: {version: 1, theme: 'light'}, preferences: {ok: true,
+      settings: {version: 2, textSize: 'large', appearance: 'light', lastExplicit: 'light'}, saved: true,
+      delivery: {applied: true}}}) : Promise.reject(Error('offline')));
+  ui.ready(); await ui.tick(); ui.change('primary', 'tap-down'); ui.elements.save.onclick(); await ui.tick();
+  ui.elements.discard.onclick(); await ui.tick();
+  for (const id of ['primary', 'secondary', 'watchface', 'text-size', 'watch-theme']) {
+    assert.equal(ui.elements[id].value, '', id); assert.equal(ui.elements[id].disabled, true, id);
+    assert.equal(ui.elements[id].options[0].textContent, 'Not loaded', id);
+  }
+  assert.equal(ui.elements['watch-delivery'].hidden, true);
+});
+
+test('delivery polling recovers from an unsuccessful response and announces only changed status', async () => {
+  const display = {version: 2, textSize: 'follow', appearance: 'light', lastExplicit: 'light'};
+  let applied = false, fail = false;
+  const html = page.config();
+  assert.match(html, /id="watch-delivery"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /id="text-size"[^>]*aria-describedby="text-size-help watch-delivery"/);
+  const ui = mount(html, message => {
+    if (message.type === 'getUiPreferences') return Promise.resolve(fail ? {ok: false} :
+      {ok: true, settings: display, saved: true, delivery: {applied}});
+    return Promise.resolve({...loaded(), appearance: {version: 1, theme: 'light'}, preferences:
+      {ok: true, settings: display, saved: true, delivery: {applied}}});
+  });
+  ui.ready(); await ui.tick();
+  const delivery = ui.elements['watch-delivery'], initialWrites = delivery.textWrites;
+  ui.timeout(); await ui.tick(); assert.equal(delivery.textWrites, initialWrites);
+  fail = true; ui.timeout(); await ui.tick();
+  assert.equal(delivery.textWrites, initialWrites); assert.equal(ui.elements['delivery-retry'].disabled, false);
+  fail = false; applied = true; ui.timeout(); await ui.tick();
+  assert.equal(delivery.textContent, 'Applied on watch'); assert.equal(delivery.textWrites, initialWrites + 1);
+  ui.timeout(); await ui.tick(); assert.equal(delivery.textWrites, initialWrites + 1);
+  ui.change('primary', 'tap-down');
+  const writes = ui.elements.status.textWrites;
+  ui.change('secondary', 'tap-up'); assert.equal(ui.elements.status.textWrites, writes);
+});
+
 test('repair and legacy migration need explicit Save; Cancel writes nothing', () => {
   const ui = mount(page(pair(), true), () => {throw Error('legacy cannot use plugin');});
   assert.equal(ui.elements.save.disabled, false); assert.match(ui.elements.status.textContent, /before saving/);
@@ -213,16 +279,21 @@ for(const locale of require('../src/common/translations.json').languages) test('
 });
 
 for(const locale of require('../src/common/translations.json').languages)test('display choices and watch receipt are independent of shortcuts: '+locale,async()=>{
- let stored=pair(),display={version:2,textSize:'follow',appearance:'light',lastExplicit:'light'},applied=false;
+ let stored=pair(),display={version:2,textSize:'follow',appearance:'follow',lastExplicit:'dark'},applied=false;
  const reply=message=>{
   if(message.type==='saveSettings'){stored=message.settings;display=message.preferences;}
   if(message.type==='getUiPreferences')return Promise.resolve({ok:true,settings:display,saved:true,delivery:{applied}});
   return Promise.resolve({ok:true,settings:stored,appearance:{version:1,theme:display.lastExplicit},preferences:{ok:true,settings:display,saved:true,delivery:{applied}}});
  };
  const ui=mount(page.config(),reply,undefined,locale);ui.ready();await ui.tick();
- ui.change('watch-theme','dark');ui.change('text-size','large');ui.change('watch-theme','follow');ui.elements.save.onclick();await ui.tick();
+ const follow=ui.elements['watch-theme'].options.find(option=>option.value==='follow');
+ const words=require('../src/common/translations.json').words[locale];
+ assert.equal(follow.disabled,true);assert.equal(follow.hidden,false);assert.equal(follow.textContent,words['Follow Pebble']+' — '+words.Dark);
+ assert.notEqual(ui.elements['text-size'].options.find(option=>option.value==='follow').disabled,true);
+ ui.change('text-size','large');ui.elements.save.onclick();await ui.tick();
  assert.deepEqual(JSON.parse(JSON.stringify(display)),{version:2,textSize:'large',appearance:'follow',lastExplicit:'dark'});assert.deepEqual(JSON.parse(JSON.stringify(stored)),pair());
- const words=require('../src/common/translations.json').words[locale];assert.equal(ui.elements['watch-delivery'].textContent,words['Saved on phone · Pending on watch']);
+ assert.equal(ui.elements['watch-delivery'].textContent,words['Saved on phone · Pending on watch']);
  applied=true;ui.timeout();await ui.tick();assert.equal(ui.elements['watch-delivery'].textContent,words['Applied on watch']);
- ui.change('text-size','small');ui.elements.discard.onclick();assert.equal(ui.elements['text-size'].value,'large');assert.equal(ui.elements['watch-theme'].value,'follow');
+ ui.change('text-size','small');ui.change('watch-theme','light');assert.equal(follow.disabled,true);assert.equal(follow.hidden,true);
+ ui.elements.discard.onclick();assert.equal(ui.elements['text-size'].value,'large');assert.equal(ui.elements['watch-theme'].value,'follow');assert.equal(follow.hidden,false);
 });
