@@ -12,7 +12,7 @@ static ScrollLayer *s_setup_scroll;
 #ifdef PBL_ROUND
 static Layer *s_scroll_indicators[2];
 #endif
-static char s_setup_text[2][256];
+static char s_setup_text[2][512];
 static Layer *s_header,*s_content;
 static unsigned s_text_size,s_system_text_size;
 static OaUiPreferences s_ui_preferences;
@@ -91,14 +91,14 @@ static void draw_header(Layer *layer,GContext *ctx) {
 }
 static void refresh_setup_language(void) {
   if (!s_setup_scroll) return;
-  const char *source[][2]={{"Open settings in","the Pebble app."},{"Quick Launch","opens activities."}};
-  const GRect bounds = layer_get_bounds(s_content);
+  const char *source[]={"An activity is an update on Dynamic or Halftone, such as a Timer countdown.","Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface."};
+  const GRect bounds = layer_get_bounds(s_content ? s_content : window_get_root_layer(s_window));
   const int header_height = setup_header(bounds.size.w).height;
   const int viewport = bounds.size.h-header_height;
   const int width = bounds.size.w-32;
   int heights[2];
   for (unsigned i=0;i<2;++i) {
-    snprintf(s_setup_text[i],sizeof(s_setup_text[i]),"%s %s",app_text(source[i][0]),app_text(source[i][1]));
+    snprintf(s_setup_text[i],sizeof(s_setup_text[i]),"%s",app_text(source[i]));
     const XoceUiTypeRole role=i?XOCE_UI_TYPE_MENU_SUBTITLE:XOCE_UI_TYPE_MENU_TITLE;
     heights[i]=xoce_ui_native_measure(s_setup_text[i],s_text_size,role,s_modern_type,width-2).h+8;
     text_layer_set_text(s_setup_body[i],s_setup_text[i]);
@@ -124,7 +124,7 @@ static void refresh_setup_language(void) {
 static void apply_ui_preferences(const OaUiPreferences *value){
   s_ui_preferences=*value;s_dark=oa_ui_preferences_dark(value);
   s_text_size=xoce_ui_effective_text_size(value->text_size,s_system_text_size);
-  const GRect bounds=layer_get_bounds(s_content);
+  const GRect bounds=layer_get_bounds(s_content ? s_content : window_get_root_layer(s_window));
   const int header_height=setup_header(bounds.size.w).height;
   layer_set_frame(s_header,GRect(0,0,bounds.size.w,header_height));
   layer_set_frame(scroll_layer_get_layer(s_setup_scroll),GRect(0,header_height,bounds.size.w,bounds.size.h-header_height));

@@ -87,7 +87,7 @@ Layer *layer_create(GRect bounds) {layer_creates++;header_bounds=bounds;return f
 void layer_destroy(Layer *value) {assert(value==&header_layer);layer_destroys++;assert(layer_destroys==1);}
 void layer_set_update_proc(Layer *value,void (*update)(Layer *,GContext *)) {assert(value==&header_layer);header_update=update;}
 void layer_mark_dirty(Layer *value) {assert(value==&header_layer);}
-GRect layer_get_bounds(Layer *value) {return value==&header_layer?header_bounds:GRect(0,0,200,228);}
+GRect layer_get_bounds(Layer *value) {assert(value);return value==&header_layer?header_bounds:GRect(0,0,200,228);}
 void layer_set_frame(Layer *value,GRect frame) {
   if(value==&header_layer){header_bounds=frame;return;}
   if(value==&scroll_root){scroll.frame=frame;return;}
@@ -241,8 +241,8 @@ static void setup_script(void) {
   assert(status_creates==0&&text_creates==2&&clock_subscribes==1&&message_opens==1&&message_handlers==3);
   assert(scroll_creates==1&&scroll_clicks==1&&scroll.content.h>=scroll.frame.size.h);
   assert(layer_creates==1&&header_update);
-  assert(!strcmp(label_text[0],"Open settings in the Pebble app."));
-  assert(!strcmp(label_text[1],"Quick Launch opens activities."));
+  assert(!strcmp(label_text[0],"An activity is an update on Dynamic or Halftone, such as a Timer countdown."));
+  assert(!strcmp(label_text[1],"Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface."));
   assert(s_text_size==preferred_size-1);
   GContext ctx;header_update(&header_layer,&ctx);header_draws++;
   assert(header_strings==2);

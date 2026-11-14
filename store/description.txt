@@ -1,5 +1,11 @@
 Open the app behind your current Pebble activity.
 
+Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.
+
+When a Timer countdown is visible on Dynamic or Halftone, a configured Open Activity Quick Launch shortcut can open Timer. Choose your watchface and the large Primary or smaller Secondary activity in settings, then assign Open Activity to the matching Quick Launch shortcut. It opens the whole app, not a particular saved timer.
+
+Sharing activities between apps needs plugin support in the Pebble phone app, the required permissions and a connected phone.
+
 Assign Open Activity to a supported Quick Launch gesture. It asks compatible activity providers for their associated app and opens the valid destination. Ordinary launches show its setup page.
 
 Only a verified, current activity can supply the destination. Missing or unavailable activities leave the helper without an app to open. The launch attempt has a short, bounded lifetime.

@@ -24,7 +24,9 @@
     "Open settings in",
     "the Pebble app.",
     "Quick Launch",
-    "opens activities."
+    "opens activities.",
+    "An activity is an update on Dynamic or Halftone, such as a Timer countdown.",
+    "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface."
   ],
   "words": {
     "en": {
@@ -105,7 +107,13 @@
       "Saved on phone · Watch could not confirm saving": "Saved on phone · Watch could not confirm saving",
       "Retry watch delivery": "Retry watch delivery",
       "Follow Pebble uses your watch’s text size.": "Follow Pebble uses your watch’s text size.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Launch Open Activity from your watch’s app list to apply display settings."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Launch Open Activity from your watch’s app list to apply display settings.",
+      "What is an activity?": "What is an activity?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "An activity is an update on Dynamic or Halftone, such as a Timer countdown.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface."
     },
     "cs": {
       "Choose a shortcut for each activity.": "Vyberte zkratku pro každou aktivitu.",
@@ -185,7 +193,13 @@
       "Saved on phone · Watch could not confirm saving": "Uloženo v telefonu · Hodinky nepotvrdily uložení",
       "Retry watch delivery": "Znovu odeslat do hodinek",
       "Follow Pebble uses your watch’s text size.": "Podle Pebble použije velikost textu nastavenou v hodinkách.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Nastavení displeje použiješ spuštěním Open Activity ze seznamu aplikací v hodinkách."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Nastavení displeje použiješ spuštěním Open Activity ze seznamu aplikací v hodinkách.",
+      "What is an activity?": "Co je aktivita?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktivity jsou průběžné informace, které zobrazují kompatibilní aplikace a ciferníky XOCE, například odpočet, hudba nebo nové oznámení.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Sdílení aktivit mezi aplikacemi vyžaduje podporu pluginů a připojený telefon. Timer funguje samostatně i bez sdílení.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity je volitelná zkratka zpět do aplikace zobrazené na Dynamic nebo Halftone. Když vidíte odpočet, můžete přes Quick Launch otevřít Timer. Otevře se aplikace, nikoli konkrétní uložený časovač.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Aktivita je průběžná informace na Dynamic nebo Halftone, například odpočet Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Otevřete nastavení v aplikaci Pebble v telefonu. Přiřaďte Open Activity ke Quick Launch. Zkratka otevře aplikaci za aktivitou na zvoleném ciferníku."
     },
     "sk": {
       "Choose a shortcut for each activity.": "Vyberte skratku pre každú aktivitu.",
@@ -265,7 +279,13 @@
       "Saved on phone · Watch could not confirm saving": "Uložené v telefóne · Hodinky nepotvrdili uloženie",
       "Retry watch delivery": "Znova odoslať do hodiniek",
       "Follow Pebble uses your watch’s text size.": "Podľa Pebble použije veľkosť textu nastavenú v hodinkách.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Nastavenie displeja použiješ spustením Open Activity zo zoznamu aplikácií v hodinkách."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Nastavenie displeja použiješ spustením Open Activity zo zoznamu aplikácií v hodinkách.",
+      "What is an activity?": "Čo je aktivita?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktivity sú priebežné informácie, ktoré zobrazujú kompatibilné aplikácie a ciferníky XOCE, napríklad odpočet, hudba alebo nové oznámenie.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Zdieľanie aktivít medzi aplikáciami vyžaduje podporu pluginov a pripojený telefón. Timer funguje samostatne aj bez zdieľania.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity je voliteľná skratka späť do aplikácie zobrazenej na Dynamic alebo Halftone. Keď vidíte odpočet, môžete cez Quick Launch otvoriť Timer. Otvorí sa aplikácia, nie konkrétny uložený časovač.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Aktivita je priebežná informácia na Dynamic alebo Halftone, napríklad odpočet Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Otvorte nastavenia v aplikácii Pebble v telefóne. Priraďte Open Activity ku Quick Launch. Skratka otvorí aplikáciu za aktivitou na zvolenom ciferníku."
     },
     "de": {
       "Choose a shortcut for each activity.": "Wähle ein Kürzel pro Aktivität.",
@@ -345,7 +365,13 @@
       "Saved on phone · Watch could not confirm saving": "Auf dem Telefon gespeichert · Uhr konnte das Speichern nicht bestätigen",
       "Retry watch delivery": "Erneut an die Uhr senden",
       "Follow Pebble uses your watch’s text size.": "Pebble folgen verwendet die Textgröße deiner Uhr.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Öffne Open Activity aus der App-Liste deiner Uhr, um die Anzeigeeinstellungen anzuwenden."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Öffne Open Activity aus der App-Liste deiner Uhr, um die Anzeigeeinstellungen anzuwenden.",
+      "What is an activity?": "Was ist eine Aktivität?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktivitäten sind aktuelle Informationen in kompatiblen XOCE-Apps und Zifferblättern, etwa ein Countdown, Musik oder eine neue Mitteilung.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Das Teilen von Aktivitäten zwischen Apps benötigt Plugin-Unterstützung und ein verbundenes Telefon. Timer funktioniert auch ohne Teilen.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity ist ein optionaler Kurzbefehl zurück zur auf Dynamic oder Halftone gezeigten App. Nutze etwa Quick Launch bei sichtbarem Countdown, um Timer zu öffnen. Es öffnet die App, keinen bestimmten gespeicherten Timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Eine Aktivität ist eine aktuelle Information auf Dynamic oder Halftone, etwa ein Timer-Countdown.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Öffne die Einstellungen in der Pebble-App auf dem Telefon. Weise Open Activity Quick Launch zu, um die App hinter der Aktivität auf deinem gewählten Zifferblatt zu öffnen."
     },
     "fr": {
       "Choose a shortcut for each activity.": "Choisissez un raccourci par activité.",
@@ -425,7 +451,13 @@
       "Saved on phone · Watch could not confirm saving": "Enregistré sur le téléphone · La montre n’a pas confirmé l’enregistrement",
       "Retry watch delivery": "Renvoyer à la montre",
       "Follow Pebble uses your watch’s text size.": "Suivre Pebble utilise la taille du texte de votre montre.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Ouvrez Open Activity depuis la liste des applications de la montre pour appliquer les réglages d’affichage."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Ouvrez Open Activity depuis la liste des applications de la montre pour appliquer les réglages d’affichage.",
+      "What is an activity?": "Qu’est-ce qu’une activité ?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Les activités sont des informations en cours affichées par les apps et cadrans XOCE compatibles : compte à rebours, musique ou nouvelle notification.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Le partage d’activités entre apps nécessite les plugins et un téléphone connecté. Timer fonctionne aussi sans partage.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity est un raccourci facultatif vers l’app affichée sur Dynamic ou Halftone. Par exemple, utilisez Quick Launch pendant un compte à rebours pour ouvrir Timer. Il ouvre l’app, pas un minuteur enregistré précis.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Une activité est une information sur Dynamic ou Halftone, comme un compte à rebours Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Ouvrez les réglages dans l’app Pebble du téléphone. Assignez Open Activity à Quick Launch pour ouvrir l’app associée à l’activité sur le cadran choisi."
     },
     "es": {
       "Choose a shortcut for each activity.": "Elige un atajo por actividad.",
@@ -505,7 +537,13 @@
       "Saved on phone · Watch could not confirm saving": "Guardado en el teléfono · El reloj no confirmó el guardado",
       "Retry watch delivery": "Reenviar al reloj",
       "Follow Pebble uses your watch’s text size.": "Seguir Pebble usa el tamaño de texto de tu reloj.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Abre Open Activity desde la lista de aplicaciones del reloj para aplicar los ajustes de pantalla."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Abre Open Activity desde la lista de aplicaciones del reloj para aplicar los ajustes de pantalla.",
+      "What is an activity?": "¿Qué es una actividad?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Las actividades son información en curso que muestran las apps y esferas XOCE compatibles, como una cuenta atrás, música o una nueva notificación.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Compartir actividades entre apps requiere compatibilidad con plugins y un teléfono conectado. Timer funciona por sí solo sin compartir.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity es un atajo opcional a la app mostrada en Dynamic o Halftone. Por ejemplo, usa Quick Launch con una cuenta atrás visible para abrir Timer. Abre la app, no un temporizador guardado concreto.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Una actividad es información en Dynamic o Halftone, como una cuenta atrás de Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Abre los ajustes en la app Pebble del teléfono. Asigna Open Activity a Quick Launch para abrir la app asociada a la actividad de la esfera elegida."
     },
     "it": {
       "Choose a shortcut for each activity.": "Scegli una scorciatoia per attività.",
@@ -585,7 +623,13 @@
       "Saved on phone · Watch could not confirm saving": "Salvato sul telefono · L’orologio non ha confermato il salvataggio",
       "Retry watch delivery": "Invia di nuovo all’orologio",
       "Follow Pebble uses your watch’s text size.": "Segui Pebble usa la dimensione del testo dell’orologio.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Apri Open Activity dall’elenco delle app dell’orologio per applicare le impostazioni dello schermo."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Apri Open Activity dall’elenco delle app dell’orologio per applicare le impostazioni dello schermo.",
+      "What is an activity?": "Che cos’è un’attività?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Le attività sono aggiornamenti mostrati dalle app e dai quadranti XOCE compatibili, come un conto alla rovescia, musica o una nuova notifica.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "La condivisione delle attività tra app richiede il supporto dei plugin e un telefono connesso. Timer funziona anche senza condivisione.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity è una scorciatoia facoltativa all’app mostrata su Dynamic o Halftone. Ad esempio, usa Quick Launch con un conto alla rovescia visibile per aprire Timer. Apre l’app, non un timer salvato specifico.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Un’attività è un aggiornamento su Dynamic o Halftone, come un conto alla rovescia Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Apri le impostazioni nell’app Pebble sul telefono. Assegna Open Activity a Quick Launch per aprire l’app associata all’attività sul quadrante scelto."
     },
     "pt": {
       "Choose a shortcut for each activity.": "Escolha um atalho por atividade.",
@@ -665,7 +709,13 @@
       "Saved on phone · Watch could not confirm saving": "Guardado no telefone · O relógio não confirmou a gravação",
       "Retry watch delivery": "Reenviar para o relógio",
       "Follow Pebble uses your watch’s text size.": "Seguir Pebble usa o tamanho de texto do relógio.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Abre Open Activity na lista de aplicações do relógio para aplicar as definições do ecrã."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Abre Open Activity na lista de aplicações do relógio para aplicar as definições do ecrã.",
+      "What is an activity?": "O que é uma atividade?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "As atividades são informações em curso mostradas por apps e mostradores XOCE compatíveis, como uma contagem decrescente, música ou uma nova notificação.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Partilhar atividades entre apps requer suporte de plugins e um telemóvel ligado. O Timer também funciona sozinho, sem partilha.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity é um atalho opcional para a app mostrada no Dynamic ou Halftone. Use Quick Launch com uma contagem visível para abrir o Timer. Abre a app, não um temporizador guardado específico.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Uma atividade é uma informação no Dynamic ou Halftone, como uma contagem do Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Abra as definições na app Pebble do telemóvel. Atribua Open Activity ao Quick Launch para abrir a app da atividade no mostrador escolhido."
     },
     "nl": {
       "Choose a shortcut for each activity.": "Kies een sneltoets per activiteit.",
@@ -745,7 +795,13 @@
       "Saved on phone · Watch could not confirm saving": "Opgeslagen op telefoon · Horloge kon opslaan niet bevestigen",
       "Retry watch delivery": "Opnieuw naar horloge sturen",
       "Follow Pebble uses your watch’s text size.": "Pebble volgen gebruikt de tekstgrootte van je horloge.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Open Open Activity vanuit de app-lijst op je horloge om de scherminstellingen toe te passen."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Open Open Activity vanuit de app-lijst op je horloge om de scherminstellingen toe te passen.",
+      "What is an activity?": "Wat is een activiteit?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Activiteiten zijn actuele updates in compatibele XOCE-apps en wijzerplaten, zoals een aftelling, muziek of een nieuwe melding.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Activiteiten delen tussen apps vereist pluginondersteuning en een verbonden telefoon. Timer werkt ook zelfstandig zonder delen.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity is een optionele snelkoppeling naar de app op Dynamic of Halftone. Gebruik bijvoorbeeld Quick Launch bij een zichtbare aftelling om Timer te openen. Het opent de app, geen specifieke opgeslagen timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Een activiteit is een update op Dynamic of Halftone, zoals een aftelling van Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Open de instellingen in de Pebble-telefoonapp. Wijs Open Activity toe aan Quick Launch om de app achter de activiteit op je gekozen wijzerplaat te openen."
     },
     "pl": {
       "Choose a shortcut for each activity.": "Wybierz skrót dla każdej aktywności.",
@@ -825,7 +881,13 @@
       "Saved on phone · Watch could not confirm saving": "Zapisano w telefonie · Zegarek nie potwierdził zapisu",
       "Retry watch delivery": "Wyślij ponownie na zegarek",
       "Follow Pebble uses your watch’s text size.": "Według Pebble używa rozmiaru tekstu zegarka.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Otwórz Open Activity z listy aplikacji zegarka, aby zastosować ustawienia ekranu."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Otwórz Open Activity z listy aplikacji zegarka, aby zastosować ustawienia ekranu.",
+      "What is an activity?": "Czym jest aktywność?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktywności to bieżące informacje wyświetlane przez zgodne aplikacje i tarcze XOCE, takie jak odliczanie, muzyka lub nowe powiadomienie.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Udostępnianie aktywności między aplikacjami wymaga obsługi wtyczek i połączonego telefonu. Timer działa też samodzielnie bez udostępniania.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity to opcjonalny skrót do aplikacji widocznej na Dynamic lub Halftone. Użyj Quick Launch przy widocznym odliczaniu, aby otworzyć Timer. Otwiera aplikację, nie konkretny zapisany minutnik.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Aktywność to informacja na Dynamic lub Halftone, np. odliczanie Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Otwórz ustawienia w aplikacji Pebble na telefonie. Przypisz Open Activity do Quick Launch, aby otworzyć aplikację aktywności z wybranej tarczy."
     },
     "da": {
       "Choose a shortcut for each activity.": "Vælg en genvej til hver aktivitet.",
@@ -905,7 +967,13 @@
       "Saved on phone · Watch could not confirm saving": "Gemt på telefonen · Uret kunne ikke bekræfte lagringen",
       "Retry watch delivery": "Send til uret igen",
       "Follow Pebble uses your watch’s text size.": "Følg Pebble bruger urets tekststørrelse.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Åbn Open Activity fra urets appliste for at anvende skærmindstillingerne."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Åbn Open Activity fra urets appliste for at anvende skærmindstillingerne.",
+      "What is an activity?": "Hvad er en aktivitet?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktiviteter er aktuelle oplysninger i kompatible XOCE-apps og urskiver, f.eks. en nedtælling, musik eller en ny notifikation.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Deling af aktiviteter mellem apps kræver pluginunderstøttelse og en tilsluttet telefon. Timer virker også alene uden deling.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity er en valgfri genvej til appen vist på Dynamic eller Halftone. Brug f.eks. Quick Launch under en synlig nedtælling for at åbne Timer. Den åbner appen, ikke en bestemt gemt timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "En aktivitet er en opdatering på Dynamic eller Halftone, f.eks. en nedtælling fra Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Åbn indstillingerne i Pebble-appen på telefonen. Tildel Open Activity til Quick Launch for at åbne appen bag aktiviteten på din valgte urskive."
     },
     "sv": {
       "Choose a shortcut for each activity.": "Välj en genväg för varje aktivitet.",
@@ -985,7 +1053,13 @@
       "Saved on phone · Watch could not confirm saving": "Sparat på telefonen · Klockan kunde inte bekräfta sparandet",
       "Retry watch delivery": "Skicka till klockan igen",
       "Follow Pebble uses your watch’s text size.": "Följ Pebble använder klockans textstorlek.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Öppna Open Activity från klockans applista för att tillämpa skärminställningarna."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Öppna Open Activity från klockans applista för att tillämpa skärminställningarna.",
+      "What is an activity?": "Vad är en aktivitet?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktiviteter är aktuella uppdateringar i kompatibla XOCE-appar och urtavlor, till exempel en nedräkning, musik eller en ny avisering.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Delning av aktiviteter mellan appar kräver pluginstöd och en ansluten telefon. Timer fungerar även självständigt utan delning.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity är en valfri genväg till appen som visas på Dynamic eller Halftone. Använd exempelvis Quick Launch när en nedräkning syns för att öppna Timer. Den öppnar appen, inte en viss sparad timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "En aktivitet är en uppdatering på Dynamic eller Halftone, som en nedräkning från Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Öppna inställningarna i Pebble-appen på telefonen. Tilldela Open Activity till Quick Launch för att öppna appen bakom aktiviteten på din valda urtavla."
     },
     "no": {
       "Choose a shortcut for each activity.": "Velg en snarvei for hver aktivitet.",
@@ -1065,7 +1139,13 @@
       "Saved on phone · Watch could not confirm saving": "Lagret på telefonen · Klokken kunne ikke bekrefte lagringen",
       "Retry watch delivery": "Send til klokken igjen",
       "Follow Pebble uses your watch’s text size.": "Følg Pebble bruker klokkens tekststørrelse.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Åpne Open Activity fra klokkens appliste for å bruke skjerminnstillingene."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Åpne Open Activity fra klokkens appliste for å bruke skjerminnstillingene.",
+      "What is an activity?": "Hva er en aktivitet?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Aktiviteter er aktuelle oppdateringer i kompatible XOCE-apper og urskiver, som en nedtelling, musikk eller et nytt varsel.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Deling av aktiviteter mellom apper krever pluginstøtte og en tilkoblet telefon. Timer fungerer også alene uten deling.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity er en valgfri snarvei til appen som vises på Dynamic eller Halftone. Bruk for eksempel Quick Launch når en nedtelling vises for å åpne Timer. Den åpner appen, ikke en bestemt lagret timer.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "En aktivitet er en oppdatering på Dynamic eller Halftone, som en nedtelling fra Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Åpne innstillingene i Pebble-appen på telefonen. Tilordne Open Activity til Quick Launch for å åpne appen bak aktiviteten på den valgte urskiven."
     },
     "fi": {
       "Choose a shortcut for each activity.": "Valitse pikavalinta kullekin toiminnolle.",
@@ -1145,7 +1225,13 @@
       "Saved on phone · Watch could not confirm saving": "Tallennettu puhelimeen · Kello ei vahvistanut tallennusta",
       "Retry watch delivery": "Lähetä kelloon uudelleen",
       "Follow Pebble uses your watch’s text size.": "Seuraa Pebbleä käyttää kellon tekstikokoa.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Avaa Open Activity kellon sovellusluettelosta ottaaksesi näyttöasetukset käyttöön."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Avaa Open Activity kellon sovellusluettelosta ottaaksesi näyttöasetukset käyttöön.",
+      "What is an activity?": "Mikä on toiminto?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Toiminnot ovat yhteensopivien XOCE-sovellusten ja kellotaulujen näyttämiä ajankohtaisia tietoja, kuten ajastus, musiikki tai uusi ilmoitus.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Toimintojen jakaminen sovellusten välillä vaatii lisäosatuen ja yhteyden puhelimeen. Timer toimii myös itsenäisesti ilman jakamista.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity on valinnainen oikotie Dynamic- tai Halftone-kellotaulun näyttämään sovellukseen. Avaa esimerkiksi Timer Quick Launchilla ajastuksen näkyessä. Se avaa sovelluksen, ei tiettyä tallennettua ajastinta.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Toiminto on Dynamic- tai Halftone-kellotaulun päivitys, kuten Timer-ajastus.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Avaa asetukset puhelimen Pebble-sovelluksessa. Määritä Open Activity Quick Launchiin avataksesi valitun kellotaulun toiminnon taustalla olevan sovelluksen."
     },
     "hu": {
       "Choose a shortcut for each activity.": "Válassz gyorsgombot minden tevékenységhez.",
@@ -1225,7 +1311,13 @@
       "Saved on phone · Watch could not confirm saving": "Mentve a telefonon · Az óra nem igazolta vissza a mentést",
       "Retry watch delivery": "Újraküldés az órára",
       "Follow Pebble uses your watch’s text size.": "A Pebble követése az óra szövegméretét használja.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "A kijelzőbeállítások alkalmazásához nyisd meg az Open Activity alkalmazást az óra alkalmazáslistájából."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "A kijelzőbeállítások alkalmazásához nyisd meg az Open Activity alkalmazást az óra alkalmazáslistájából.",
+      "What is an activity?": "Mi az a tevékenység?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "A tevékenységek a kompatibilis XOCE-alkalmazásokban és számlapokon megjelenő aktuális információk, például visszaszámlálás, zene vagy új értesítés.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "A tevékenységek alkalmazások közötti megosztásához bővítménytámogatás és csatlakoztatott telefon kell. A Timer megosztás nélkül is önállóan működik.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Az Open Activity választható gyorsparancs a Dynamic vagy Halftone számlapon látható alkalmazáshoz. Látható visszaszámlálásnál a Quick Launch megnyithatja a Timert. Az alkalmazást nyitja meg, nem egy adott mentett időzítőt.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "A tevékenység egy frissítés a Dynamic vagy Halftone számlapon, például a Timer visszaszámlálása.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Nyisd meg a beállításokat a telefon Pebble alkalmazásában. Rendeld az Open Activityt a Quick Launchhoz, hogy megnyithasd a választott számlap tevékenységéhez tartozó alkalmazást."
     },
     "ro": {
       "Choose a shortcut for each activity.": "Alege o scurtătură pentru fiecare activitate.",
@@ -1305,7 +1397,13 @@
       "Saved on phone · Watch could not confirm saving": "Salvat pe telefon · Ceasul nu a confirmat salvarea",
       "Retry watch delivery": "Retrimite la ceas",
       "Follow Pebble uses your watch’s text size.": "Urmează Pebble folosește mărimea textului de pe ceas.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Deschide Open Activity din lista de aplicații a ceasului pentru a aplica setările ecranului."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Deschide Open Activity din lista de aplicații a ceasului pentru a aplica setările ecranului.",
+      "What is an activity?": "Ce este o activitate?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Activitățile sunt informații curente afișate de aplicațiile și cadranele XOCE compatibile, precum o numărătoare inversă, muzică sau o notificare nouă.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Partajarea activităților între aplicații necesită suport pentru pluginuri și un telefon conectat. Timer funcționează și independent, fără partajare.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity este o scurtătură opțională către aplicația afișată pe Dynamic sau Halftone. Folosește Quick Launch când vezi o numărătoare pentru a deschide Timer. Deschide aplicația, nu un temporizator salvat anume.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "O activitate este o informație pe Dynamic sau Halftone, cum ar fi o numărătoare Timer.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Deschide setările în aplicația Pebble de pe telefon. Atribuie Open Activity la Quick Launch pentru a deschide aplicația activității de pe cadranul ales."
     },
     "tr": {
       "Choose a shortcut for each activity.": "Her etkinlik için kısayol seç.",
@@ -1385,7 +1483,13 @@
       "Saved on phone · Watch could not confirm saving": "Telefona kaydedildi · Saat kaydetmeyi onaylamadı",
       "Retry watch delivery": "Saate yeniden gönder",
       "Follow Pebble uses your watch’s text size.": "Pebble’ı izle, saatinizin metin boyutunu kullanır.",
-      "Launch Open Activity from your watch’s app list to apply display settings.": "Ekran ayarlarını uygulamak için saatinizin uygulama listesinden Open Activity’yi açın."
+      "Launch Open Activity from your watch’s app list to apply display settings.": "Ekran ayarlarını uygulamak için saatinizin uygulama listesinden Open Activity’yi açın.",
+      "What is an activity?": "Etkinlik nedir?",
+      "Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification.": "Etkinlikler, uyumlu XOCE uygulama ve saat yüzlerinde gösterilen geri sayım, müzik veya yeni bildirim gibi güncel bilgilerdir.",
+      "Sharing activities between apps needs plugin support and a connected phone. Timer works on its own without sharing.": "Uygulamalar arasında etkinlik paylaşımı için eklenti desteği ve bağlı bir telefon gerekir. Timer paylaşım olmadan da bağımsız çalışır.",
+      "Open Activity is an optional shortcut back to the app shown on Dynamic or Halftone. For example, use Quick Launch while a countdown is visible to open Timer. It opens the app, not a particular saved timer.": "Open Activity, Dynamic veya Halftone’da gösterilen uygulamaya dönmek için isteğe bağlı bir kısayoldur. Örneğin geri sayım görünürken Quick Launch ile Timer’ı açın. Belirli bir kayıtlı zamanlayıcıyı değil, uygulamayı açar.",
+      "An activity is an update on Dynamic or Halftone, such as a Timer countdown.": "Etkinlik, Dynamic veya Halftone’daki Timer geri sayımı gibi bir güncellemedir.",
+      "Open settings in the Pebble phone app. Assign Open Activity to Quick Launch to open the app behind the activity on your chosen watchface.": "Telefondaki Pebble uygulamasında ayarları açın. Seçilen saat yüzündeki etkinliğin uygulamasını açmak için Open Activity’yi Quick Launch’a atayın."
     }
   },
   "nativeWords": {

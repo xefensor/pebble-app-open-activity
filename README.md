@@ -7,6 +7,14 @@ The current development checkout adds **Watchface → Dynamic / Halftone** in Op
 Activity settings. Choose Halftone and Save when using Halftone; existing settings
 keep Dynamic. This change is in development candidates, not the frozen download below.
 
+## Activities: see what is happening now
+
+Activities are live updates shown by compatible XOCE apps and watchfaces, such as a countdown, music or a new notification. This feature connects compatible XOCE products; support depends on the app or watchface you choose.
+
+When a Timer countdown is visible on Dynamic or Halftone, a configured Open Activity Quick Launch shortcut can open Timer. Choose your watchface and the large Primary or smaller Secondary activity in settings, then assign Open Activity to the matching Quick Launch shortcut. It opens the whole app, not a particular saved timer.
+
+Sharing needs plugin support in the official Pebble phone app, the required permissions and a connected phone. Weather and battery readings use separate reading settings. Music and notification integration requires Android. Open Activity is optional; you can always open Timer from the watch’s app list.
+
 ## Download
 
 [Version 0.3.3](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.3.3) is a development prerelease.
