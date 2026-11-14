@@ -1,37 +1,46 @@
 {
   "schemaVersion": 1,
   "originalArtwork": true,
-  "family": "XOCE 2026-11-14",
-  "scope": "Original product marketing artwork; banners composite unmodified native capture bytes. Standalone screenshots remain native and unframed.",
+  "family": "XOCE tactile 2026-11-14",
+  "scope": "Original composition, outlined type and product symbols. Marketing embeds unchanged native screenshots and unchanged official frame bytes. Standalone Store screenshots remain raw and unframed.",
   "font": {
-    "name": "Inter",
-    "sourceSha256": "ea4e3d9970b9b6b566110a1b0e13635fe235280b83dd2443dcb3faca1e2456ef",
-    "licence": "SIL Open Font License 1.1",
-    "treatment": "Text outlined in SVG; no font dependency when rendering."
+    "name": "Fira Sans / Fira Sans Condensed",
+    "licence": "SIL OFL 1.1",
+    "treatment": "Outlined text; full pinned inputs in the identity review folder."
   },
   "files": {
-    "product-mark.svg": "8d549fba2c531ddca767ed3f8d7739df9eb63b83950a3b5960fcb7c2c9763f73",
-    "product-mark-144.png": "7ec40481488d3e22619dc7f466adfb9c046bcca241d8fe815ebb0e256483e71b",
-    "icon-source.svg": "8d549fba2c531ddca767ed3f8d7739df9eb63b83950a3b5960fcb7c2c9763f73",
-    "icon-large-144.png": "7ec40481488d3e22619dc7f466adfb9c046bcca241d8fe815ebb0e256483e71b",
-    "icon-small-80.png": "ad95433c17d70c975645a370c8269da0bcf840feb40fe9f034863ac581ca9724",
-    "emery-family-banner.svg": "5931060eb02f11721472da202aa72785cad72b38d739da692b9498a77a7f7543",
-    "emery-family-banner.png": "d9896650dd6bff38c2d9b8e1468e27a8d8309795455bc8fb9db094c2cbf0bc38",
-    "gabbro-family-banner.svg": "f22dbb64a65a631297a23c3f7881342f73e299d6e3ee40170694be859fed9b79",
-    "gabbro-family-banner.png": "85db12ca9131c2f0b2c39424bf81be148a3f1d8e9d385a262cf729c5279fd5e2"
+    "product-mark.svg": "1ea608581153e19e6c4cd4ee22bbd6baf8fc0b24b1c793ab0659ea226512096a",
+    "product-mark-144.png": "9fb2350d5b24e3d5f268202138067830ed1f9e3100a6850180675df19374c553",
+    "icon-source.svg": "1ea608581153e19e6c4cd4ee22bbd6baf8fc0b24b1c793ab0659ea226512096a",
+    "icon-large-144.png": "9fb2350d5b24e3d5f268202138067830ed1f9e3100a6850180675df19374c553",
+    "icon-small-80.png": "ff1c7b29ef8bb89cb3f5ed94bc980f7debcd20fb4cab417270d5a02acbcf157a",
+    "emery-family-banner.svg": "f14d896a44cd1e3f31d65d09f5f8ae2781a3df516f7953dd8628649e7ba8f189",
+    "emery-family-banner.png": "017b1f0d2af717294f0992c3d5f64befebaf3c1c8b85b5304501c19e9939a45b",
+    "gabbro-family-banner.svg": "eacc491b88c6eda620986a56a07c961c0df0f564cafa8aa321e06263d6eaa9de",
+    "gabbro-family-banner.png": "0847a79ad174891d8bfe44606f5d84b24b00c5a0650ddd0078d3df0c3a94bd0d"
   },
   "banners": {
     "emery": {
       "file": "emery-family-banner.png",
       "platform": "emery",
       "screenshot": "emery-overview.png",
-      "screenshotSha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34"
+      "screenshotSha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34",
+      "frame": "pebble-time-2.png",
+      "frameSha256": "ec5f810dda6cfa769df5421c3fcbebb5bd45a36839029a6c396ea4acc7609c54",
+      "frameSource": "https://apps.repebble.com/images/screenshot_slider_background_emery_v2.png",
+      "frameCredit": "Core Devices",
+      "composition": "Front view with strap cropping; complete native screen retained at original aspect ratio."
     },
     "gabbro": {
       "file": "gabbro-family-banner.png",
       "platform": "gabbro",
       "screenshot": "gabbro-overview.png",
-      "screenshotSha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36"
+      "screenshotSha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36",
+      "frame": "pebble-round-2.png",
+      "frameSha256": "d71fd23c4abfccff64415bb3fd5c22a9920c44f0a479544fab1529b79300ce50",
+      "frameSource": "https://apps.repebble.com/images/screenshot_slider_background_gabbro.png",
+      "frameCredit": "Core Devices",
+      "composition": "Front view with strap cropping; complete native screen retained at original aspect ratio."
     }
   }
 }
