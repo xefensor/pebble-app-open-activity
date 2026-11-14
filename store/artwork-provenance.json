@@ -1,23 +1,28 @@
 {
   "schemaVersion": 1,
   "originalArtwork": true,
-  "family": "XOCE tactile 2026-11-14",
-  "scope": "Original composition, outlined type and product symbols. Marketing embeds unchanged native screenshots and unchanged official frame bytes. Standalone Store screenshots remain raw and unframed.",
+  "family": "XOCE original-Halftone Store family 2026-11-14",
+  "scope": "Xef selected the original orange Halftone banner as the reference: bold colour, curved patterned edge, large title and illustrated watch. Original binary glyphs use transparency and icon_tintable; native screenshot PNGs remain unchanged.",
   "font": {
-    "name": "Fira Sans / Fira Sans Condensed",
+    "name": "Fira Sans Condensed Bold",
     "licence": "SIL OFL 1.1",
-    "treatment": "Outlined text; full pinned inputs in the identity review folder."
+    "sourceSha256": "7ea603ffe9e04b7746213bf9414c3d63babb722c8034079bb9106bd2237a8bd3",
+    "treatment": "Outlined SVG text"
+  },
+  "reference": {
+    "file": "pebble-watchface-halftone/store/halftone-banner-720x320.png",
+    "sha256": "e166f451c58a2b6f48addce6c1d4a075a7169180145a8258f1cd35b0b3d011de"
   },
   "files": {
-    "product-mark.svg": "1ea608581153e19e6c4cd4ee22bbd6baf8fc0b24b1c793ab0659ea226512096a",
-    "product-mark-144.png": "9fb2350d5b24e3d5f268202138067830ed1f9e3100a6850180675df19374c553",
-    "icon-source.svg": "1ea608581153e19e6c4cd4ee22bbd6baf8fc0b24b1c793ab0659ea226512096a",
-    "icon-large-144.png": "9fb2350d5b24e3d5f268202138067830ed1f9e3100a6850180675df19374c553",
-    "icon-small-80.png": "ff1c7b29ef8bb89cb3f5ed94bc980f7debcd20fb4cab417270d5a02acbcf157a",
-    "emery-family-banner.svg": "f14d896a44cd1e3f31d65d09f5f8ae2781a3df516f7953dd8628649e7ba8f189",
-    "emery-family-banner.png": "017b1f0d2af717294f0992c3d5f64befebaf3c1c8b85b5304501c19e9939a45b",
-    "gabbro-family-banner.svg": "eacc491b88c6eda620986a56a07c961c0df0f564cafa8aa321e06263d6eaa9de",
-    "gabbro-family-banner.png": "0847a79ad174891d8bfe44606f5d84b24b00c5a0650ddd0078d3df0c3a94bd0d"
+    "product-mark.svg": "3e5c16690f7711a3a418da38a247c0f736a8ef90188e3fde11013cb180cb4fb5",
+    "product-mark-144.png": "462198c4ff37e42fd05fe20005aa0b31df7da03c3f90c34ef483d9f97a9b1b78",
+    "icon-source.svg": "3e5c16690f7711a3a418da38a247c0f736a8ef90188e3fde11013cb180cb4fb5",
+    "icon-small-80.png": "579fc6e395fc133efe7fd27d7f25fb0fb9ca3633a372f89c3b2a80d2a9d81612",
+    "icon-large-144.png": "462198c4ff37e42fd05fe20005aa0b31df7da03c3f90c34ef483d9f97a9b1b78",
+    "emery-family-banner.svg": "1f6ab18767eb82f376cdc07ab95b7cae420b742533276fa1696b5b974e4d867b",
+    "emery-family-banner.png": "f6f0c18504a68650b28f8ebd2da374301812462616d90ed43b4d0e067b74d729",
+    "gabbro-family-banner.svg": "d731a1393f38ba6186420f266c2b2fff4f0d45525cbe1d55d91c01ec302e6afb",
+    "gabbro-family-banner.png": "d9fa268a0e8bc0a88b4808b3ca5eb0d7960a5abe541302c411103a3d0f1e38e2"
   },
   "banners": {
     "emery": {
@@ -25,22 +30,16 @@
       "platform": "emery",
       "screenshot": "emery-overview.png",
       "screenshotSha256": "91aece5a236b2cd0232d6971e4b7c8e0bdb20dce65e4d0799c306b53c1e08f34",
-      "frame": "pebble-time-2.png",
-      "frameSha256": "ec5f810dda6cfa769df5421c3fcbebb5bd45a36839029a6c396ea4acc7609c54",
-      "frameSource": "https://apps.repebble.com/images/screenshot_slider_background_emery_v2.png",
-      "frameCredit": "Core Devices",
-      "composition": "Front view with strap cropping; complete native screen retained at original aspect ratio."
+      "composition": "Based on Xef's original Halftone banner: bold colour field, curved patterned edge and illustrated watch. Native display stays at 1:1; original embedded capture bytes unchanged.",
+      "illustrationSource": "pebble-watchface-halftone/store/banner-source.svg"
     },
     "gabbro": {
       "file": "gabbro-family-banner.png",
       "platform": "gabbro",
       "screenshot": "gabbro-overview.png",
       "screenshotSha256": "b38975830b380763c935fb03e1192a2e7a09b9402f71d5085a38cae52704be36",
-      "frame": "pebble-round-2.png",
-      "frameSha256": "d71fd23c4abfccff64415bb3fd5c22a9920c44f0a479544fab1529b79300ce50",
-      "frameSource": "https://apps.repebble.com/images/screenshot_slider_background_gabbro.png",
-      "frameCredit": "Core Devices",
-      "composition": "Front view with strap cropping; complete native screen retained at original aspect ratio."
+      "composition": "Based on Xef's original Halftone banner: bold colour field, curved patterned edge and illustrated watch. Native display stays at 1:1; original embedded capture bytes unchanged.",
+      "illustrationSource": "pebble-watchface-halftone/store/banner-source.svg"
     }
   }
 }
