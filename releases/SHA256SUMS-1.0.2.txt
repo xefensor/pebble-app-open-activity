@@ -1,0 +1,4 @@
+b8a21e49c2fa2d45aa15bd8b71e07b31fdd63e8bed123209cb56406b8832c3d2  Open-Activity-1.0.2-debug.zip
+4fa065f88c09060648ebbb84c85e9d8c8651672b9f8f2a988aaf93b2ef99a516  Open-Activity-1.0.2-source.zip
+9e93ef7386e69b8a2d49a50ae4354f43ea2008d947e551ce98e60725dbae967c  Open-Activity-1.0.2-store-package.zip
+bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301  Open-Activity-1.0.2.pbw
