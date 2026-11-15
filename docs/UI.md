@@ -1,17 +1,16 @@
 # Open Activity: current UI
 
-The current release is 0.3.3. Earlier downloads and frozen evidence retain
-their original versions and interfaces.
+The current published release is **1.0.2**. [Install it](../README.md#download) or read [release readiness](RELEASE-READINESS.md) for version-bound evidence. Earlier downloads and frozen evidence retain their original versions and interfaces.
 
 The phone has a Dynamic/Halftone watchface selector, Primary and Secondary shortcut pickers, and separate appearance; missing watchface settings retain Dynamic; duplicate nonempty shortcuts are rejected visibly. Preserve version1 bytes/routing until explicit version2 Save.
 
-The development candidate uses PebbleOS system fonts through the independently
+The published release uses PebbleOS system fonts through the independently
 pinned UI library's native type profiles. `preferred_content_size()` is read at
 launch and a local Text Size override takes precedence. Emery Small, Medium and
 Large correspond to SDK values 1, 2 and 3; manual choices use those exact roles.
 Header, MenuTitle and MenuSubtitle match the stock roles for the running firmware;
 firmware 4.44's changed Large title/subtitle pair is selected separately. No
-custom text fonts are loaded or bundled in the candidate.
+custom text fonts are loaded or bundled in the release.
 
 Setup keeps the full-width header, left **Activity** label, right clock, 8px edge
 insets and divider. The same native Header font measures and draws both text runs;
@@ -20,13 +19,13 @@ The two complete instruction paragraphs use MenuTitle and MenuSubtitle. Their
 measured wrapped heights determine leading and available space below the header.
 A standard ScrollLayer owns Up/Down scrolling when longer text exceeds that space;
 normal Back exits. There is no action rail or setup action on Select. Touch
-navigation is not enabled by this candidate.
+navigation is not enabled by this release.
 
 The opening state uses the native MenuTitle role with a measured, centered text
 frame. Setup and opening retain their saved light/dark colors. Reading font roles
 and measuring text do not restart or extend Quick Launch's original budget.
 The previous bundled-font metrics and generator remain historical source only;
-they no longer determine the candidate's layout.
+they no longer determine the current layout.
 
 Preserve UUID, gesture/button wire identity and all eight supported shortcut identities. Ordinary user/phone/system launches show passive setup without an opening nonce or activity handshake. Quick Launch owns the original four-second budget measured before font loading, one attempt, cancellation and at most one dispatch. Validate the selected Dynamic/Halftone provider, embedded watchface identity, original schema/expiry and selected role; never fall back to the other face; never substitute Primary for missing Secondary or independently rank activities. Persist settings only, never navigation/activity content.
 
@@ -73,17 +72,17 @@ for a later passive setup launch.
 Supporting/help text uses the normal foreground colour rather than blended grey.
 This keeps black text on white and white text on black readable without changing
 type sizes or layouts. See the [contrast checkpoint](text-contrast-checkpoint.md)
-for the current candidate and verification scope.
+for that checkpoint’s candidate and verification scope.
 
 
-## Round 2 development layout
+<span id="round-2-development-layout"></span>
+
+## Round 2 layout
 
 Gabbro uses the complete 260×260 physical display. Text and artwork are fitted
 inside the chord for their vertical band; the shared UI library owns only
 geometry and drawing. Time 2 retains its established rectangular composition.
-The SDK 4.44 reference and disposable candidate evidence are in the workspace's
-`Round2-Development/` directory. This is development work; frozen release files
-and historical QA are unchanged. No physical Round 2 or Android result is implied.
+The released Gabbro implementation uses SDK 4.44. Earlier disposable reference evidence was recorded under `Round2-Development/` in its original review workspace; the version-bound release validation is linked from [release readiness](RELEASE-READINESS.md). Historical QA remains unchanged. No physical Round 2 or Android result is implied.
 
 Setup text uses native screen text flow and paginated scrolling. The centered
 opening message uses the full round display. Ordinary setup remains passive;

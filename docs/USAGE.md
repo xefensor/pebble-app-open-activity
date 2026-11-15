@@ -2,22 +2,9 @@
 
 ## Installation and settings
 
-The current development candidate supports Dynamic and Halftone. In Open Activity
-settings, choose **Watchface → Halftone** (or **Dynamic**) and Save. Install a
-current build of that face exposing `navigation/presented_activities`. Existing
-settings keep Dynamic. The frozen 0.3.3 download below predates this selector.
+Install **Open Activity 1.0.2** from [Pebble Store](https://apps.repebble.com/59af0a59f7a34cb09a79bcbe) or its matching [GitHub PBW](https://github.com/xefensor/pebble-app-open-activity/releases/download/v1.0.2/Open-Activity-1.0.2.pbw). Install current [Dynamic](https://xefensor.github.io/xoce/projects/dynamic/) or [Halftone](https://xefensor.github.io/xoce/projects/halftone/) separately; both published watchfaces expose the required `navigation/presented_activities` handoff.
 
-Use the updated Dynamic build that exposes `navigation/presented_activities`;
-older Dynamic versions do not provide the required handoff. Download
-[`Open-Activity-0.3.3.pbw`](https://github.com/xefensor/pebble-app-open-activity/releases/download/v0.3.3/Open-Activity-0.3.3.pbw)
-from the [0.3.3 GitHub development prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.3.3)
-and install it through the Pebble app. The previous
-[0.1.5 prerelease](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v0.1.5)
-remains available. Version 0.1.6 is frozen at tested source
-[`82c47fa`](https://github.com/xefensor/pebble-app-open-activity/tree/82c47fa92e103a965a15ab9de55b84853a9e07bd);
-later documentation on `main` does not replace its source archive or tag.
-Enable the current plugin
-SDK support and allow **Launch apps** for Open Activity in the phone app.
+In Open Activity settings choose **Watchface → Dynamic / Halftone** and Save. Existing settings keep Dynamic. Enable the official Pebble phone app's plugin support and allow **Launch Apps** for Open Activity. Older helper releases remain in [GitHub release history](https://github.com/xefensor/pebble-app-open-activity/releases); their frozen source and tags are unchanged.
 
 Open **Open Activity from the watch's app list**. It stays on a setup screen
 with the time and instructions. Then open its settings in the Pebble phone app,
@@ -31,7 +18,7 @@ configuration; no extra watchapp or Activities service is required.
 
 The page explains Primary as the large activity and Secondary as the smaller
 row. The page has a Dynamic/Halftone watchface selector, two shortcut dropdowns
-and one separate Light/Dark watch-appearance choice. **Setup & help** contains
+and separate Text Size and Light/Dark watch-appearance choices. Follow Pebble text size uses the watch preference; automatic Follow Pebble appearance is unavailable and keeps the saved Light/Dark fallback. **Setup & help** contains
 the permission and Quick Launch steps. Phone light/dark appearance follows the
 phone independently of the watch.
 

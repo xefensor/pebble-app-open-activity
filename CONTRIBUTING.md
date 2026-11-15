@@ -92,5 +92,6 @@ kit bytes and make the standalone source ZIP. It refuses an existing version
 and writes `releases/SHA256SUMS-VERSION.txt`; old root checksums and artifacts
 remain untouched. Commit these files locally, then run `npm run release:prepare`
 to validate committed HEAD. No build, tag, upload or publication happens during
-freezing or preparation. The current candidate's physical-device and account
-gates remain in `docs/RELEASE-READINESS.md`.
+freezing or preparation. Current publication status and the actual evidence gaps
+remain in `docs/RELEASE-READINESS.md`. A future version needs its own reviewed
+scope; completed publication does not imply physical-device testing.

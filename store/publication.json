@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "publication_status": "published",
+  "version": "1.0.2",
+  "uuid": "d2d0bf48-cf4c-42f6-8b5f-3657fb2de4e9",
+  "store_url": "https://apps.repebble.com/59af0a59f7a34cb09a79bcbe",
+  "github_release_url": "https://github.com/xefensor/pebble-app-open-activity/releases/tag/v1.0.2",
+  "pbw_url": "https://github.com/xefensor/pebble-app-open-activity/releases/download/v1.0.2/Open-Activity-1.0.2.pbw",
+  "pbw_sha256": "bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301",
+  "verified_on": "2026-11-15"
+}

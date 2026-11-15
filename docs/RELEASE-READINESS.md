@@ -1,6 +1,12 @@
 # Release 1.0.2 · 2026-11-14
 
-The final source tests, fresh builds, package checks and native emulator scope are recorded in [current validation](qa/release-1.0.2/validation.json). Historical galleries keep their capture versions and have explicit final-binary reuse proof. Physical phone/watch and live-provider results are not claimed. Xef authorized stable GitHub publication and retained the existing review acceptance; no new device approval gate applies. Pebble Store submission remains manual and unsubmitted.
+Open Activity 1.0.2 is published in [Pebble Store](https://apps.repebble.com/59af0a59f7a34cb09a79bcbe) and as [GitHub v1.0.2](https://github.com/xefensor/pebble-app-open-activity/releases/tag/v1.0.2). Public Store/GitHub identity and exact PBW bytes were reverified on 2026-11-15 by the XOCE website deployment gate. The matching PBW SHA-256 is `bcf32d22f9f9cb3227e2070b763b514ea7202ae503455311ee5b8de1ee98d301`. Publication does not authorize overwriting this release or its archives.
+
+The final source tests, fresh builds, package checks and native emulator scope are recorded in [release validation](qa/release-1.0.2/validation.json). Historical galleries retain their actual capture versions and final-binary reuse proof. Physical phone/watch and live-provider results are not claimed. Xef's stable-release acceptance removed the earlier additional physical-device approval prerequisite; it did not create unobserved test results.
+
+## Historical preparation notes
+
+The dated records below describe the earlier preparation sequence. Their old version numbers and then-pending publication steps do not override the completed publication above. Frozen artifacts and QA records remain unchanged.
 
 # Stable release preparation — 1.0.1
 
